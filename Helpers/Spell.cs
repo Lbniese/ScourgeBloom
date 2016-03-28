@@ -89,7 +89,7 @@ namespace ScourgeBloom.Helpers
                 }
 
                 SpellManager.ClickRemoteLocation(onLocation);
-                Log.WritetoFile(LogLevel.Diagnostic, string.Format("Casting {0}", sname));
+                Log.WritetoFile(LogLevel.Diagnostic, $"Casting {sname}");
                 await CommonCoroutines.SleepForLagDuration();
                 return true;
             }
@@ -108,6 +108,8 @@ namespace ScourgeBloom.Helpers
         {
             var sp = WoWSpell.FromId(spell);
             var sname = sp != null ? sp.Name : "#" + spell;
+
+            Log.WritetoFile(LogLevel.Diagnostic, $"Casting {sname}");
 
             if (unit == null || !reqs || !SpellManager.CanCast(spell, unit, true))
                 return false;

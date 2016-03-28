@@ -6,14 +6,14 @@
  * Licensed under Microsoft Reference Source License (Ms-RSL)
  */
 
-using System;
-using System.Net;
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
 using ScourgeBloom.Helpers;
 using ScourgeBloom.Lists;
 using ScourgeBloom.Settings;
 using Styx;
+using System;
+using System.Net;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace ScourgeBloom
 {
@@ -32,8 +32,10 @@ namespace ScourgeBloom
             RacialsLoad();
             Trinket1Load();
             Trinket2Load();
-            MindFreezeLoad();
-            AdvancedLoad();
+            InterruptsLoad();
+            DeathGripLoad();
+            SurvivabilityLoad();
+            ItemsLoad();
 
             // Changelog
             textBox1.Multiline = true;
@@ -58,16 +60,31 @@ namespace ScourgeBloom
             On_Load(sender, e);
         }
 
-        private void MindFreezeLoad()
+        private void InterruptsLoad()
         {
+            //Mind Freeze
             UseMFcheckBox.Checked = DeathKnightSettings.Instance.MindFreezeUse;
             DelayMFcheckBox.Checked = DeathKnightSettings.Instance.MindFreezeRandomTimerUse;
             numMFmax.Value = (decimal)DeathKnightSettings.Instance.MindFreezeRandomTimerMax;
             numMFmin.Value = (decimal)DeathKnightSettings.Instance.MindFreezeRandomTimerMin;
 
             DelayMFcheckBox.Enabled = DeathKnightSettings.Instance.MindFreezeUse;
-            numMFmax.Enabled = DeathKnightSettings.Instance.MindFreezeUse && DeathKnightSettings.Instance.MindFreezeRandomTimerUse;
-            numMFmin.Enabled = DeathKnightSettings.Instance.MindFreezeUse && DeathKnightSettings.Instance.MindFreezeRandomTimerUse;
+            numMFmax.Enabled = DeathKnightSettings.Instance.MindFreezeUse &&
+                               DeathKnightSettings.Instance.MindFreezeRandomTimerUse;
+            numMFmin.Enabled = DeathKnightSettings.Instance.MindFreezeUse &&
+                               DeathKnightSettings.Instance.MindFreezeRandomTimerUse;
+
+            //Strangulate
+            StrangulateCheckBox.Checked = DeathKnightSettings.Instance.StrangulateUse;
+            DelayStrangulateCheckBox.Checked = DeathKnightSettings.Instance.StrangulateRandomTimerUse;
+            numStrangulatemax.Value = (decimal)DeathKnightSettings.Instance.StrangulateRandomTimerMax;
+            numStrangulatemin.Value = (decimal)DeathKnightSettings.Instance.StrangulateRandomTimerMin;
+
+            DelayStrangulateCheckBox.Enabled = DeathKnightSettings.Instance.StrangulateUse;
+            numStrangulatemax.Enabled = DeathKnightSettings.Instance.StrangulateUse &&
+                               DeathKnightSettings.Instance.StrangulateRandomTimerUse;
+            numStrangulatemin.Enabled = DeathKnightSettings.Instance.StrangulateUse &&
+                               DeathKnightSettings.Instance.StrangulateRandomTimerUse;
         }
 
         private void RacialsLoad()
@@ -108,6 +125,7 @@ namespace ScourgeBloom
             T1OnBurstCheckBox.Checked = GeneralSettings.Trinket1OnBurst;
             numTrinket1EnemyHealth.Value = GeneralSettings.Trinket1EnemyHealth;
             numTrinket1MyHealth.Value = GeneralSettings.Trinket1MyHealth;
+            UseTrinket1OnBoS.Checked = GeneralSettings.Trinket1OnBoS;
 
             T1OnEnemyHealthBelowCheckBox.Enabled = !GeneralSettings.Trinket1LossOfControl;
             T1OnMyHealthBelowCheckBox.Enabled = !GeneralSettings.Trinket1LossOfControl;
@@ -115,6 +133,7 @@ namespace ScourgeBloom
             T1OnBurstCheckBox.Enabled = !GeneralSettings.Trinket1LossOfControl;
             numTrinket1EnemyHealth.Enabled = !GeneralSettings.Trinket1LossOfControl;
             numTrinket1MyHealth.Enabled = !GeneralSettings.Trinket1LossOfControl;
+            UseTrinket1OnBoS.Enabled = !GeneralSettings.Trinket1LossOfControl;
         }
 
         private void Trinket2Load()
@@ -127,6 +146,7 @@ namespace ScourgeBloom
             T2OnBurstCheckBox.Checked = GeneralSettings.Trinket2OnBurst;
             numTrinket2EnemyHealth.Value = GeneralSettings.Trinket2EnemyHealth;
             numTrinket2MyHealth.Value = GeneralSettings.Trinket2MyHealth;
+            UseTrinket2OnBoS.Checked = GeneralSettings.Trinket2OnBoS;
 
             T2OnEnemyHealthBelowCheckBox.Enabled = !GeneralSettings.Trinket2LossOfControl;
             T2OnMyHealthBelowCheckBox.Enabled = !GeneralSettings.Trinket2LossOfControl;
@@ -134,11 +154,31 @@ namespace ScourgeBloom
             T2OnBurstCheckBox.Enabled = !GeneralSettings.Trinket2LossOfControl;
             numTrinket2EnemyHealth.Enabled = !GeneralSettings.Trinket2LossOfControl;
             numTrinket2MyHealth.Enabled = !GeneralSettings.Trinket2LossOfControl;
+            UseTrinket2OnBoS.Enabled = !GeneralSettings.Trinket2LossOfControl;
         }
 
-        private void AdvancedLoad()
+        private void DeathGripLoad()
         {
             UseDeathGripCheckBox.Checked = DeathKnightSettings.Instance.DeathGrip;
+        }
+
+        private void SurvivabilityLoad()
+        {
+            DeathStrikecheckBox.Checked = DeathKnightSettings.Instance.UseDeathStrike;
+            numDeathStrikeHp.Value = (decimal)DeathKnightSettings.Instance.UseDeathStrikeHp;
+
+            DeathSiphoncheckBox.Checked = DeathKnightSettings.Instance.UseDeathSiphon;
+            numDeathSiphonHp.Value = (decimal) DeathKnightSettings.Instance.UseDeathSiphonHp;
+
+        }
+
+        private void ItemsLoad()
+        {
+            useHealingToniccheckBox.Checked = GeneralSettings.Instance.HealingTonicUse;
+            numHealingTonicHp.Value = (decimal) GeneralSettings.Instance.HealingTonicHp;
+
+            UseHealthstonecheckBox.Checked = GeneralSettings.Instance.HealthstoneUse;
+            numHealthstoneUseHp.Value = (decimal) GeneralSettings.Instance.HealthstoneHp;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -216,57 +256,6 @@ namespace ScourgeBloom
         {
         }
 
-        private void UseRacialsCheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            GeneralSettings.Instance.UseRacials = UseRacialsCheckBox.Checked;
-
-            if (UseRacialsCheckBox.Checked)
-            {
-                UseHumanRacialCheckBox.Enabled = true;
-                UseGiftoftheNaruuCheckBox.Enabled = true;
-                UseStoneformCheckBox.Enabled = true;
-                UseArcaneTorrentCheckBox.Enabled = true;
-                BosArcaneTorrentCheckBox.Enabled = true;
-                UseWarStompCheckBox.Enabled = true;
-                UseBloodFuryCheckBox.Enabled = true;
-                BloodFuryOnCdCheckBox.Enabled = true;
-                BosBloodFuryCheckBox.Enabled = true;
-                UseBerserkingCheckBox.Enabled = true;
-                BerserkingOnCdCheckBox.Enabled = true;
-                BosBerserkingCheckBox.Enabled = true;
-            }
-
-            if (UseRacialsCheckBox.Checked == false)
-            {
-                UseHumanRacialCheckBox.Enabled = false;
-                UseGiftoftheNaruuCheckBox.Enabled = false;
-                UseStoneformCheckBox.Enabled = false;
-                UseArcaneTorrentCheckBox.Enabled = false;
-                BosArcaneTorrentCheckBox.Enabled = false;
-                UseWarStompCheckBox.Enabled = false;
-                UseBloodFuryCheckBox.Enabled = false;
-                BloodFuryOnCdCheckBox.Enabled = false;
-                BosBloodFuryCheckBox.Enabled = false;
-                UseBerserkingCheckBox.Enabled = false;
-                BerserkingOnCdCheckBox.Enabled = false;
-                BosBerserkingCheckBox.Enabled = false;
-
-
-                UseHumanRacialCheckBox.Checked = false;
-                UseGiftoftheNaruuCheckBox.Checked = false;
-                UseStoneformCheckBox.Checked = false;
-                UseArcaneTorrentCheckBox.Checked = false;
-                BosArcaneTorrentCheckBox.Checked = false;
-                UseWarStompCheckBox.Checked = false;
-                UseBloodFuryCheckBox.Checked = false;
-                BloodFuryOnCdCheckBox.Checked = false;
-                BosBloodFuryCheckBox.Checked = false;
-                UseBerserkingCheckBox.Checked = false;
-                BerserkingOnCdCheckBox.Checked = false;
-                BosBerserkingCheckBox.Checked = false;
-            }
-        }
-
         private void UseHumanRacialCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             GeneralSettings.EveryManForHimselfUse = UseHumanRacialCheckBox.Checked;
@@ -281,7 +270,7 @@ namespace ScourgeBloom
 
         private void numGiftOfTheNaaruHp_ValueChanged(object sender, EventArgs e)
         {
-            GeneralSettings.GiftOfTheNaaruHealHp = (int) numGiftOfTheNaaruHp.Value;
+            GeneralSettings.GiftOfTheNaaruHealHp = (int)numGiftOfTheNaaruHp.Value;
         }
 
         private void UseArcaneTorrentCheckBox_CheckedChanged(object sender, EventArgs e)
@@ -296,21 +285,17 @@ namespace ScourgeBloom
 
         private void numericUpDown3_ValueChanged(object sender, EventArgs e)
         {
-            GeneralSettings.StoneformUseHp = (int) numStoneformHp.Value;
+            GeneralSettings.StoneformUseHp = (int)numStoneformHp.Value;
         }
 
         private void numWarStompEnemies_ValueChanged(object sender, EventArgs e)
         {
-            GeneralSettings.WarStompEnemiesToUse = (int) numWarStompEnemies.Value;
+            GeneralSettings.WarStompEnemiesToUse = (int)numWarStompEnemies.Value;
         }
 
         private void UseWarStompCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             GeneralSettings.WarStompUse = UseWarStompCheckBox.Checked;
-        }
-
-        private void checkBox6_CheckedChanged(object sender, EventArgs e)
-        {
         }
 
         private void GargoyleOnCDcheckBox_CheckedChanged(object sender, EventArgs e)
@@ -321,17 +306,6 @@ namespace ScourgeBloom
         private void BosArcaneTorrentCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             DeathKnightSettings.Instance.BosArcaneTorrent = BosArcaneTorrentCheckBox.Checked;
-        }
-
-        private void UseTrinket1CheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            if (GeneralSettings.Instance.UseTrinket1)
-            {
-                UseTrinket1CheckBox.Enabled = true;
-                UseTrinket1CheckBox.Checked = true;
-            }
-
-            GeneralSettings.Trinket1Use = UseTrinket1CheckBox.Checked;
         }
 
         private void T1OnCdCheckBox_CheckedChanged(object sender, EventArgs e)
@@ -370,26 +344,129 @@ namespace ScourgeBloom
 
         private void numTrinket1MyHealth_ValueChanged(object sender, EventArgs e)
         {
-            GeneralSettings.Trinket1MyHealth = (int) numTrinket1MyHealth.Value;
+            GeneralSettings.Trinket1MyHealth = (int)numTrinket1MyHealth.Value;
         }
 
         private void numTrinket1EnemyHealth_ValueChanged(object sender, EventArgs e)
         {
-            GeneralSettings.Trinket1EnemyHealth = (int) numTrinket1EnemyHealth.Value;
+            GeneralSettings.Trinket1EnemyHealth = (int)numTrinket1EnemyHealth.Value;
         }
 
         private void numTrinket2EnemyHealth_ValueChanged(object sender, EventArgs e)
         {
-            GeneralSettings.Trinket2EnemyHealth = (int) numTrinket2EnemyHealth.Value;
+            GeneralSettings.Trinket2EnemyHealth = (int)numTrinket2EnemyHealth.Value;
         }
 
         private void groupBox9_Enter(object sender, EventArgs e)
         {
         }
 
+        private void UseTrinket1CheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            GeneralSettings.Trinket1Use = UseTrinket1CheckBox.Checked;
+
+            if (UseTrinket1CheckBox.Checked)
+            {
+                T1OnLoCCheckBox.Enabled = true;
+                T1OnCdCheckBox.Enabled = true;
+                T1OnBurstCheckBox.Enabled = true;
+                T1OnMyHealthBelowCheckBox.Enabled = true;
+                numTrinket1MyHealth.Enabled = true;
+                T1OnEnemyHealthBelowCheckBox.Enabled = true;
+                numTrinket1EnemyHealth.Enabled = true;
+                UseTrinket1OnBoS.Enabled = true;
+            }
+
+            if (UseTrinket1CheckBox.Checked == false)
+            {
+                T1OnLoCCheckBox.Enabled = false;
+                T1OnCdCheckBox.Enabled = false;
+                T1OnBurstCheckBox.Enabled = false;
+                T1OnMyHealthBelowCheckBox.Enabled = false;
+                numTrinket1MyHealth.Enabled = false;
+                T1OnEnemyHealthBelowCheckBox.Enabled = false;
+                numTrinket1EnemyHealth.Enabled = false;
+                UseTrinket1OnBoS.Enabled = false;
+            }
+        }
+
         private void UseTrinket2CheckBox_CheckedChanged(object sender, EventArgs e)
         {
             GeneralSettings.Trinket2Use = UseTrinket2CheckBox.Checked;
+
+            if (UseTrinket2CheckBox.Checked)
+            {
+                T2OnLoCCheckBox.Enabled = true;
+                T2OnCdCheckBox.Enabled = true;
+                T2OnBurstCheckBox.Enabled = true;
+                T2OnMyHealthBelowCheckBox.Enabled = true;
+                numTrinket2MyHealth.Enabled = true;
+                T2OnEnemyHealthBelowCheckBox.Enabled = true;
+                numTrinket2EnemyHealth.Enabled = true;
+                UseTrinket2OnBoS.Enabled = true;
+            }
+
+            if (UseTrinket2CheckBox.Checked == false)
+            {
+                T2OnLoCCheckBox.Enabled = false;
+                T2OnCdCheckBox.Enabled = false;
+                T2OnBurstCheckBox.Enabled = false;
+                T2OnMyHealthBelowCheckBox.Enabled = false;
+                numTrinket2MyHealth.Enabled = false;
+                T2OnEnemyHealthBelowCheckBox.Enabled = false;
+                numTrinket2EnemyHealth.Enabled = false;
+                UseTrinket2OnBoS.Enabled = false;
+            }
+        }
+
+        private void UseRacialsCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            GeneralSettings.Instance.UseRacials = UseRacialsCheckBox.Checked;
+
+            if (UseRacialsCheckBox.Checked)
+            {
+                UseHumanRacialCheckBox.Enabled = true;
+                UseGiftoftheNaruuCheckBox.Enabled = true;
+                UseStoneformCheckBox.Enabled = true;
+                UseArcaneTorrentCheckBox.Enabled = true;
+                BosArcaneTorrentCheckBox.Enabled = true;
+                UseWarStompCheckBox.Enabled = true;
+                UseBloodFuryCheckBox.Enabled = true;
+                BloodFuryOnCdCheckBox.Enabled = true;
+                BosBloodFuryCheckBox.Enabled = true;
+                UseBerserkingCheckBox.Enabled = true;
+                BerserkingOnCdCheckBox.Enabled = true;
+                BosBerserkingCheckBox.Enabled = true;
+            }
+
+            if (UseRacialsCheckBox.Checked == false)
+            {
+                UseHumanRacialCheckBox.Enabled = false;
+                UseGiftoftheNaruuCheckBox.Enabled = false;
+                UseStoneformCheckBox.Enabled = false;
+                UseArcaneTorrentCheckBox.Enabled = false;
+                BosArcaneTorrentCheckBox.Enabled = false;
+                UseWarStompCheckBox.Enabled = false;
+                UseBloodFuryCheckBox.Enabled = false;
+                BloodFuryOnCdCheckBox.Enabled = false;
+                BosBloodFuryCheckBox.Enabled = false;
+                UseBerserkingCheckBox.Enabled = false;
+                BerserkingOnCdCheckBox.Enabled = false;
+                BosBerserkingCheckBox.Enabled = false;
+
+                UseHumanRacialCheckBox.Checked = false;
+                UseGiftoftheNaruuCheckBox.Checked = false;
+                UseStoneformCheckBox.Checked = false;
+                UseArcaneTorrentCheckBox.Checked = false;
+                BosArcaneTorrentCheckBox.Checked = false;
+                UseWarStompCheckBox.Checked = false;
+                UseBloodFuryCheckBox.Checked = false;
+                BloodFuryOnCdCheckBox.Checked = false;
+                BosBloodFuryCheckBox.Checked = false;
+                UseBerserkingCheckBox.Checked = false;
+                BerserkingOnCdCheckBox.Checked = false;
+                BosBerserkingCheckBox.Checked = false;
+            }
         }
 
         private void T2OnLoCCheckBox_CheckedChanged(object sender, EventArgs e)
@@ -432,7 +509,7 @@ namespace ScourgeBloom
 
         private void numTrinket2MyHealth_ValueChanged(object sender, EventArgs e)
         {
-            GeneralSettings.Trinket2MyHealth = (int) numTrinket2MyHealth.Value;
+            GeneralSettings.Trinket2MyHealth = (int)numTrinket2MyHealth.Value;
         }
 
         #region Form Dragging API Support
@@ -479,6 +556,114 @@ namespace ScourgeBloom
         {
         }
 
+        private void UseIceboundFCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            DeathKnightSettings.Instance.UseIceBoundFortitude = UseIceboundFCheckBox.Checked;
+        }
+
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+            DeathKnightSettings.Instance.UseIceBoundFortitudeHp = (int)numIceBoundFortitudeHp.Value;
+        }
+
+        private void numHealingTonicHp_ValueChanged(object sender, EventArgs e)
+        {
+            GeneralSettings.Instance.HealingTonicHp = (int)numHealingTonicHp.Value;
+        }
+
+        private void useHealingToniccheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            GeneralSettings.Instance.HealingTonicUse = useHealingToniccheckBox.Checked;
+        }
+
+        private void UseHealthstonecheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            GeneralSettings.Instance.HealthstoneUse = useHealingToniccheckBox.Checked;
+        }
+
+        private void numericUpDown1_ValueChanged_1(object sender, EventArgs e)
+        {
+            GeneralSettings.Instance.HealthstoneHp = (int)numHealthstoneUseHp.Value;
+        }
+
+        private void DeathStrikecheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            DeathKnightSettings.Instance.UseDeathStrike = DeathStrikecheckBox.Checked;
+        }
+
+        private void numericUpDown1_ValueChanged_2(object sender, EventArgs e)
+        {
+            DeathKnightSettings.Instance.UseDeathStrikeHp = (int)numDeathStrikeHp.Value;
+        }
+
+        private void DeathSiphoncheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            DeathKnightSettings.Instance.UseDeathSiphon = DeathSiphoncheckBox.Checked;
+        }
+
+        private void numDeathSiphonHp_ValueChanged(object sender, EventArgs e)
+        {
+            DeathKnightSettings.Instance.UseDeathSiphonHp = (int)numDeathSiphonHp.Value;
+        }
+
+        private void UseMFcheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            DeathKnightSettings.Instance.MindFreezeUse = UseMFcheckBox.Checked;
+            DelayMFcheckBox.Enabled = DeathKnightSettings.Instance.MindFreezeUse;
+            numMFmax.Enabled = DeathKnightSettings.Instance.MindFreezeUse &&
+                               DeathKnightSettings.Instance.MindFreezeRandomTimerUse;
+            numMFmin.Enabled = DeathKnightSettings.Instance.MindFreezeUse &&
+                               DeathKnightSettings.Instance.MindFreezeRandomTimerUse;
+        }
+
+        private void DelayMFcheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            DeathKnightSettings.Instance.MindFreezeRandomTimerUse = DelayMFcheckBox.Checked;
+            numMFmax.Enabled = DeathKnightSettings.Instance.MindFreezeUse &&
+                               DeathKnightSettings.Instance.MindFreezeRandomTimerUse;
+            numMFmin.Enabled = DeathKnightSettings.Instance.MindFreezeUse &&
+                               DeathKnightSettings.Instance.MindFreezeRandomTimerUse;
+        }
+
+        private void numericUpDown1_ValueChanged_3(object sender, EventArgs e)
+        {
+            DeathKnightSettings.Instance.MindFreezeRandomTimerMin = (int)numMFmin.Value;
+        }
+
+        private void numMFmax_ValueChanged(object sender, EventArgs e)
+        {
+            DeathKnightSettings.Instance.MindFreezeRandomTimerMax = (int)numMFmax.Value;
+        }
+
+        private void StrangulateCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            DeathKnightSettings.Instance.StrangulateUse = StrangulateCheckBox.Checked;
+            DelayStrangulateCheckBox.Enabled = DeathKnightSettings.Instance.StrangulateUse;
+            numStrangulatemax.Enabled = DeathKnightSettings.Instance.StrangulateUse &&
+                                        DeathKnightSettings.Instance.StrangulateRandomTimerUse;
+            numStrangulatemin.Enabled = DeathKnightSettings.Instance.StrangulateUse &&
+                                        DeathKnightSettings.Instance.StrangulateRandomTimerUse;
+        }
+
+        private void DelayStrangulateCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            DeathKnightSettings.Instance.StrangulateRandomTimerUse = DelayStrangulateCheckBox.Checked;
+            numStrangulatemax.Enabled = DeathKnightSettings.Instance.StrangulateUse &&
+                                        DeathKnightSettings.Instance.StrangulateRandomTimerUse;
+            numStrangulatemin.Enabled = DeathKnightSettings.Instance.StrangulateUse &&
+                                        DeathKnightSettings.Instance.StrangulateRandomTimerUse;
+        }
+
+        private void numStrangulatemin_ValueChanged(object sender, EventArgs e)
+        {
+            DeathKnightSettings.Instance.StrangulateRandomTimerMin = (int)numStrangulatemin.Value;
+        }
+
+        private void numStrangulatemax_ValueChanged(object sender, EventArgs e)
+        {
+            DeathKnightSettings.Instance.StrangulateRandomTimerMax = (int)numStrangulatemax.Value;
+        }
+
         public static class ClassSettings
         {
             public static Styx.Helpers.Settings Settings;
@@ -498,110 +683,23 @@ namespace ScourgeBloom
             }
         }
 
+        private void UseTrinket1OnBoS_CheckedChanged(object sender, EventArgs e)
+        {
+            GeneralSettings.Trinket1OnBoS = UseTrinket1OnBoS.Checked;
+        }
+
+        private void UseTrinket2OnBoS_CheckedChanged(object sender, EventArgs e)
+        {
+            GeneralSettings.Trinket2OnBoS = UseTrinket2OnBoS.Checked;
+        }
+
+        private void checkBox6_CheckedChanged(object sender, EventArgs e)
+        {
+        }
+
         private void AutoAmsCheckbox_CheckedChanged(object sender, EventArgs e)
         {
             DeathKnightSettings.Instance.UseAms = AutoAmsCheckbox.Checked;
         }
-
-        private void UseIceboundFCheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            DeathKnightSettings.Instance.UseIceBoundFortitude = UseIceboundFCheckBox.Checked;
-        }
-
-        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
-        {
-            DeathKnightSettings.Instance.UseIceBoundFortitudeHp = (int) numIceBoundFortitudeHp.Value;
-        }
-
-        private void numHealingTonicHp_ValueChanged(object sender, EventArgs e)
-        {
-            GeneralSettings.Instance.HealingTonicHp = (int) numHealingTonicHp.Value;
-        }
-
-        private void useHealingToniccheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            GeneralSettings.Instance.HealingTonicUse = useHealingToniccheckBox.Checked;
-        }
-
-        private void UseHealthstonecheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            GeneralSettings.Instance.HealthstoneUse = useHealingToniccheckBox.Checked;
-        }
-
-        private void numericUpDown1_ValueChanged_1(object sender, EventArgs e)
-        {
-            GeneralSettings.Instance.HealthstoneHp = (int) numHealthstoneUseHp.Value;
-        }
-
-        private void DeathStrikecheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            DeathKnightSettings.Instance.UseDeathStrike = DeathStrikecheckBox.Checked;
-        }
-
-        private void numericUpDown1_ValueChanged_2(object sender, EventArgs e)
-        {
-            DeathKnightSettings.Instance.UseDeathStrikeHp = (int) numDeathStrikeHp.Value;
-        }
-
-        private void DeathSiphoncheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            DeathKnightSettings.Instance.UseDeathSiphon = DeathSiphoncheckBox.Checked;
-        }
-
-        private void numDeathSiphonHp_ValueChanged(object sender, EventArgs e)
-        {
-            DeathKnightSettings.Instance.UseDeathSiphonHp = (int)numDeathSiphonHp.Value;
-        }
-
-        private void UseMFcheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            DeathKnightSettings.Instance.MindFreezeUse = UseMFcheckBox.Checked;
-            DelayMFcheckBox.Enabled = DeathKnightSettings.Instance.MindFreezeUse;
-            numMFmax.Enabled = DeathKnightSettings.Instance.MindFreezeUse && DeathKnightSettings.Instance.MindFreezeRandomTimerUse;
-            numMFmin.Enabled = DeathKnightSettings.Instance.MindFreezeUse && DeathKnightSettings.Instance.MindFreezeRandomTimerUse;
-        }
-
-        private void DelayMFcheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            DeathKnightSettings.Instance.MindFreezeRandomTimerUse = DelayMFcheckBox.Checked;
-            numMFmax.Enabled = DeathKnightSettings.Instance.MindFreezeUse && DeathKnightSettings.Instance.MindFreezeRandomTimerUse;
-            numMFmin.Enabled = DeathKnightSettings.Instance.MindFreezeUse && DeathKnightSettings.Instance.MindFreezeRandomTimerUse;
-        }
-
-        private void numericUpDown1_ValueChanged_3(object sender, EventArgs e)
-        {
-            DeathKnightSettings.Instance.MindFreezeRandomTimerMin = (int) numMFmin.Value;
-        }
-
-        private void numMFmax_ValueChanged(object sender, EventArgs e)
-        {
-            DeathKnightSettings.Instance.MindFreezeRandomTimerMax = (int)numMFmax.Value;
-        }
-
-        private void StrangulateCheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            DeathKnightSettings.Instance.StrangulateUse = StrangulateCheckBox.Checked;
-            DelayStrangulateCheckBox.Enabled = DeathKnightSettings.Instance.StrangulateUse;
-            numStrangulatemax.Enabled = DeathKnightSettings.Instance.StrangulateUse && DeathKnightSettings.Instance.StrangulateRandomTimerUse;
-            numStrangulatemin.Enabled = DeathKnightSettings.Instance.StrangulateUse && DeathKnightSettings.Instance.StrangulateRandomTimerUse;
-        }
-
-        private void DelayStrangulateCheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            DeathKnightSettings.Instance.StrangulateRandomTimerUse = DelayStrangulateCheckBox.Checked;
-            numStrangulatemax.Enabled = DeathKnightSettings.Instance.StrangulateUse && DeathKnightSettings.Instance.StrangulateRandomTimerUse;
-            numStrangulatemin.Enabled = DeathKnightSettings.Instance.StrangulateUse && DeathKnightSettings.Instance.StrangulateRandomTimerUse;
-        }
-
-        private void numStrangulatemin_ValueChanged(object sender, EventArgs e)
-        {
-            DeathKnightSettings.Instance.StrangulateRandomTimerMin = (int)numStrangulatemin.Value;
-        }
-
-        private void numStrangulatemax_ValueChanged(object sender, EventArgs e)
-        {
-            DeathKnightSettings.Instance.StrangulateRandomTimerMax = (int)numStrangulatemax.Value;
-        }
-        
     }
 }

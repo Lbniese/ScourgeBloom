@@ -6,9 +6,6 @@
  * Licensed under Microsoft Reference Source License (Ms-RSL)
  */
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Buddy.Coroutines;
 using CommonBehaviors.Actions;
 using JetBrains.Annotations;
@@ -23,6 +20,9 @@ using Styx.CommonBot.Inventory;
 using Styx.TreeSharp;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using S = ScourgeBloom.Lists.SpellLists;
 using TTD = ScourgeBloom.Helpers.TimeToDeath.TimeToDeathExtension;
 
@@ -62,7 +62,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> CombatRoutine(WoWUnit onunit)
         {
-            if (!Me.Combat || Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting || Me.IsChanneling) return true;
+            if (!Me.Combat || Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting ||
+                Me.IsChanneling) return true;
 
             if (Capabilities.IsTargetingAllowed)
                 MovementManager.AutoTarget();
@@ -156,11 +157,9 @@ namespace ScourgeBloom.Class.DeathKnight
             //G	0.00	run_action_list,name=bos,if=dot.breath_of_sindragosa.ticking
             await BoS(Me.HasAura(S.BreathofSindragosa));
             //H	0.00	run_action_list,name=nbos,if=!dot.breath_of_sindragosa.ticking&cooldown.breath_of_sindragosa.remains<4
-            await
-                NboS(!Me.HasAura(S.BreathofSindragosa) && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds < 4);
+            await NboS(!Me.HasAura(S.BreathofSindragosa) && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds < 4);
             //I	0.00	run_action_list,name=cdbos,if=!dot.breath_of_sindragosa.ticking&cooldown.breath_of_sindragosa.remains>=4
-            await CdBoS(onunit,
-                !Me.HasAura(S.BreathofSindragosa) && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds >= 4);
+            await CdBoS(onunit, !Me.HasAura(S.BreathofSindragosa) && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds >= 4);
 
             if (Capabilities.IsTargetingAllowed)
                 MovementManager.AutoTarget();
@@ -173,7 +172,7 @@ namespace ScourgeBloom.Class.DeathKnight
             return false;
         }
 
-        #endregion CombatCoroutine
+        #endregion CombatRoutine
 
         #region Coroutine Last
 
@@ -200,7 +199,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 return true;
             //{	1.85	death_coil,if=runic_power>75|target.time_to_die<4|!dot.breath_of_sindragosa.ticking
             if (await Spell.CoCast(S.DeathCoil, onunit,
-                Me.CurrentRunicPower > 75 || TTD.TimeToDeath(onunit) < 4 || !Me.HasAura(S.AuraBreathofSindragosa)))
+                Me.CurrentRunicPower > 75 || TTD.TimeToDeath(onunit) < 4 || !(Me.HasAura("Breath of Sindragosa") || Me.Auras["Breath of Sindragosa"].IsActive)))
                 return true;
             //|	0.27	plague_strike,if=target.time_to_die<2|cooldown.empower_rune_weapon.remains<2
             if (await Spell.CoCast(S.PlagueStrike, onunit,
@@ -377,7 +376,7 @@ namespace ScourgeBloom.Class.DeathKnight
         private static async Task<bool> PreCombatBuffs()
         {
             if (!Me.IsAlive)
-                return true;
+                return false;
 
             if (await Spell.CoCast(S.BloodPresence, Me, !Me.HasAura(S.BloodPresence)))
                 return true;
@@ -388,35 +387,36 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CoCast(S.BoneShield, SpellManager.CanCast(S.BoneShield) && !Me.HasAura(S.BoneShield)))
                 return true;
 
-            if (GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.Attackable && Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight && Me.IsSafelyFacing(Me.CurrentTarget))
+            if (GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.Attackable &&
+                Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight && Me.IsSafelyFacing(Me.CurrentTarget))
             {
                 if (Me.CurrentTarget.Distance > 7 && DeathKnightSettings.Instance.DeathGrip)
                     return await Spell.CoCast(S.DeathGrip,
-                                SpellManager.CanCast(S.DeathGrip));
+                        SpellManager.CanCast(S.DeathGrip));
 
                 if (Spell.GetCooldownLeft(S.Outbreak).TotalSeconds < 1)
                     return await Spell.CoCast(S.Outbreak,
-                                SpellManager.CanCast(S.Outbreak));
+                        SpellManager.CanCast(S.Outbreak));
 
                 if (Spell.GetCooldownLeft(S.Outbreak).TotalSeconds > 1)
                     return await Spell.CoCast(S.IcyTouch,
-                                SpellManager.CanCast(S.IcyTouch));
+                        SpellManager.CanCast(S.IcyTouch));
             }
 
             return false;
-
         }
-
 
         #endregion PreCombatBuffs
 
         #region PullBuffs
 
+#pragma warning disable 1998
+
         private static async Task<bool> PullBuffs()
+#pragma warning restore 1998
         {
             return false;
         }
-
 
         #endregion PullBuffs
 
@@ -433,7 +433,6 @@ namespace ScourgeBloom.Class.DeathKnight
                     Globals.HealPulsed = false;
                 }
             }
-
 
             if (Capabilities.IsRacialUsageAllowed)
             {
@@ -473,7 +472,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         public static async Task<bool> PullRoutine()
         {
-            if (!Me.Combat || Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting || Me.IsChanneling) return true;
+            if (!Me.Combat || Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting ||
+                Me.IsChanneling) return true;
 
             if (Capabilities.IsMovingAllowed)
                 await MovementManager.MoveToTarget();
@@ -500,7 +500,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         #region Overrides
 
-        public override WoWClass Class => Me.Specialization == WoWSpec.DeathKnightBlood ? WoWClass.DeathKnight : WoWClass.None;
+        public override WoWClass Class
+            => Me.Specialization == WoWSpec.DeathKnightBlood ? WoWClass.DeathKnight : WoWClass.None;
 
         protected override Composite CreateCombat()
         {

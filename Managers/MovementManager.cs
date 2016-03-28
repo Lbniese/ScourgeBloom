@@ -19,6 +19,7 @@ using Styx.CommonBot.POI;
 using Styx.Pathing;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
+
 //using Styx.CommonBot.Coroutines;
 
 namespace ScourgeBloom.Managers

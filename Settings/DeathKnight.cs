@@ -6,24 +6,24 @@
  * Licensed under Microsoft Reference Source License (Ms-RSL)
  */
 
+using Styx.Helpers;
 using System.ComponentModel;
 using System.IO;
-using Styx;
-using Styx.Helpers;
 using DefaultValue = Styx.Helpers.DefaultValueAttribute;
 
 namespace ScourgeBloom.Settings
 {
     public class DeathKnightSettings : Styx.Helpers.Settings
     {
-        public static DeathKnightSettings Instance = new DeathKnightSettings(StyxWoW.Me.Specialization);
+        public static DeathKnightSettings Instance = new DeathKnightSettings();
 
-        public DeathKnightSettings(WoWSpec currentSpec)
+        public DeathKnightSettings()
             : base(Path.Combine(Styx.Common.Utilities.AssemblyDirectory,
-                $"Settings//ScourgeBloom//{currentSpec == StyxWoW.Me.Specialization}Settings.xml"))
-        { }
+                "Settings//ScourgeBloom//DeathKnightSettings.xml"))
+        {
+        }
 
-        [Setting, DefaultValue(false), Category("Behaviour")]
+        [Setting, Styx.Helpers.DefaultValue(false), Category("Behaviour")]
         [Browsable(false)]
         public bool DeathGrip { get; set; }
 
@@ -38,7 +38,7 @@ namespace ScourgeBloom.Settings
         [Browsable(false)]
         [Description("The health percentage we use Death Strike at")]
         public int UseDeathStrikeHp { get; set; }
-        
+
         [Setting, DefaultValue(true)]
         [Category("Combat")]
         [Browsable(false)]
@@ -98,6 +98,7 @@ namespace ScourgeBloom.Settings
         public bool BosBerserking { get; set; }
 
         #region Mind Freeze
+
         [Setting, DefaultValue(true)]
         [Browsable(false)]
         public bool MindFreezeUse { get; set; }
@@ -113,9 +114,11 @@ namespace ScourgeBloom.Settings
         [Setting, DefaultValue(60)]
         [Browsable(false)]
         public double MindFreezeRandomTimerMax { get; set; }
+
         #endregion Mind Freeze
 
         #region Strangulate
+
         [Setting, DefaultValue(true)]
         [Browsable(false)]
         public bool StrangulateUse { get; set; }
@@ -131,6 +134,7 @@ namespace ScourgeBloom.Settings
         [Setting, DefaultValue(60)]
         [Browsable(false)]
         public double StrangulateRandomTimerMax { get; set; }
+
         #endregion Strangulate
     }
 }

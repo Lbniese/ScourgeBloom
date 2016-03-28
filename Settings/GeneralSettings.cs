@@ -22,22 +22,28 @@ namespace ScourgeBloom.Settings
         {
         }
 
-        [Setting, DefaultValue(true), Category("Behaviour")]
+        [Setting, DefaultValue(false), Category("Behaviour")]
+        [Browsable(true)]
         public bool Targeting { get; set; }
 
         [Setting, DefaultValue(true), Category("Behaviour")]
+        [Browsable(true)]
         public bool Movement { get; set; }
 
         [Setting, DefaultValue(true), Category("Behaviour")]
+        [Browsable(true)]
         public bool Facing { get; set; }
 
         [Setting, DefaultValue(true), Category("Behaviour")]
+        [Browsable(true)]
         public bool Cooldowns { get; set; }
 
         [Setting, DefaultValue(true), Category("Behaviour")]
+        [Browsable(true)]
         public bool Interrupts { get; set; }
 
         [Setting, DefaultValue(false), Category("Behaviour")]
+        [Browsable(true)]
         public bool AutoAttack { get; set; }
 
         [Setting, DefaultValue(false), Category("Environment")]
@@ -45,12 +51,12 @@ namespace ScourgeBloom.Settings
         [ReadOnly(true)]
         public bool PvP { get; set; }
 
+        #region Resting
+
         [Setting, DefaultValue(true), Category("Resting")]
         [Browsable(true)]
         [ReadOnly(false)]
         public bool RestingEatFood { get; set; }
-
-        #region Resting
 
         [Setting, DefaultValue(60), Category("Resting")]
         [Browsable(true)]
@@ -90,14 +96,14 @@ namespace ScourgeBloom.Settings
         [ReadOnly(true)]
         public bool UseTrinket2 { get; set; }
 
-        [Setting, DefaultValue(false), Category("Debugging")]
-        [Browsable(false)]
-        [ReadOnly(true)]
+        [Setting, DefaultValue(true), Category("Debugging")]
+        [Browsable(true)]
+        [ReadOnly(false)]
         public bool LogCanCastResults { get; set; }
 
         [Setting, DefaultValue(true), Category("Environment")]
-        [Browsable(false)]
-        [ReadOnly(true)]
+        [Browsable(true)]
+        [ReadOnly(false)]
         public bool AutoDismount { get; set; }
 
         [Setting, DefaultValue(true), Category("Racials")]
@@ -213,6 +219,11 @@ namespace ScourgeBloom.Settings
         [Setting, DefaultValue(true), Category("Trinkets")]
         [Browsable(false)]
         [ReadOnly(true)]
+        public static bool Trinket1OnBoS { get; set; }
+
+        [Setting, DefaultValue(true), Category("Trinkets")]
+        [Browsable(false)]
+        [ReadOnly(true)]
         public static bool Trinket2Use { get; set; }
 
         [Setting, DefaultValue(true), Category("Trinkets")]
@@ -255,41 +266,46 @@ namespace ScourgeBloom.Settings
         [ReadOnly(true)]
         public static int Trinket2MyHealth { get; set; }
 
-        [Setting, DefaultValue(true), Category("Debugging")]
+        [Setting, DefaultValue(true), Category("Trinkets")]
+        [Browsable(false)]
+        [ReadOnly(false)]
+        public static bool Trinket2OnBoS { get; set; }
+
+        [Setting, DefaultValue(false), Category("Debugging")]
+        [Browsable(false)]
         public static bool DebugStopMoving { get; set; }
 
-        [Setting, DefaultValue(true)]
+        [Setting, DefaultValue(true), Category("Debugging")]
+        [Browsable(true)]
         public bool ExtendedLogging { get; set; }
 
         [Setting, DefaultValue(true)]
         [Category("Targeting")]
         [DisplayName(@"Target World PVP Regardless")]
-        [Description( "Solo Only. True: when attacked by player, ignore everything else and fight back;  False: attack based upon Targeting priority list.")]
+        [Description("Solo Only. false: when attacked by player, ignore everything else and fight back;  False: attack based upon Targeting priority list.")]
         public static bool TargetWorldPvpRegardless { get; set; }
 
         #region Healing Tonic
-
-        /* Added to the GUI
-        [Setting, DefaultValue(true)]´*/
+        [Setting, DefaultValue(true)]
+        [Browsable(false)]
         public bool HealingTonicUse { get; set; }
-
-        /* Added to the GUI
-        [Setting, DefaultValue(50)]*/
+        
+        [Setting, DefaultValue(50)]
+        [Browsable(false)]
         public int HealingTonicHp { get; set; }
 
         #endregion Healing Tonic
 
         #region Healthstones
 
-        /* Added to the GUI
-        [Setting, DefaultValue(true)]*/
+        [Setting, DefaultValue(true)]
+        [Browsable(false)]
         public bool HealthstoneUse { get; set; }
 
-        /* Added to the GUI
-        [Setting, DefaultValue(50)]*/
+        [Setting, DefaultValue(50)]
+        [Browsable(false)]
         public int HealthstoneHp { get; set; }
 
         #endregion
-
     }
 }

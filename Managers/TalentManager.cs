@@ -6,9 +6,6 @@
  * Licensed under Microsoft Reference Source License (Ms-RSL)
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using ScourgeBloom.Helpers;
 using Styx;
 using Styx.Common;
@@ -16,6 +13,9 @@ using Styx.Common.Helpers;
 using Styx.CommonBot;
 using Styx.CommonBot.CharacterManagement;
 using Styx.WoWInternals;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ScourgeBloom.Managers
 {
@@ -68,7 +68,7 @@ namespace ScourgeBloom.Managers
         public static bool IsSelected(int index)
         {
             // return Talents.FirstOrDefault(t => t.Index == index).Selected;
-            var tier = (index - 1)/3;
+            var tier = (index - 1) / 3;
             if (!tier.IsBetween(0, 5)) return false;
             Log.WritetoFile(LogLevel.Diagnostic, string.Format("Talent id {0} is selected", index));
             return TalentId[tier] == index;
@@ -109,8 +109,8 @@ namespace ScourgeBloom.Managers
                                 string.Format(
                                     "local t = select(4, GetTalentInfo({0}, {1}, GetActiveSpecGroup())) if t then return 1 end return nil",
                                     row + 1, col + 1), 0);
-                        var index = 1 + row*3 + col;
-                        var t = new Talent {Index = index, Selected = selected};
+                        var index = 1 + row * 3 + col;
+                        var t = new Talent { Index = index, Selected = selected };
                         Talents.Add(t);
 
                         if (selected)
@@ -133,7 +133,7 @@ namespace ScourgeBloom.Managers
                     Glyphs.Add(WoWSpell.FromId(GlyphId[i - 1]).Name.Replace("Glyph of ", ""));
                 }
 
-                _spellCount = (uint) SpellManager.Spells.Count;
+                _spellCount = (uint)SpellManager.Spells.Count;
                 _spellBookSignature = CalcSpellBookSignature();
             }
         }
@@ -204,7 +204,7 @@ namespace ScourgeBloom.Managers
         private static uint CalcSpellBookSignature()
         {
             return SpellManager.Spells.Aggregate<KeyValuePair<string, WoWSpell>, uint>(0,
-                (current, sp) => current ^ (uint) sp.Value.Id);
+                (current, sp) => current ^ (uint)sp.Value.Id);
         }
 
         public struct Talent

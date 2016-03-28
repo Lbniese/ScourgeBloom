@@ -34,7 +34,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> PullRoutine()
         {
-            if (!Me.Combat || Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting || Me.IsChanneling) return true;
+            if (!Me.Combat || Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting ||
+                Me.IsChanneling) return true;
 
             if (Capabilities.IsMovingAllowed)
                 await MovementManager.MoveToTarget();
@@ -113,7 +114,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> CombatCoroutine(WoWUnit onunit)
         {
-            if (!Me.Combat || Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting || Me.IsChanneling) return true;
+            if (!Me.Combat || Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting ||
+                Me.IsChanneling) return true;
 
             if (Capabilities.IsTargetingAllowed)
                 MovementManager.AutoTarget();
@@ -188,7 +190,11 @@ namespace ScourgeBloom.Class.DeathKnight
                 await Interrupts.StrangulateMethod();
 
             // Actual Routine
-            if (await BoSActive(onunit, Me.Combat && Me.HasAura(S.AuraBreathofSindragosa))) return true;
+            if (await BoSActive(onunit, Me.Combat && Me.HasAura("Breath of Sindragosa")))
+                return true;
+
+            //if (await BoSActive(onunit, Me.Combat && Me.Auras["Breath of Sindragosa"].IsActive))
+            //    return true;
 
             if (await Spell.CoCast(S.ArmyoftheDead, Me.CurrentTarget.IsBoss && Capabilities.IsCooldownUsageAllowed))
                 return true;
@@ -215,9 +221,10 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.GotTarget && Me.CurrentTarget.Attackable && DeathKnightSettings.Instance.SummonGargoyleOnCd &&
                 Capabilities.IsCooldownUsageAllowed))
                 return true;
+
             // actions.unholy+=/breath_of_sindragosa,if=runic_power>75
             await Spell.CoCast(S.BreathofSindragosa, onunit,
-                Me.CurrentRunicPower > 75 && !Me.HasAura(S.AuraBreathofSindragosa) &&
+                Me.CurrentRunicPower > 75 && !(Me.HasAura("Breath of Sindragosa")/* || Me.Auras["Breath of Sindragosa"].IsActive*/) &&
                 Capabilities.IsCooldownUsageAllowed && Capabilities.IsAoeAllowed);
             //Eventually add: No runes depleted
 
@@ -355,6 +362,8 @@ namespace ScourgeBloom.Class.DeathKnight
                     Me.HasAura(S.AuraSuddenDoom)))
                     return true;
 
+                if (Me.HasAura("Breath of Sindragosa")) return true;
+
                 if (await Spell.CoCast(S.DeathCoil, onunit,
                     Me.CurrentRunicPower > 85))
                     return true;
@@ -384,7 +393,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 !BoSSelected())) return true;
 
             // actions.unholy+=/death_coil,if=(cooldown.breath_of_sindragosa.remains>20)|!talent.breath_of_sindragosa.enabled
-            if (await Spell.CoCast(S.DeathCoil, onunit,
+            if (await Spell.CoCast(S.DeathCoil, onunit, Me.CurrentRunicPower >= 30 &&
                 (BoSSelected() && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 20) ||
                 !BoSSelected())) return true;
 
@@ -413,32 +422,6 @@ namespace ScourgeBloom.Class.DeathKnight
 
         #endregion CombatCoroutine
 
-        #region RestCoroutine
-
-        private static async Task<bool> RestCoroutine()
-        {
-            if (!GeneralSettings.Instance.RestingEatFood) return false;
-
-            if (Me.IsDead || SpellManager.GlobalCooldown || !CanBuffEat()) return false;
-
-            if (!(Me.HealthPercent < 60) || Me.IsMoving || Me.IsCasting || Me.Combat || Me.HasAura("Food") ||
-                Consumable.GetBestFood(false) == null)
-                return false;
-
-            Styx.CommonBot.Rest.FeedImmediate();
-
-            await CommonCoroutines.SleepForLagDuration();
-
-            return await Coroutine.Wait(1000, () => Me.HasAura("Food"));
-        }
-
-        public static bool CanBuffEat()
-        {
-            return !Me.Mounted && !Me.IsDead && !Me.IsGhost && !Me.IsOnTransport && !Me.OnTaxi;
-        }
-
-        #endregion RestCoroutine
-
         #region PreCombatBuffs
 
         private static async Task<bool> PreCombatBuffs()
@@ -455,35 +438,36 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CoCast(S.RaiseDead, Me, !Me.GotAlivePet && Capabilities.IsPetSummonAllowed))
                 return true;
 
-            if (GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.Attackable && Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight && Me.IsSafelyFacing(Me.CurrentTarget))
+            if (GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.Attackable &&
+                Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight && Me.IsSafelyFacing(Me.CurrentTarget))
             {
                 if (Me.CurrentTarget.Distance > 7 && DeathKnightSettings.Instance.DeathGrip)
                     return await Spell.CoCast(S.DeathGrip,
-                                SpellManager.CanCast(S.DeathGrip));
+                        SpellManager.CanCast(S.DeathGrip));
 
                 if (Spell.GetCooldownLeft(S.Outbreak).TotalSeconds < 1)
                     return await Spell.CoCast(S.Outbreak,
-                                SpellManager.CanCast(S.Outbreak));
+                        SpellManager.CanCast(S.Outbreak));
 
                 if (Spell.GetCooldownLeft(S.Outbreak).TotalSeconds > 1)
                     return await Spell.CoCast(S.IcyTouch,
-                                SpellManager.CanCast(S.IcyTouch));
+                        SpellManager.CanCast(S.IcyTouch));
             }
 
             return false;
-
         }
-
 
         #endregion PreCombatBuffs
 
         #region PullBuffs
 
+#pragma warning disable 1998
+
         private static async Task<bool> PullBuffs()
+#pragma warning restore 1998
         {
             return false;
         }
-
 
         #endregion PullBuffs
 
@@ -546,7 +530,8 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.Combat);
 
             // CUSTOM
-            await Spell.CoCast(S.EmpowerRuneWeapon, Me, Me.CurrentRunicPower < 60 && Capabilities.IsCooldownUsageAllowed);
+            await
+                Spell.CoCast(S.EmpowerRuneWeapon, Me, Me.CurrentRunicPower < 60 && Capabilities.IsCooldownUsageAllowed);
 
             // actions.bos+=/unholy_blight,if=!disease.ticking
             if (await Spell.CoCast(S.UnholyBlight, onunit,
@@ -635,7 +620,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.CurrentTarget.HasMyAura(S.AuraFrostFever) &&
                 Me.CurrentTarget.HasMyAura(S.AuraBloodPlague))) return true;
 
-            await Spell.CoCast(S.EmpowerRuneWeapon, Me, Me.CurrentRunicPower < 60 && Capabilities.IsCooldownUsageAllowed);
+            await Spell.CoCast(S.EmpowerRuneWeapon, Me, Me.CurrentRunicPower < 60 && Capabilities.IsCooldownUsageAllowed && BoSSelected());
 
             if (await Spell.CoCast(S.DeathCoil, onunit, Me.HasAura(S.AuraSuddenDoom)))
                 return true;
@@ -646,6 +631,32 @@ namespace ScourgeBloom.Class.DeathKnight
         }
 
         #endregion Coroutine BoS
+
+        #region RestCoroutine
+
+        private static async Task<bool> RestCoroutine()
+        {
+            if (!GeneralSettings.Instance.RestingEatFood) return false;
+
+            if (Me.IsDead || SpellManager.GlobalCooldown || !CanBuffEat()) return false;
+
+            if (!(Me.HealthPercent < 60) || Me.IsMoving || Me.IsCasting || Me.Combat || Me.HasAura("Food") ||
+                Consumable.GetBestFood(false) == null)
+                return false;
+
+            Styx.CommonBot.Rest.FeedImmediate();
+
+            await CommonCoroutines.SleepForLagDuration();
+
+            return await Coroutine.Wait(1000, () => Me.HasAura("Food"));
+        }
+
+        public static bool CanBuffEat()
+        {
+            return !Me.Mounted && !Me.IsDead && !Me.IsGhost && !Me.IsOnTransport && !Me.OnTaxi;
+        }
+
+        #endregion RestCoroutine
 
         #region Logics
 
@@ -658,8 +669,8 @@ namespace ScourgeBloom.Class.DeathKnight
                        && !Me.CurrentTarget.HasAuraExpired("Frost Fever")
                        &&
                        Units.EnemyUnitsNearTarget(radius).Any(u =>
-                                   Me.CurrentTarget.Distance < radius && u.HasAuraExpired("Blood Plague") &&
-                                   u.HasAuraExpired("Frost Fever"));
+                           Me.CurrentTarget.Distance < radius && u.HasAuraExpired("Blood Plague") &&
+                           u.HasAuraExpired("Frost Fever"));
             }
         }
 
@@ -779,7 +790,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         #region Overrides
 
-        public override WoWClass Class => Me.Specialization == WoWSpec.DeathKnightUnholy ? WoWClass.DeathKnight : WoWClass.None;
+        public override WoWClass Class
+            => Me.Specialization == WoWSpec.DeathKnightUnholy ? WoWClass.DeathKnight : WoWClass.None;
 
         protected override Composite CreateCombat()
         {
@@ -824,16 +836,12 @@ namespace ScourgeBloom.Class.DeathKnight
         {
             if (!reqs) return false;
             if (await Spell.CoCast(S.ArmyoftheDead, Capabilities.IsCooldownUsageAllowed)) return true;
-            if (await Spell.CoCast(S.DeathsAdvance, DeathsAdvanceSelected() && Capabilities.IsCooldownUsageAllowed))
-                return true;
+            if (await Spell.CoCast(S.DeathsAdvance, DeathsAdvanceSelected() && Capabilities.IsCooldownUsageAllowed)) return true;
             if (await Spell.CoCast(S.UnholyBlight, Me.CurrentTarget.IsWithinMeleeRange)) return true;
             if (await Spell.CoCast(S.FesteringStrike, Me.CurrentTarget.IsWithinMeleeRange)) return true;
             if (await Spell.CoCast(S.ScourgeStrike, Me.CurrentTarget.IsWithinMeleeRange)) return true;
             if (await Spell.CoCast(S.Outbreak, Me.GotTarget)) return true;
-            if (await Spell.CoCast(S.SummonGargoyle,
-                Me.GotTarget && DeathKnightSettings.Instance.SummonGargoyleOnCd &&
-                Capabilities.IsCooldownUsageAllowed))
-                return true;
+            if (await Spell.CoCast(S.SummonGargoyle, Me.GotTarget && DeathKnightSettings.Instance.SummonGargoyleOnCd && Capabilities.IsCooldownUsageAllowed)) return true;
 
             return true;
         }
@@ -842,16 +850,11 @@ namespace ScourgeBloom.Class.DeathKnight
         {
             if (!reqs) return false;
             if (await Spell.CoCast(S.ArmyoftheDead, Capabilities.IsCooldownUsageAllowed)) return true;
-            if (await Spell.CoCast(S.DeathsAdvance, DeathsAdvanceSelected() && Capabilities.IsCooldownUsageAllowed))
-                return true;
-            if (await Spell.CoCast(S.SummonGargoyle,
-                Me.GotTarget && DeathKnightSettings.Instance.SummonGargoyleOnCd &&
-                Capabilities.IsCooldownUsageAllowed))
-                return true;
+            if (await Spell.CoCast(S.DeathsAdvance, DeathsAdvanceSelected() && Capabilities.IsCooldownUsageAllowed)) return true;
+            if (await Spell.CoCast(S.SummonGargoyle, Me.GotTarget && DeathKnightSettings.Instance.SummonGargoyleOnCd && Capabilities.IsCooldownUsageAllowed)) return true;
             if (await Spell.CoCast(S.Outbreak, Me.GotTarget)) return true;
             if (await Spell.CoCast(S.FesteringStrike, Me.CurrentTarget.IsWithinMeleeRange)) return true;
-            if (await Spell.CastOnGround(S.Defile, Me, Me.GotTarget && Me.CurrentTarget.IsWithinMeleeRange && Capabilities.IsAoeAllowed))
-                return true;
+            if (await Spell.CastOnGround(S.Defile, Me, Me.GotTarget && Me.CurrentTarget.IsWithinMeleeRange && Capabilities.IsAoeAllowed)) return true;
             if (await Spell.CoCast(S.DeathCoil, Me.HasAura(S.AuraSuddenDoom))) return true;
             if (await Spell.CoCast(S.FesteringStrike, Me.CurrentTarget.IsWithinMeleeRange)) return true;
             if (await Spell.CoCast(S.ScourgeStrike, Me.CurrentTarget.IsWithinMeleeRange)) return true;

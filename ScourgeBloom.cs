@@ -6,9 +6,6 @@
  * Licensed under Microsoft Reference Source License (Ms-RSL)
  */
 
-using System;
-using System.Linq;
-using System.Windows.Media;
 using CommonBehaviors.Actions;
 using NewMixedMode;
 using ScourgeBloom.Helpers;
@@ -26,6 +23,9 @@ using Styx.Plugins;
 using Styx.TreeSharp;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
+using System;
+using System.Linq;
+using System.Windows.Media;
 
 namespace ScourgeBloom
 {
@@ -98,6 +98,12 @@ namespace ScourgeBloom
 
         public override Composite HealBehavior => CreateHeal();
 
+        public override Composite PreCombatBuffBehavior => CreatePreCombatBuff();
+
+        public override Composite CombatBuffBehavior => CreateCombatBuff();
+
+        public override Composite PullBuffBehavior => CreatePullBuff();
+
         public static event EventHandler<WoWContextEventArg> OnWoWContextChanged;
 
         public static void DetermineCurrentWoWContext()
@@ -113,7 +119,8 @@ namespace ScourgeBloom
             if (ForcedContext != WoWContext.None)
             {
                 if (_lastContext != ForcedContext)
-                    Logging.Write(Colors.YellowGreen, "[ScourgeBloom] Context: forcing use of {0} behaviors", ForcedContext);
+                    Logging.Write(Colors.YellowGreen, "[ScourgeBloom] Context: forcing use of {0} behaviors",
+                        ForcedContext);
 
                 return ForcedContext;
             }
@@ -251,7 +258,7 @@ namespace ScourgeBloom
                      (WoWPartyMember.GroupRole.Tank | WoWPartyMember.GroupRole.Healer | WoWPartyMember.GroupRole.Damage))
                         .ToString().ToUpper(),
                     Me.GroupInfo.NumRaidMembers,
-                    (int) Math.Max(Me.CurrentMap.MaxPlayers, Me.GroupInfo.GroupSize)
+                    (int)Math.Max(Me.CurrentMap.MaxPlayers, Me.GroupInfo.GroupSize)
                     );
             }
 
@@ -333,7 +340,7 @@ namespace ScourgeBloom
                     bot = TreeRoot.Current;
                 else
                 {
-                    var mmb = (MixedModeEx) TreeRoot.Current;
+                    var mmb = (MixedModeEx)TreeRoot.Current;
                     if (mmb != null)
                     {
                         if (mmb.SecondaryBot != null && mmb.SecondaryBot.RequirementsMet)
@@ -381,7 +388,9 @@ namespace ScourgeBloom
 
         public static bool IsPluginEnabled(params string[] nameSubstrings)
         {
-            return (from s in nameSubstrings select FindPlugin(s) into pi where pi != null select pi.Enabled).FirstOrDefault();
+            return
+                (from s in nameSubstrings select FindPlugin(s) into pi where pi != null select pi.Enabled)
+                    .FirstOrDefault();
         }
 
         public static bool SetPluginEnabled(string s, bool enabled)
@@ -513,7 +522,7 @@ namespace ScourgeBloom
                     GeneralSettings.Instance.Targeting = false;
                     GeneralSettings.Instance.Facing = false;
                     GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog(string.Format("[ScourgeBloom] Botbase - {0} detected", BotManager.Current.Name));
+                    Log.WriteLog($"[ScourgeBloom] Botbase - {BotManager.Current.Name} detected");
                     break;
 
                 case "LazyRaider":
@@ -521,7 +530,7 @@ namespace ScourgeBloom
                     GeneralSettings.Instance.Targeting = false;
                     GeneralSettings.Instance.Facing = false;
                     GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog(string.Format("[ScourgeBloom] Botbase - {0} detected", BotManager.Current.Name));
+                    Log.WriteLog($"[ScourgeBloom] Botbase - {BotManager.Current.Name} detected");
                     break;
 
                 case "Enyo (Buddystore)":
@@ -529,7 +538,7 @@ namespace ScourgeBloom
                     GeneralSettings.Instance.Targeting = false;
                     GeneralSettings.Instance.Facing = false;
                     GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog(string.Format("[ScourgeBloom] Botbase - {0} detected", BotManager.Current.Name));
+                    Log.WriteLog($"[ScourgeBloom] Botbase - {BotManager.Current.Name} detected");
                     break;
 
                 case "Enyo":
@@ -537,7 +546,7 @@ namespace ScourgeBloom
                     GeneralSettings.Instance.Targeting = false;
                     GeneralSettings.Instance.Facing = false;
                     GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog(string.Format("[ScourgeBloom] Botbase - {0} detected", BotManager.Current.Name));
+                    Log.WriteLog($"[ScourgeBloom] Botbase - {BotManager.Current.Name} detected");
                     break;
 
                 case "Questing":
@@ -545,8 +554,7 @@ namespace ScourgeBloom
                     GeneralSettings.Instance.Targeting = true;
                     GeneralSettings.Instance.Facing = true;
                     GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog(string.Format("[ScourgeBloom] Movement Enabled - Bot - {0} detected",
-                        BotManager.Current.Name));
+                    Log.WriteLog($"[ScourgeBloom] Movement Enabled - Bot - {BotManager.Current.Name} detected");
                     break;
 
                 case "BGBuddy":
@@ -555,8 +563,7 @@ namespace ScourgeBloom
                     GeneralSettings.Instance.Facing = true;
                     GeneralSettings.Instance.PvP = true;
                     GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog(string.Format("[ScourgeBloom] Movement Enabled - Bot - {0} detected",
-                        BotManager.Current.Name));
+                    Log.WriteLog($"[ScourgeBloom] Movement Enabled - Bot - {BotManager.Current.Name} detected");
                     break;
 
                 case "BGFarmer [Millz]":
@@ -565,8 +572,7 @@ namespace ScourgeBloom
                     GeneralSettings.Instance.Facing = true;
                     GeneralSettings.Instance.PvP = true;
                     GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog(string.Format("[ScourgeBloom] Movement Enabled - Bot - {0} detected",
-                        BotManager.Current.Name));
+                    Log.WriteLog($"[ScourgeBloom] Movement Enabled - Bot - {BotManager.Current.Name} detected");
                     break;
 
                 case "BG Bot":
@@ -575,18 +581,7 @@ namespace ScourgeBloom
                     GeneralSettings.Instance.Facing = true;
                     GeneralSettings.Instance.PvP = true;
                     GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog(string.Format("[ScourgeBloom] Movement Enabled - Bot - {0} detected",
-                        BotManager.Current.Name));
-                    break;
-
-                case "Arena Friend":
-                    GeneralSettings.Instance.Movement = true;
-                    GeneralSettings.Instance.Targeting = true;
-                    GeneralSettings.Instance.Facing = true;
-                    GeneralSettings.Instance.PvP = true;
-                    GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog(string.Format("[ScourgeBloom] Movement Enabled - Bot - {0} detected",
-                        BotManager.Current.Name));
+                    Log.WriteLog($"[ScourgeBloom] Movement Enabled - Bot - {BotManager.Current.Name} detected");
                     break;
 
                 case "Combat Bot":
@@ -594,16 +589,14 @@ namespace ScourgeBloom
                     GeneralSettings.Instance.Targeting = true;
                     GeneralSettings.Instance.Facing = true;
                     GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog(string.Format("[ScourgeBloom] Movement Enabled - Bot - {0} detected",
-                        BotManager.Current.Name));
+                    Log.WriteLog($"[ScourgeBloom] Movement Enabled - Bot - {BotManager.Current.Name} detected");
                     break;
 
                 case "Grind Bot":
                     GeneralSettings.Instance.Movement = true;
                     GeneralSettings.Instance.Facing = true;
                     GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog(string.Format("[ScourgeBloom] Movement Enabled - Bot - {0} detected",
-                        BotManager.Current.Name));
+                    Log.WriteLog($"[ScourgeBloom] Movement Enabled - Bot - {BotManager.Current.Name} detected");
                     break;
 
                 case "Raid Bot":
@@ -611,7 +604,7 @@ namespace ScourgeBloom
                     GeneralSettings.Instance.Targeting = false;
                     GeneralSettings.Instance.Facing = false;
                     GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog(string.Format("[ScourgeBloom] Botbase - {0} detected", BotManager.Current.Name));
+                    Log.WriteLog($"[ScourgeBloom] Botbase - {BotManager.Current.Name} detected");
                     break;
 
                 case "RaidBot Improved":
@@ -619,7 +612,7 @@ namespace ScourgeBloom
                     GeneralSettings.Instance.Targeting = false;
                     GeneralSettings.Instance.Facing = false;
                     GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog(string.Format("[ScourgeBloom] Botbase - {0} detected", BotManager.Current.Name));
+                    Log.WriteLog($"[ScourgeBloom] Botbase - {BotManager.Current.Name} detected");
                     break;
 
                 case "DungeonBuddy":
@@ -637,8 +630,7 @@ namespace ScourgeBloom
                     DeathKnightSettings.Instance.UseDeathStrikeHp = 15;
                     DeathKnightSettings.Instance.UseDeathSiphon = true;
                     DeathKnightSettings.Instance.UseDeathSiphonHp = 20;
-                    Log.WriteLog(string.Format("[ScourgeBloom] Movement Enabled - Bot - {0} detected",
-                        BotManager.Current.Name));
+                    Log.WriteLog($"[ScourgeBloom] Movement Enabled - Bot - {BotManager.Current.Name} detected");
                     break;
 
                 default:
@@ -646,7 +638,7 @@ namespace ScourgeBloom
                     GeneralSettings.Instance.Targeting = false;
                     GeneralSettings.Instance.Facing = false;
                     GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog(string.Format("[ScourgeBloom] Botbase - {0} detected", BotManager.Current.Name));
+                    Log.WriteLog($"[ScourgeBloom] Botbase - {BotManager.Current.Name} detected");
                     break;
             }
 
@@ -656,7 +648,6 @@ namespace ScourgeBloom
             _initialized = true;
 
             Log.WriteLog("ScourgeBloom Loaded", Colors.DarkGreen);
-
         }
 
         protected virtual Composite CreateCombat()
@@ -666,8 +657,6 @@ namespace ScourgeBloom
                 new ActionAlwaysFail());
         }
 
-        public override Composite PreCombatBuffBehavior => CreatePreCombatBuff();
-
         protected virtual Composite CreatePreCombatBuff()
         {
             return new HookExecutor("ScourgeBloom_PreCombatBuffs_Root",
@@ -675,16 +664,12 @@ namespace ScourgeBloom
                 new ActionAlwaysFail());
         }
 
-        public override Composite CombatBuffBehavior => CreateCombatBuff();
-
         protected virtual Composite CreateCombatBuff()
         {
             return new HookExecutor("ScourgeBloom_CombatBuffs_Root",
                 "Root composite for ScourgeBloom PreCombatBuffs. Rotations will be plugged into this hook.",
                 new ActionAlwaysFail());
         }
-
-        public override Composite PullBuffBehavior => CreatePullBuff();
 
         protected virtual Composite CreatePullBuff()
         {

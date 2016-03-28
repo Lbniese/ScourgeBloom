@@ -47,15 +47,46 @@ namespace ScourgeBloom
             this.GeneralSGrid = new System.Windows.Forms.PropertyGrid();
             this.Cooldowns = new System.Windows.Forms.TabPage();
             this.groupBox16 = new System.Windows.Forms.GroupBox();
+            this.AutoAmsCheckbox = new System.Windows.Forms.CheckBox();
             this.label10 = new System.Windows.Forms.Label();
             this.numIceBoundFortitudeHp = new System.Windows.Forms.NumericUpDown();
             this.UseIceboundFCheckBox = new System.Windows.Forms.CheckBox();
-            this.AutoAmsCheckbox = new System.Windows.Forms.CheckBox();
             this.groupBox15 = new System.Windows.Forms.GroupBox();
             this.groupBox14 = new System.Windows.Forms.GroupBox();
             this.UsePillarofFrostOnCdCheckBox = new System.Windows.Forms.CheckBox();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
             this.GargoyleOnCDcheckBox = new System.Windows.Forms.CheckBox();
+            this.Talents = new System.Windows.Forms.TabPage();
+            this.groupBox31 = new System.Windows.Forms.GroupBox();
+            this.UseBoScheckBox = new System.Windows.Forms.CheckBox();
+            this.groupBox30 = new System.Windows.Forms.GroupBox();
+            this.UseDefilecheckBox = new System.Windows.Forms.CheckBox();
+            this.groupBox27 = new System.Windows.Forms.GroupBox();
+            this.UseDesecratedGroundcheckBox = new System.Windows.Forms.CheckBox();
+            this.groupBox25 = new System.Windows.Forms.GroupBox();
+            this.UseRemorselessWintercheckBox = new System.Windows.Forms.CheckBox();
+            this.groupBox20 = new System.Windows.Forms.GroupBox();
+            this.UseGorefiendsGraspcheckBox = new System.Windows.Forms.CheckBox();
+            this.groupBox34 = new System.Windows.Forms.GroupBox();
+            this.UseConversioncheckBox = new System.Windows.Forms.CheckBox();
+            this.groupBox33 = new System.Windows.Forms.GroupBox();
+            this.UseDeathSiphoncheckBox = new System.Windows.Forms.CheckBox();
+            this.groupBox32 = new System.Windows.Forms.GroupBox();
+            this.UseDeathPactcheckBox = new System.Windows.Forms.CheckBox();
+            this.groupBox29 = new System.Windows.Forms.GroupBox();
+            this.UseBloodTapcheckBox = new System.Windows.Forms.CheckBox();
+            this.groupBox28 = new System.Windows.Forms.GroupBox();
+            this.UseAsphyxiatecheckBox = new System.Windows.Forms.CheckBox();
+            this.groupBox26 = new System.Windows.Forms.GroupBox();
+            this.UseDeathsAdvancecheckBox = new System.Windows.Forms.CheckBox();
+            this.groupBox24 = new System.Windows.Forms.GroupBox();
+            this.UseAMZcheckBox = new System.Windows.Forms.CheckBox();
+            this.groupBox23 = new System.Windows.Forms.GroupBox();
+            this.UseLichBornecheckBox = new System.Windows.Forms.CheckBox();
+            this.groupBox22 = new System.Windows.Forms.GroupBox();
+            this.UseUnholyBlightcheckBox = new System.Windows.Forms.CheckBox();
+            this.groupBox21 = new System.Windows.Forms.GroupBox();
+            this.UsePLagueLeechcheckBox = new System.Windows.Forms.CheckBox();
             this.Racials = new System.Windows.Forms.TabPage();
             this.groupBox13 = new System.Windows.Forms.GroupBox();
             this.BerserkingOnCdCheckBox = new System.Windows.Forms.CheckBox();
@@ -87,6 +118,7 @@ namespace ScourgeBloom
             this.UseRacialsCheckBox = new System.Windows.Forms.CheckBox();
             this.Trinkets = new System.Windows.Forms.TabPage();
             this.groupBox9 = new System.Windows.Forms.GroupBox();
+            this.UseTrinket2OnBoS = new System.Windows.Forms.CheckBox();
             this.numTrinket2EnemyHealth = new System.Windows.Forms.NumericUpDown();
             this.numTrinket2MyHealth = new System.Windows.Forms.NumericUpDown();
             this.label7 = new System.Windows.Forms.Label();
@@ -99,6 +131,7 @@ namespace ScourgeBloom
             this.T2OnLoCCheckBox = new System.Windows.Forms.CheckBox();
             this.UseTrinket2CheckBox = new System.Windows.Forms.CheckBox();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
+            this.UseTrinket1OnBoS = new System.Windows.Forms.CheckBox();
             this.numTrinket1EnemyHealth = new System.Windows.Forms.NumericUpDown();
             this.numTrinket1MyHealth = new System.Windows.Forms.NumericUpDown();
             this.label6 = new System.Windows.Forms.Label();
@@ -160,6 +193,22 @@ namespace ScourgeBloom
             ((System.ComponentModel.ISupportInitialize)(this.numIceBoundFortitudeHp)).BeginInit();
             this.groupBox14.SuspendLayout();
             this.groupBox7.SuspendLayout();
+            this.Talents.SuspendLayout();
+            this.groupBox31.SuspendLayout();
+            this.groupBox30.SuspendLayout();
+            this.groupBox27.SuspendLayout();
+            this.groupBox25.SuspendLayout();
+            this.groupBox20.SuspendLayout();
+            this.groupBox34.SuspendLayout();
+            this.groupBox33.SuspendLayout();
+            this.groupBox32.SuspendLayout();
+            this.groupBox29.SuspendLayout();
+            this.groupBox28.SuspendLayout();
+            this.groupBox26.SuspendLayout();
+            this.groupBox24.SuspendLayout();
+            this.groupBox23.SuspendLayout();
+            this.groupBox22.SuspendLayout();
+            this.groupBox21.SuspendLayout();
             this.Racials.SuspendLayout();
             this.groupBox13.SuspendLayout();
             this.groupBox10.SuspendLayout();
@@ -201,6 +250,7 @@ namespace ScourgeBloom
             this.TabControl1.Controls.Add(this.Changelog);
             this.TabControl1.Controls.Add(this.General);
             this.TabControl1.Controls.Add(this.Cooldowns);
+            this.TabControl1.Controls.Add(this.Talents);
             this.TabControl1.Controls.Add(this.Racials);
             this.TabControl1.Controls.Add(this.Trinkets);
             this.TabControl1.Controls.Add(this.Advanced);
@@ -208,7 +258,7 @@ namespace ScourgeBloom
             this.TabControl1.Location = new System.Drawing.Point(0, 1);
             this.TabControl1.Name = "TabControl1";
             this.TabControl1.SelectedIndex = 0;
-            this.TabControl1.Size = new System.Drawing.Size(582, 485);
+            this.TabControl1.Size = new System.Drawing.Size(583, 530);
             this.TabControl1.TabIndex = 0;
             // 
             // Changelog
@@ -217,7 +267,7 @@ namespace ScourgeBloom
             this.Changelog.Controls.Add(this.pictureBox1);
             this.Changelog.Location = new System.Drawing.Point(4, 22);
             this.Changelog.Name = "Changelog";
-            this.Changelog.Size = new System.Drawing.Size(574, 459);
+            this.Changelog.Size = new System.Drawing.Size(575, 504);
             this.Changelog.TabIndex = 4;
             this.Changelog.Text = "Changelog";
             this.Changelog.UseVisualStyleBackColor = true;
@@ -225,11 +275,11 @@ namespace ScourgeBloom
             // textBox1
             // 
             this.textBox1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.textBox1.Location = new System.Drawing.Point(0, 345);
+            this.textBox1.Location = new System.Drawing.Point(0, 390);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
-            this.textBox1.Size = new System.Drawing.Size(574, 114);
+            this.textBox1.Size = new System.Drawing.Size(575, 114);
             this.textBox1.TabIndex = 1;
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
@@ -250,7 +300,7 @@ namespace ScourgeBloom
             this.General.Location = new System.Drawing.Point(4, 22);
             this.General.Name = "General";
             this.General.Padding = new System.Windows.Forms.Padding(3);
-            this.General.Size = new System.Drawing.Size(574, 459);
+            this.General.Size = new System.Drawing.Size(575, 504);
             this.General.TabIndex = 0;
             this.General.Text = "General";
             this.General.UseVisualStyleBackColor = true;
@@ -261,7 +311,7 @@ namespace ScourgeBloom
             this.GeneralSGrid.Dock = System.Windows.Forms.DockStyle.Fill;
             this.GeneralSGrid.Location = new System.Drawing.Point(3, 3);
             this.GeneralSGrid.Name = "GeneralSGrid";
-            this.GeneralSGrid.Size = new System.Drawing.Size(568, 453);
+            this.GeneralSGrid.Size = new System.Drawing.Size(569, 498);
             this.GeneralSGrid.TabIndex = 0;
             // 
             // Cooldowns
@@ -272,17 +322,17 @@ namespace ScourgeBloom
             this.Cooldowns.Controls.Add(this.groupBox7);
             this.Cooldowns.Location = new System.Drawing.Point(4, 22);
             this.Cooldowns.Name = "Cooldowns";
-            this.Cooldowns.Size = new System.Drawing.Size(574, 459);
+            this.Cooldowns.Size = new System.Drawing.Size(575, 504);
             this.Cooldowns.TabIndex = 7;
             this.Cooldowns.Text = "Cooldowns";
             this.Cooldowns.UseVisualStyleBackColor = true;
             // 
             // groupBox16
             // 
+            this.groupBox16.Controls.Add(this.AutoAmsCheckbox);
             this.groupBox16.Controls.Add(this.label10);
             this.groupBox16.Controls.Add(this.numIceBoundFortitudeHp);
             this.groupBox16.Controls.Add(this.UseIceboundFCheckBox);
-            this.groupBox16.Controls.Add(this.AutoAmsCheckbox);
             this.groupBox16.Location = new System.Drawing.Point(8, 3);
             this.groupBox16.Name = "groupBox16";
             this.groupBox16.Size = new System.Drawing.Size(558, 108);
@@ -290,10 +340,23 @@ namespace ScourgeBloom
             this.groupBox16.TabStop = false;
             this.groupBox16.Text = "Common";
             // 
+            // AutoAmsCheckbox
+            // 
+            this.AutoAmsCheckbox.AutoSize = true;
+            this.AutoAmsCheckbox.Checked = true;
+            this.AutoAmsCheckbox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.AutoAmsCheckbox.Location = new System.Drawing.Point(6, 68);
+            this.AutoAmsCheckbox.Name = "AutoAmsCheckbox";
+            this.AutoAmsCheckbox.Size = new System.Drawing.Size(124, 17);
+            this.AutoAmsCheckbox.TabIndex = 8;
+            this.AutoAmsCheckbox.Text = "Use Anti-Magic Shell";
+            this.AutoAmsCheckbox.UseVisualStyleBackColor = true;
+            this.AutoAmsCheckbox.CheckedChanged += new System.EventHandler(this.AutoAmsCheckbox_CheckedChanged);
+            // 
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(31, 62);
+            this.label10.Location = new System.Drawing.Point(30, 44);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(35, 13);
             this.label10.TabIndex = 7;
@@ -301,7 +364,7 @@ namespace ScourgeBloom
             // 
             // numIceBoundFortitudeHp
             // 
-            this.numIceBoundFortitudeHp.Location = new System.Drawing.Point(72, 60);
+            this.numIceBoundFortitudeHp.Location = new System.Drawing.Point(71, 42);
             this.numIceBoundFortitudeHp.Name = "numIceBoundFortitudeHp";
             this.numIceBoundFortitudeHp.Size = new System.Drawing.Size(61, 20);
             this.numIceBoundFortitudeHp.TabIndex = 2;
@@ -317,26 +380,13 @@ namespace ScourgeBloom
             this.UseIceboundFCheckBox.AutoSize = true;
             this.UseIceboundFCheckBox.Checked = true;
             this.UseIceboundFCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.UseIceboundFCheckBox.Location = new System.Drawing.Point(6, 42);
+            this.UseIceboundFCheckBox.Location = new System.Drawing.Point(6, 19);
             this.UseIceboundFCheckBox.Name = "UseIceboundFCheckBox";
             this.UseIceboundFCheckBox.Size = new System.Drawing.Size(140, 17);
             this.UseIceboundFCheckBox.TabIndex = 1;
             this.UseIceboundFCheckBox.Text = "Auto Icebound Fortitude";
             this.UseIceboundFCheckBox.UseVisualStyleBackColor = true;
             this.UseIceboundFCheckBox.CheckedChanged += new System.EventHandler(this.UseIceboundFCheckBox_CheckedChanged);
-            // 
-            // AutoAmsCheckbox
-            // 
-            this.AutoAmsCheckbox.AutoSize = true;
-            this.AutoAmsCheckbox.Checked = true;
-            this.AutoAmsCheckbox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.AutoAmsCheckbox.Location = new System.Drawing.Point(6, 19);
-            this.AutoAmsCheckbox.Name = "AutoAmsCheckbox";
-            this.AutoAmsCheckbox.Size = new System.Drawing.Size(127, 17);
-            this.AutoAmsCheckbox.TabIndex = 0;
-            this.AutoAmsCheckbox.Text = "Auto Anti-Magic Shell";
-            this.AutoAmsCheckbox.UseVisualStyleBackColor = true;
-            this.AutoAmsCheckbox.CheckedChanged += new System.EventHandler(this.AutoAmsCheckbox_CheckedChanged);
             // 
             // groupBox15
             // 
@@ -394,6 +444,330 @@ namespace ScourgeBloom
             this.GargoyleOnCDcheckBox.UseVisualStyleBackColor = true;
             this.GargoyleOnCDcheckBox.CheckedChanged += new System.EventHandler(this.GargoyleOnCDcheckBox_CheckedChanged);
             // 
+            // Talents
+            // 
+            this.Talents.Controls.Add(this.groupBox31);
+            this.Talents.Controls.Add(this.groupBox30);
+            this.Talents.Controls.Add(this.groupBox27);
+            this.Talents.Controls.Add(this.groupBox25);
+            this.Talents.Controls.Add(this.groupBox20);
+            this.Talents.Controls.Add(this.groupBox34);
+            this.Talents.Controls.Add(this.groupBox33);
+            this.Talents.Controls.Add(this.groupBox32);
+            this.Talents.Controls.Add(this.groupBox29);
+            this.Talents.Controls.Add(this.groupBox28);
+            this.Talents.Controls.Add(this.groupBox26);
+            this.Talents.Controls.Add(this.groupBox24);
+            this.Talents.Controls.Add(this.groupBox23);
+            this.Talents.Controls.Add(this.groupBox22);
+            this.Talents.Controls.Add(this.groupBox21);
+            this.Talents.Location = new System.Drawing.Point(4, 22);
+            this.Talents.Name = "Talents";
+            this.Talents.Size = new System.Drawing.Size(575, 504);
+            this.Talents.TabIndex = 9;
+            this.Talents.Text = "Talents";
+            this.Talents.UseVisualStyleBackColor = true;
+            // 
+            // groupBox31
+            // 
+            this.groupBox31.Controls.Add(this.UseBoScheckBox);
+            this.groupBox31.Location = new System.Drawing.Point(384, 404);
+            this.groupBox31.Name = "groupBox31";
+            this.groupBox31.Size = new System.Drawing.Size(182, 94);
+            this.groupBox31.TabIndex = 18;
+            this.groupBox31.TabStop = false;
+            this.groupBox31.Text = "Breath of Sindragosa";
+            // 
+            // UseBoScheckBox
+            // 
+            this.UseBoScheckBox.AutoSize = true;
+            this.UseBoScheckBox.Location = new System.Drawing.Point(6, 19);
+            this.UseBoScheckBox.Name = "UseBoScheckBox";
+            this.UseBoScheckBox.Size = new System.Drawing.Size(147, 17);
+            this.UseBoScheckBox.TabIndex = 2;
+            this.UseBoScheckBox.Text = "Use Breath of Sindragosa";
+            this.UseBoScheckBox.UseVisualStyleBackColor = true;
+            // 
+            // groupBox30
+            // 
+            this.groupBox30.Controls.Add(this.UseDefilecheckBox);
+            this.groupBox30.Location = new System.Drawing.Point(196, 404);
+            this.groupBox30.Name = "groupBox30";
+            this.groupBox30.Size = new System.Drawing.Size(182, 94);
+            this.groupBox30.TabIndex = 17;
+            this.groupBox30.TabStop = false;
+            this.groupBox30.Text = "Defile";
+            // 
+            // UseDefilecheckBox
+            // 
+            this.UseDefilecheckBox.AutoSize = true;
+            this.UseDefilecheckBox.Location = new System.Drawing.Point(6, 19);
+            this.UseDefilecheckBox.Name = "UseDefilecheckBox";
+            this.UseDefilecheckBox.Size = new System.Drawing.Size(75, 17);
+            this.UseDefilecheckBox.TabIndex = 2;
+            this.UseDefilecheckBox.Text = "Use Defile";
+            this.UseDefilecheckBox.UseVisualStyleBackColor = true;
+            // 
+            // groupBox27
+            // 
+            this.groupBox27.Controls.Add(this.UseDesecratedGroundcheckBox);
+            this.groupBox27.Location = new System.Drawing.Point(8, 404);
+            this.groupBox27.Name = "groupBox27";
+            this.groupBox27.Size = new System.Drawing.Size(182, 94);
+            this.groupBox27.TabIndex = 16;
+            this.groupBox27.TabStop = false;
+            this.groupBox27.Text = "Desecrated Ground";
+            // 
+            // UseDesecratedGroundcheckBox
+            // 
+            this.UseDesecratedGroundcheckBox.AutoSize = true;
+            this.UseDesecratedGroundcheckBox.Location = new System.Drawing.Point(6, 19);
+            this.UseDesecratedGroundcheckBox.Name = "UseDesecratedGroundcheckBox";
+            this.UseDesecratedGroundcheckBox.Size = new System.Drawing.Size(141, 17);
+            this.UseDesecratedGroundcheckBox.TabIndex = 2;
+            this.UseDesecratedGroundcheckBox.Text = "Use Desecrated Ground";
+            this.UseDesecratedGroundcheckBox.UseVisualStyleBackColor = true;
+            // 
+            // groupBox25
+            // 
+            this.groupBox25.Controls.Add(this.UseRemorselessWintercheckBox);
+            this.groupBox25.Location = new System.Drawing.Point(384, 304);
+            this.groupBox25.Name = "groupBox25";
+            this.groupBox25.Size = new System.Drawing.Size(182, 94);
+            this.groupBox25.TabIndex = 15;
+            this.groupBox25.TabStop = false;
+            this.groupBox25.Text = "Remorseless Winter";
+            // 
+            // UseRemorselessWintercheckBox
+            // 
+            this.UseRemorselessWintercheckBox.AutoSize = true;
+            this.UseRemorselessWintercheckBox.Location = new System.Drawing.Point(6, 19);
+            this.UseRemorselessWintercheckBox.Name = "UseRemorselessWintercheckBox";
+            this.UseRemorselessWintercheckBox.Size = new System.Drawing.Size(142, 17);
+            this.UseRemorselessWintercheckBox.TabIndex = 2;
+            this.UseRemorselessWintercheckBox.Text = "Use Remorseless Winter";
+            this.UseRemorselessWintercheckBox.UseVisualStyleBackColor = true;
+            // 
+            // groupBox20
+            // 
+            this.groupBox20.Controls.Add(this.UseGorefiendsGraspcheckBox);
+            this.groupBox20.Location = new System.Drawing.Point(196, 304);
+            this.groupBox20.Name = "groupBox20";
+            this.groupBox20.Size = new System.Drawing.Size(182, 94);
+            this.groupBox20.TabIndex = 14;
+            this.groupBox20.TabStop = false;
+            this.groupBox20.Text = "Gorefiend\'s Grasp";
+            // 
+            // UseGorefiendsGraspcheckBox
+            // 
+            this.UseGorefiendsGraspcheckBox.AutoSize = true;
+            this.UseGorefiendsGraspcheckBox.Location = new System.Drawing.Point(6, 19);
+            this.UseGorefiendsGraspcheckBox.Name = "UseGorefiendsGraspcheckBox";
+            this.UseGorefiendsGraspcheckBox.Size = new System.Drawing.Size(132, 17);
+            this.UseGorefiendsGraspcheckBox.TabIndex = 2;
+            this.UseGorefiendsGraspcheckBox.Text = "Use Gorefiend\'s Grasp";
+            this.UseGorefiendsGraspcheckBox.UseVisualStyleBackColor = true;
+            // 
+            // groupBox34
+            // 
+            this.groupBox34.Controls.Add(this.UseConversioncheckBox);
+            this.groupBox34.Location = new System.Drawing.Point(8, 304);
+            this.groupBox34.Name = "groupBox34";
+            this.groupBox34.Size = new System.Drawing.Size(182, 94);
+            this.groupBox34.TabIndex = 13;
+            this.groupBox34.TabStop = false;
+            this.groupBox34.Text = "Conversation";
+            // 
+            // UseConversioncheckBox
+            // 
+            this.UseConversioncheckBox.AutoSize = true;
+            this.UseConversioncheckBox.Location = new System.Drawing.Point(6, 19);
+            this.UseConversioncheckBox.Name = "UseConversioncheckBox";
+            this.UseConversioncheckBox.Size = new System.Drawing.Size(101, 17);
+            this.UseConversioncheckBox.TabIndex = 2;
+            this.UseConversioncheckBox.Text = "Use Conversion";
+            this.UseConversioncheckBox.UseVisualStyleBackColor = true;
+            // 
+            // groupBox33
+            // 
+            this.groupBox33.Controls.Add(this.UseDeathSiphoncheckBox);
+            this.groupBox33.Location = new System.Drawing.Point(384, 204);
+            this.groupBox33.Name = "groupBox33";
+            this.groupBox33.Size = new System.Drawing.Size(182, 94);
+            this.groupBox33.TabIndex = 12;
+            this.groupBox33.TabStop = false;
+            this.groupBox33.Text = "Death Siphon";
+            // 
+            // UseDeathSiphoncheckBox
+            // 
+            this.UseDeathSiphoncheckBox.AutoSize = true;
+            this.UseDeathSiphoncheckBox.Location = new System.Drawing.Point(6, 19);
+            this.UseDeathSiphoncheckBox.Name = "UseDeathSiphoncheckBox";
+            this.UseDeathSiphoncheckBox.Size = new System.Drawing.Size(113, 17);
+            this.UseDeathSiphoncheckBox.TabIndex = 0;
+            this.UseDeathSiphoncheckBox.Text = "Use Death Siphon";
+            this.UseDeathSiphoncheckBox.UseVisualStyleBackColor = true;
+            // 
+            // groupBox32
+            // 
+            this.groupBox32.Controls.Add(this.UseDeathPactcheckBox);
+            this.groupBox32.Location = new System.Drawing.Point(196, 204);
+            this.groupBox32.Name = "groupBox32";
+            this.groupBox32.Size = new System.Drawing.Size(182, 94);
+            this.groupBox32.TabIndex = 11;
+            this.groupBox32.TabStop = false;
+            this.groupBox32.Text = "Death Pact";
+            // 
+            // UseDeathPactcheckBox
+            // 
+            this.UseDeathPactcheckBox.AutoSize = true;
+            this.UseDeathPactcheckBox.Location = new System.Drawing.Point(6, 19);
+            this.UseDeathPactcheckBox.Name = "UseDeathPactcheckBox";
+            this.UseDeathPactcheckBox.Size = new System.Drawing.Size(102, 17);
+            this.UseDeathPactcheckBox.TabIndex = 2;
+            this.UseDeathPactcheckBox.Text = "Use Death Pact";
+            this.UseDeathPactcheckBox.UseVisualStyleBackColor = true;
+            // 
+            // groupBox29
+            // 
+            this.groupBox29.Controls.Add(this.UseBloodTapcheckBox);
+            this.groupBox29.Location = new System.Drawing.Point(8, 204);
+            this.groupBox29.Name = "groupBox29";
+            this.groupBox29.Size = new System.Drawing.Size(182, 94);
+            this.groupBox29.TabIndex = 8;
+            this.groupBox29.TabStop = false;
+            this.groupBox29.Text = "Blood Tap";
+            // 
+            // UseBloodTapcheckBox
+            // 
+            this.UseBloodTapcheckBox.AutoSize = true;
+            this.UseBloodTapcheckBox.Location = new System.Drawing.Point(6, 19);
+            this.UseBloodTapcheckBox.Name = "UseBloodTapcheckBox";
+            this.UseBloodTapcheckBox.Size = new System.Drawing.Size(97, 17);
+            this.UseBloodTapcheckBox.TabIndex = 2;
+            this.UseBloodTapcheckBox.Text = "Use Blood Tap";
+            this.UseBloodTapcheckBox.UseVisualStyleBackColor = true;
+            // 
+            // groupBox28
+            // 
+            this.groupBox28.Controls.Add(this.UseAsphyxiatecheckBox);
+            this.groupBox28.Location = new System.Drawing.Point(384, 104);
+            this.groupBox28.Name = "groupBox28";
+            this.groupBox28.Size = new System.Drawing.Size(182, 94);
+            this.groupBox28.TabIndex = 7;
+            this.groupBox28.TabStop = false;
+            this.groupBox28.Text = "Asphyxiate";
+            // 
+            // UseAsphyxiatecheckBox
+            // 
+            this.UseAsphyxiatecheckBox.AutoSize = true;
+            this.UseAsphyxiatecheckBox.Location = new System.Drawing.Point(6, 19);
+            this.UseAsphyxiatecheckBox.Name = "UseAsphyxiatecheckBox";
+            this.UseAsphyxiatecheckBox.Size = new System.Drawing.Size(99, 17);
+            this.UseAsphyxiatecheckBox.TabIndex = 2;
+            this.UseAsphyxiatecheckBox.Text = "Use Asphyxiate";
+            this.UseAsphyxiatecheckBox.UseVisualStyleBackColor = true;
+            // 
+            // groupBox26
+            // 
+            this.groupBox26.Controls.Add(this.UseDeathsAdvancecheckBox);
+            this.groupBox26.Location = new System.Drawing.Point(196, 104);
+            this.groupBox26.Name = "groupBox26";
+            this.groupBox26.Size = new System.Drawing.Size(182, 94);
+            this.groupBox26.TabIndex = 5;
+            this.groupBox26.TabStop = false;
+            this.groupBox26.Text = "Death\'s Advance";
+            // 
+            // UseDeathsAdvancecheckBox
+            // 
+            this.UseDeathsAdvancecheckBox.AutoSize = true;
+            this.UseDeathsAdvancecheckBox.Location = new System.Drawing.Point(6, 19);
+            this.UseDeathsAdvancecheckBox.Name = "UseDeathsAdvancecheckBox";
+            this.UseDeathsAdvancecheckBox.Size = new System.Drawing.Size(130, 17);
+            this.UseDeathsAdvancecheckBox.TabIndex = 0;
+            this.UseDeathsAdvancecheckBox.Text = "Use Death\'s Advance";
+            this.UseDeathsAdvancecheckBox.UseVisualStyleBackColor = true;
+            // 
+            // groupBox24
+            // 
+            this.groupBox24.Controls.Add(this.UseAMZcheckBox);
+            this.groupBox24.Location = new System.Drawing.Point(8, 104);
+            this.groupBox24.Name = "groupBox24";
+            this.groupBox24.Size = new System.Drawing.Size(182, 94);
+            this.groupBox24.TabIndex = 3;
+            this.groupBox24.TabStop = false;
+            this.groupBox24.Text = "Anti-Magic Zone";
+            // 
+            // UseAMZcheckBox
+            // 
+            this.UseAMZcheckBox.AutoSize = true;
+            this.UseAMZcheckBox.Location = new System.Drawing.Point(6, 19);
+            this.UseAMZcheckBox.Name = "UseAMZcheckBox";
+            this.UseAMZcheckBox.Size = new System.Drawing.Size(126, 17);
+            this.UseAMZcheckBox.TabIndex = 1;
+            this.UseAMZcheckBox.Text = "Use Anti-Magic Zone";
+            this.UseAMZcheckBox.UseVisualStyleBackColor = true;
+            // 
+            // groupBox23
+            // 
+            this.groupBox23.Controls.Add(this.UseLichBornecheckBox);
+            this.groupBox23.Location = new System.Drawing.Point(384, 4);
+            this.groupBox23.Name = "groupBox23";
+            this.groupBox23.Size = new System.Drawing.Size(182, 94);
+            this.groupBox23.TabIndex = 2;
+            this.groupBox23.TabStop = false;
+            this.groupBox23.Text = "Lichborne";
+            // 
+            // UseLichBornecheckBox
+            // 
+            this.UseLichBornecheckBox.AutoSize = true;
+            this.UseLichBornecheckBox.Location = new System.Drawing.Point(6, 19);
+            this.UseLichBornecheckBox.Name = "UseLichBornecheckBox";
+            this.UseLichBornecheckBox.Size = new System.Drawing.Size(95, 17);
+            this.UseLichBornecheckBox.TabIndex = 2;
+            this.UseLichBornecheckBox.Text = "Use Lichborne";
+            this.UseLichBornecheckBox.UseVisualStyleBackColor = true;
+            // 
+            // groupBox22
+            // 
+            this.groupBox22.Controls.Add(this.UseUnholyBlightcheckBox);
+            this.groupBox22.Location = new System.Drawing.Point(196, 4);
+            this.groupBox22.Name = "groupBox22";
+            this.groupBox22.Size = new System.Drawing.Size(182, 94);
+            this.groupBox22.TabIndex = 1;
+            this.groupBox22.TabStop = false;
+            this.groupBox22.Text = "Unholy Blight";
+            // 
+            // UseUnholyBlightcheckBox
+            // 
+            this.UseUnholyBlightcheckBox.AutoSize = true;
+            this.UseUnholyBlightcheckBox.Location = new System.Drawing.Point(6, 19);
+            this.UseUnholyBlightcheckBox.Name = "UseUnholyBlightcheckBox";
+            this.UseUnholyBlightcheckBox.Size = new System.Drawing.Size(110, 17);
+            this.UseUnholyBlightcheckBox.TabIndex = 2;
+            this.UseUnholyBlightcheckBox.Text = "Use Unholy Blight";
+            this.UseUnholyBlightcheckBox.UseVisualStyleBackColor = true;
+            // 
+            // groupBox21
+            // 
+            this.groupBox21.Controls.Add(this.UsePLagueLeechcheckBox);
+            this.groupBox21.Location = new System.Drawing.Point(8, 4);
+            this.groupBox21.Name = "groupBox21";
+            this.groupBox21.Size = new System.Drawing.Size(182, 94);
+            this.groupBox21.TabIndex = 1;
+            this.groupBox21.TabStop = false;
+            this.groupBox21.Text = "Plague Leech";
+            // 
+            // UsePLagueLeechcheckBox
+            // 
+            this.UsePLagueLeechcheckBox.AutoSize = true;
+            this.UsePLagueLeechcheckBox.Location = new System.Drawing.Point(6, 19);
+            this.UsePLagueLeechcheckBox.Name = "UsePLagueLeechcheckBox";
+            this.UsePLagueLeechcheckBox.Size = new System.Drawing.Size(114, 17);
+            this.UsePLagueLeechcheckBox.TabIndex = 0;
+            this.UsePLagueLeechcheckBox.Text = "Use Plague Leech";
+            this.UsePLagueLeechcheckBox.UseVisualStyleBackColor = true;
+            // 
             // Racials
             // 
             this.Racials.Controls.Add(this.groupBox13);
@@ -406,7 +780,7 @@ namespace ScourgeBloom
             this.Racials.Controls.Add(this.groupBox1);
             this.Racials.Location = new System.Drawing.Point(4, 22);
             this.Racials.Name = "Racials";
-            this.Racials.Size = new System.Drawing.Size(574, 459);
+            this.Racials.Size = new System.Drawing.Size(575, 504);
             this.Racials.TabIndex = 5;
             this.Racials.Text = "Racials";
             this.Racials.UseVisualStyleBackColor = true;
@@ -712,13 +1086,14 @@ namespace ScourgeBloom
             this.Trinkets.Controls.Add(this.groupBox8);
             this.Trinkets.Location = new System.Drawing.Point(4, 22);
             this.Trinkets.Name = "Trinkets";
-            this.Trinkets.Size = new System.Drawing.Size(574, 459);
+            this.Trinkets.Size = new System.Drawing.Size(575, 504);
             this.Trinkets.TabIndex = 6;
             this.Trinkets.Text = "Trinkets";
             this.Trinkets.UseVisualStyleBackColor = true;
             // 
             // groupBox9
             // 
+            this.groupBox9.Controls.Add(this.UseTrinket2OnBoS);
             this.groupBox9.Controls.Add(this.numTrinket2EnemyHealth);
             this.groupBox9.Controls.Add(this.numTrinket2MyHealth);
             this.groupBox9.Controls.Add(this.label7);
@@ -737,6 +1112,17 @@ namespace ScourgeBloom
             this.groupBox9.TabStop = false;
             this.groupBox9.Text = "Trinket 2";
             this.groupBox9.Enter += new System.EventHandler(this.groupBox9_Enter);
+            // 
+            // UseTrinket2OnBoS
+            // 
+            this.UseTrinket2OnBoS.AutoSize = true;
+            this.UseTrinket2OnBoS.Location = new System.Drawing.Point(5, 174);
+            this.UseTrinket2OnBoS.Name = "UseTrinket2OnBoS";
+            this.UseTrinket2OnBoS.Size = new System.Drawing.Size(162, 17);
+            this.UseTrinket2OnBoS.TabIndex = 25;
+            this.UseTrinket2OnBoS.Text = "Use on Breath of Sindragosa\r\n";
+            this.UseTrinket2OnBoS.UseVisualStyleBackColor = true;
+            this.UseTrinket2OnBoS.CheckedChanged += new System.EventHandler(this.UseTrinket2OnBoS_CheckedChanged);
             // 
             // numTrinket2EnemyHealth
             // 
@@ -849,6 +1235,7 @@ namespace ScourgeBloom
             // 
             // groupBox8
             // 
+            this.groupBox8.Controls.Add(this.UseTrinket1OnBoS);
             this.groupBox8.Controls.Add(this.numTrinket1EnemyHealth);
             this.groupBox8.Controls.Add(this.numTrinket1MyHealth);
             this.groupBox8.Controls.Add(this.label6);
@@ -867,6 +1254,17 @@ namespace ScourgeBloom
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "Trinket 1";
             this.groupBox8.Enter += new System.EventHandler(this.groupBox8_Enter);
+            // 
+            // UseTrinket1OnBoS
+            // 
+            this.UseTrinket1OnBoS.AutoSize = true;
+            this.UseTrinket1OnBoS.Location = new System.Drawing.Point(5, 175);
+            this.UseTrinket1OnBoS.Name = "UseTrinket1OnBoS";
+            this.UseTrinket1OnBoS.Size = new System.Drawing.Size(162, 17);
+            this.UseTrinket1OnBoS.TabIndex = 13;
+            this.UseTrinket1OnBoS.Text = "Use on Breath of Sindragosa";
+            this.UseTrinket1OnBoS.UseVisualStyleBackColor = true;
+            this.UseTrinket1OnBoS.CheckedChanged += new System.EventHandler(this.UseTrinket1OnBoS_CheckedChanged);
             // 
             // numTrinket1EnemyHealth
             // 
@@ -985,7 +1383,7 @@ namespace ScourgeBloom
             this.Advanced.Controls.Add(this.groupBox12);
             this.Advanced.Location = new System.Drawing.Point(4, 22);
             this.Advanced.Name = "Advanced";
-            this.Advanced.Size = new System.Drawing.Size(574, 459);
+            this.Advanced.Size = new System.Drawing.Size(575, 504);
             this.Advanced.TabIndex = 8;
             this.Advanced.Text = "Advanced";
             this.Advanced.UseVisualStyleBackColor = true;
@@ -1347,7 +1745,7 @@ namespace ScourgeBloom
             this.Debug.Controls.Add(this.DumpSpellsButton);
             this.Debug.Location = new System.Drawing.Point(4, 22);
             this.Debug.Name = "Debug";
-            this.Debug.Size = new System.Drawing.Size(574, 459);
+            this.Debug.Size = new System.Drawing.Size(575, 504);
             this.Debug.TabIndex = 3;
             this.Debug.Text = "Debug";
             this.Debug.UseVisualStyleBackColor = true;
@@ -1394,7 +1792,7 @@ namespace ScourgeBloom
             // 
             // SaveButton
             // 
-            this.SaveButton.Location = new System.Drawing.Point(495, 507);
+            this.SaveButton.Location = new System.Drawing.Point(503, 555);
             this.SaveButton.Name = "SaveButton";
             this.SaveButton.Size = new System.Drawing.Size(75, 23);
             this.SaveButton.TabIndex = 1;
@@ -1417,7 +1815,7 @@ namespace ScourgeBloom
             this.groupBox11.Controls.Add(this.AFKPresetButton);
             this.groupBox11.Controls.Add(this.DungeonBuddyPresetButton);
             this.groupBox11.Controls.Add(this.RotationOnlyPresetButton);
-            this.groupBox11.Location = new System.Drawing.Point(4, 489);
+            this.groupBox11.Location = new System.Drawing.Point(12, 537);
             this.groupBox11.Name = "groupBox11";
             this.groupBox11.Size = new System.Drawing.Size(485, 48);
             this.groupBox11.TabIndex = 13;
@@ -1428,7 +1826,7 @@ namespace ScourgeBloom
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(582, 542);
+            this.ClientSize = new System.Drawing.Size(582, 597);
             this.ControlBox = false;
             this.Controls.Add(this.groupBox11);
             this.Controls.Add(this.SaveButton);
@@ -1455,6 +1853,37 @@ namespace ScourgeBloom
             this.groupBox14.PerformLayout();
             this.groupBox7.ResumeLayout(false);
             this.groupBox7.PerformLayout();
+            this.Talents.ResumeLayout(false);
+            this.groupBox31.ResumeLayout(false);
+            this.groupBox31.PerformLayout();
+            this.groupBox30.ResumeLayout(false);
+            this.groupBox30.PerformLayout();
+            this.groupBox27.ResumeLayout(false);
+            this.groupBox27.PerformLayout();
+            this.groupBox25.ResumeLayout(false);
+            this.groupBox25.PerformLayout();
+            this.groupBox20.ResumeLayout(false);
+            this.groupBox20.PerformLayout();
+            this.groupBox34.ResumeLayout(false);
+            this.groupBox34.PerformLayout();
+            this.groupBox33.ResumeLayout(false);
+            this.groupBox33.PerformLayout();
+            this.groupBox32.ResumeLayout(false);
+            this.groupBox32.PerformLayout();
+            this.groupBox29.ResumeLayout(false);
+            this.groupBox29.PerformLayout();
+            this.groupBox28.ResumeLayout(false);
+            this.groupBox28.PerformLayout();
+            this.groupBox26.ResumeLayout(false);
+            this.groupBox26.PerformLayout();
+            this.groupBox24.ResumeLayout(false);
+            this.groupBox24.PerformLayout();
+            this.groupBox23.ResumeLayout(false);
+            this.groupBox23.PerformLayout();
+            this.groupBox22.ResumeLayout(false);
+            this.groupBox22.PerformLayout();
+            this.groupBox21.ResumeLayout(false);
+            this.groupBox21.PerformLayout();
             this.Racials.ResumeLayout(false);
             this.groupBox13.ResumeLayout(false);
             this.groupBox13.PerformLayout();
@@ -1590,7 +2019,6 @@ namespace ScourgeBloom
         private GroupBox groupBox14;
         private CheckBox UsePillarofFrostOnCdCheckBox;
         private GroupBox groupBox16;
-        private CheckBox AutoAmsCheckbox;
         private CheckBox UseIceboundFCheckBox;
         private NumericUpDown numIceBoundFortitudeHp;
         private Label label10;
@@ -1621,5 +2049,39 @@ namespace ScourgeBloom
         private Label label19;
         private CheckBox DelayStrangulateCheckBox;
         private CheckBox StrangulateCheckBox;
+        private CheckBox UseTrinket2OnBoS;
+        private CheckBox UseTrinket1OnBoS;
+        private TabPage Talents;
+        private GroupBox groupBox34;
+        private GroupBox groupBox33;
+        private GroupBox groupBox32;
+        private GroupBox groupBox29;
+        private GroupBox groupBox28;
+        private GroupBox groupBox26;
+        private GroupBox groupBox24;
+        private GroupBox groupBox23;
+        private GroupBox groupBox22;
+        private GroupBox groupBox21;
+        private GroupBox groupBox31;
+        private GroupBox groupBox30;
+        private GroupBox groupBox27;
+        private GroupBox groupBox25;
+        private GroupBox groupBox20;
+        private CheckBox UseLichBornecheckBox;
+        private CheckBox UseUnholyBlightcheckBox;
+        private CheckBox UsePLagueLeechcheckBox;
+        private CheckBox AutoAmsCheckbox;
+        private CheckBox UseBoScheckBox;
+        private CheckBox UseDefilecheckBox;
+        private CheckBox UseDesecratedGroundcheckBox;
+        private CheckBox UseRemorselessWintercheckBox;
+        private CheckBox UseGorefiendsGraspcheckBox;
+        private CheckBox UseConversioncheckBox;
+        private CheckBox UseDeathSiphoncheckBox;
+        private CheckBox UseDeathPactcheckBox;
+        private CheckBox UseBloodTapcheckBox;
+        private CheckBox UseAsphyxiatecheckBox;
+        private CheckBox UseDeathsAdvancecheckBox;
+        private CheckBox UseAMZcheckBox;
     }
 }
