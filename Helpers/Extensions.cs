@@ -6,10 +6,10 @@
  * Licensed under Microsoft Reference Source License (Ms-RSL)
  */
 
-using Styx;
-using Styx.WoWInternals.WoWObjects;
 using System.Collections.Generic;
 using System.Text;
+using Styx;
+using Styx.WoWInternals.WoWObjects;
 
 namespace ScourgeBloom.Helpers
 {

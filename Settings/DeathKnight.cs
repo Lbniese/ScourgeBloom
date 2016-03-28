@@ -6,9 +6,9 @@
  * Licensed under Microsoft Reference Source License (Ms-RSL)
  */
 
-using Styx.Helpers;
 using System.ComponentModel;
 using System.IO;
+using Styx.Helpers;
 using DefaultValue = Styx.Helpers.DefaultValueAttribute;
 
 namespace ScourgeBloom.Settings

@@ -6,6 +6,11 @@
  * Licensed under Microsoft Reference Source License (Ms-RSL)
  */
 
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Windows.Media;
 using Bots.DungeonBuddy.Helpers;
 using ScourgeBloom.Managers;
 using Styx;
@@ -14,32 +19,12 @@ using Styx.CommonBot;
 using Styx.Helpers;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Windows.Media;
 
 namespace ScourgeBloom.Helpers
 {
     public static class Units
     {
         private static readonly LocalPlayer Me = StyxWoW.Me;
-
-        // this one optimized for single applytype lookup
-        public static bool HasAuraWithEffect(this WoWUnit unit, WoWApplyAuraType applyType)
-        {
-            return
-                unit.Auras.Values.Any(a => a.Spell != null && a.Spell.SpellEffects.Any(se => applyType == se.AuraType));
-        }
-
-        public static bool HasAuraWithEffect(this WoWUnit unit, params WoWApplyAuraType[] applyType)
-        {
-            var hashes = new HashSet<WoWApplyAuraType>(applyType);
-            return
-                unit.Auras.Values.Any(
-                    a => a.Spell != null && a.Spell.SpellEffects.Any(se => hashes.Contains(se.AuraType)));
-        }
 
         #region UnfriendlyUnits
 
@@ -69,76 +54,20 @@ namespace ScourgeBloom.Helpers
 
         #endregion GroupMemberInfos
 
-        #region Enemies
-
-        #region EnemiesInRange
-
-        public static int EnemiesInRange(int range)
+        // this one optimized for single applytype lookup
+        public static bool HasAuraWithEffect(this WoWUnit unit, WoWApplyAuraType applyType)
         {
-            return UnfriendlyUnits.Count(u => u.Distance2DSqr <= range * range);
+            return
+                unit.Auras.Values.Any(a => a.Spell != null && a.Spell.SpellEffects.Any(se => applyType == se.AuraType));
         }
 
-        #endregion EnemiesInRange
-
-        public static int EnemiesAroundTarget(WoWUnit target, int range)
+        public static bool HasAuraWithEffect(this WoWUnit unit, params WoWApplyAuraType[] applyType)
         {
-            return UnfriendlyUnits.Count(u => u.Location.Distance(target.Location) <= range);
+            var hashes = new HashSet<WoWApplyAuraType>(applyType);
+            return
+                unit.Auras.Values.Any(
+                    a => a.Spell != null && a.Spell.SpellEffects.Any(se => hashes.Contains(se.AuraType)));
         }
-
-        public static bool EnemyAdd
-        {
-            get { return UnfriendlyUnits.Any(u => u.IsTargetingMeOrPet && StyxWoW.Me.CurrentTarget != u); }
-        }
-
-        #region EnemyUnitsSub40
-
-        public static IEnumerable<WoWUnit> EnemyUnitsSub40
-        {
-            get { return EnemyUnits(40); }
-        }
-
-        #endregion EnemyUnitsSub40
-
-        #region EnemyUnitsSub10
-
-        public static IEnumerable<WoWUnit> EnemyUnitsSub10
-        {
-            get { return EnemyUnits(10); }
-        }
-
-        #endregion EnemyUnitsSub10
-
-        #region EnemyUnitsSub8
-
-        public static IEnumerable<WoWUnit> EnemyUnitsSub8
-        {
-            get { return EnemyUnits(8); }
-        }
-
-        #endregion EnemyUnitsSub8
-
-        #region EnemyUnitsMelee
-
-        public static IEnumerable<WoWUnit> EnemyUnitsMelee
-        {
-            get { return EnemyUnits(Me.MeleeRange().ToString(CultureInfo.InvariantCulture).ToInt32()); }
-        }
-
-        #endregion EnemyUnitsMelee
-
-        #region EnemyUnitsNearTarget
-
-        public static IEnumerable<WoWUnit> EnemyUnitsNearTarget(float distance)
-        {
-            var dist = distance * distance;
-            var curTarLocation = StyxWoW.Me.CurrentTarget.Location;
-            return ObjectManager.GetObjectsOfType<WoWUnit>().Where(
-                p => IsValid(p) && p.IsHostile && p.Location.DistanceSqr(curTarLocation) <= dist).ToList();
-        }
-
-        #endregion EnemyUnitsNearTarget
-
-        #endregion Enemies
 
         #region IsInGroup
 
@@ -192,17 +121,17 @@ namespace ScourgeBloom.Helpers
 
         public static IEnumerable<WoWUnit> EnemyUnits(int maxSpellDist)
         {
-            var typeWoWUnit = typeof(WoWUnit);
-            var typeWoWPlayer = typeof(WoWPlayer);
+            var typeWoWUnit = typeof (WoWUnit);
+            var typeWoWPlayer = typeof (WoWPlayer);
             var objectList = ObjectManager.ObjectList;
             return (from t1 in objectList
-                    let type = t1.GetType()
-                    where type == typeWoWUnit ||
-                          type == typeWoWPlayer
-                    select t1 as WoWUnit
+                let type = t1.GetType()
+                where type == typeWoWUnit ||
+                      type == typeWoWPlayer
+                select t1 as WoWUnit
                 into t
-                    where t != null && IsValid(t) && t.InRange()
-                    select t).ToList();
+                where t != null && IsValid(t) && t.InRange()
+                select t).ToList();
         }
 
         #endregion EnemyUnits
@@ -223,7 +152,7 @@ namespace ScourgeBloom.Helpers
 
         public static IEnumerable<WoWUnit> FriendlyUnitsNearTarget(float distance)
         {
-            var dist = distance * distance;
+            var dist = distance*distance;
             var curTarLocation = StyxWoW.Me.CurrentTarget.Location;
             return ObjectManager.GetObjectsOfType<WoWUnit>().Where(
                 p => IsValid(p) && p.IsFriendly && p.Location.DistanceSqr(curTarLocation) <= dist)
@@ -353,6 +282,77 @@ namespace ScourgeBloom.Helpers
         }
 
         #endregion DebuffCC
+
+        #region Enemies
+
+        #region EnemiesInRange
+
+        public static int EnemiesInRange(int range)
+        {
+            return UnfriendlyUnits.Count(u => u.Distance2DSqr <= range*range);
+        }
+
+        #endregion EnemiesInRange
+
+        public static int EnemiesAroundTarget(WoWUnit target, int range)
+        {
+            return UnfriendlyUnits.Count(u => u.Location.Distance(target.Location) <= range);
+        }
+
+        public static bool EnemyAdd
+        {
+            get { return UnfriendlyUnits.Any(u => u.IsTargetingMeOrPet && StyxWoW.Me.CurrentTarget != u); }
+        }
+
+        #region EnemyUnitsSub40
+
+        public static IEnumerable<WoWUnit> EnemyUnitsSub40
+        {
+            get { return EnemyUnits(40); }
+        }
+
+        #endregion EnemyUnitsSub40
+
+        #region EnemyUnitsSub10
+
+        public static IEnumerable<WoWUnit> EnemyUnitsSub10
+        {
+            get { return EnemyUnits(10); }
+        }
+
+        #endregion EnemyUnitsSub10
+
+        #region EnemyUnitsSub8
+
+        public static IEnumerable<WoWUnit> EnemyUnitsSub8
+        {
+            get { return EnemyUnits(8); }
+        }
+
+        #endregion EnemyUnitsSub8
+
+        #region EnemyUnitsMelee
+
+        public static IEnumerable<WoWUnit> EnemyUnitsMelee
+        {
+            get { return EnemyUnits(Me.MeleeRange().ToString(CultureInfo.InvariantCulture).ToInt32()); }
+        }
+
+        #endregion EnemyUnitsMelee
+
+        #region EnemyUnitsNearTarget
+
+        public static IEnumerable<WoWUnit> EnemyUnitsNearTarget(float distance)
+        {
+            var dist = distance*distance;
+            var curTarLocation = StyxWoW.Me.CurrentTarget.Location;
+            return ObjectManager.GetObjectsOfType<WoWUnit>().Where(
+                p => IsValid(p) && p.IsHostile && p.Location.DistanceSqr(curTarLocation) <= dist).ToList();
+        }
+
+        #endregion EnemyUnitsNearTarget
+
+        #endregion Enemies
 
         #region IsValid
 

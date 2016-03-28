@@ -27,8 +27,8 @@ namespace ScourgeBloom.Utilities
             }
 
             if (!StyxWoW.Me.IsDead) return;
-            var delay = Rnd.Next(3000, 7000);
-            Logging.Write(Colors.Aqua, "Releasing spirit in 3-7 seconds!");
+            var delay = Rnd.Next(5000, 8000);
+            Logging.Write(Colors.Aqua, "Releasing spirit in 5-8 seconds!");
             Thread.Sleep(delay);
             Lua.DoString($"RunMacroText(\"{"/script RepopMe()"}\")");
         }

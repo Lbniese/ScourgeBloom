@@ -98,7 +98,7 @@ namespace ScourgeBloom.Helpers
                 Id = barId;
             }
 
-            public string Id { get; private set; }
+            public string Id { get; }
 
             public bool Dead
             {

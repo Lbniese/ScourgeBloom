@@ -20,16 +20,12 @@ using Styx.Pathing;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 
-//using Styx.CommonBot.Coroutines;
-
 namespace ScourgeBloom.Managers
 {
     public static class MovementManager
     {
         private static float Range
-        {
-            get { return Math.Max(4f, StyxWoW.Me.CombatReach + 1.3333334f + StyxWoW.Me.CurrentTarget.CombatReach); }
-        }
+            => Math.Max(4f, StyxWoW.Me.CombatReach + 1.3333334f + StyxWoW.Me.CurrentTarget.CombatReach);
 
         public static async Task<bool> MoveToTarget()
         {
@@ -49,10 +45,7 @@ namespace ScourgeBloom.Managers
                     .ToList();
             var target = units.FirstOrDefault();
 
-            if (target == null)
-                return;
-
-            target.Target();
+            target?.Target();
         }
 
         public static void Face(WoWUnit unit)

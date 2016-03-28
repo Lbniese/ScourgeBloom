@@ -6,6 +6,9 @@
  * Licensed under Microsoft Reference Source License (Ms-RSL)
  */
 
+using System;
+using System.Linq;
+using System.Windows.Media;
 using CommonBehaviors.Actions;
 using NewMixedMode;
 using ScourgeBloom.Helpers;
@@ -23,9 +26,6 @@ using Styx.Plugins;
 using Styx.TreeSharp;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
-using System;
-using System.Linq;
-using System.Windows.Media;
 
 namespace ScourgeBloom
 {
@@ -258,7 +258,7 @@ namespace ScourgeBloom
                      (WoWPartyMember.GroupRole.Tank | WoWPartyMember.GroupRole.Healer | WoWPartyMember.GroupRole.Damage))
                         .ToString().ToUpper(),
                     Me.GroupInfo.NumRaidMembers,
-                    (int)Math.Max(Me.CurrentMap.MaxPlayers, Me.GroupInfo.GroupSize)
+                    (int) Math.Max(Me.CurrentMap.MaxPlayers, Me.GroupInfo.GroupSize)
                     );
             }
 
@@ -340,7 +340,7 @@ namespace ScourgeBloom
                     bot = TreeRoot.Current;
                 else
                 {
-                    var mmb = (MixedModeEx)TreeRoot.Current;
+                    var mmb = (MixedModeEx) TreeRoot.Current;
                     if (mmb != null)
                     {
                         if (mmb.SecondaryBot != null && mmb.SecondaryBot.RequirementsMet)

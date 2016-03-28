@@ -22,7 +22,7 @@ namespace ScourgeBloom.Settings
         {
         }
 
-        [Setting, DefaultValue(false), Category("Behaviour")]
+        [Setting, Styx.Helpers.DefaultValue(false), Category("Behaviour")]
         [Browsable(true)]
         public bool Targeting { get; set; }
 
@@ -50,20 +50,6 @@ namespace ScourgeBloom.Settings
         [Browsable(true)]
         [ReadOnly(true)]
         public bool PvP { get; set; }
-
-        #region Resting
-
-        [Setting, DefaultValue(true), Category("Resting")]
-        [Browsable(true)]
-        [ReadOnly(false)]
-        public bool RestingEatFood { get; set; }
-
-        [Setting, DefaultValue(60), Category("Resting")]
-        [Browsable(true)]
-        [ReadOnly(false)]
-        public int RestingEatFoodHp { get; set; }
-
-        #endregion Resting
 
         [Setting, DefaultValue(false), Category("Environment")]
         [Browsable(true)]
@@ -282,14 +268,31 @@ namespace ScourgeBloom.Settings
         [Setting, DefaultValue(true)]
         [Category("Targeting")]
         [DisplayName(@"Target World PVP Regardless")]
-        [Description("Solo Only. false: when attacked by player, ignore everything else and fight back;  False: attack based upon Targeting priority list.")]
+        [Description(
+            "Solo Only. false: when attacked by player, ignore everything else and fight back;  False: attack based upon Targeting priority list."
+            )]
         public static bool TargetWorldPvpRegardless { get; set; }
 
+        #region Resting
+
+        [Setting, DefaultValue(true), Category("Resting")]
+        [Browsable(true)]
+        [ReadOnly(false)]
+        public bool RestingEatFood { get; set; }
+
+        [Setting, DefaultValue(60), Category("Resting")]
+        [Browsable(true)]
+        [ReadOnly(false)]
+        public int RestingEatFoodHp { get; set; }
+
+        #endregion Resting
+
         #region Healing Tonic
+
         [Setting, DefaultValue(true)]
         [Browsable(false)]
         public bool HealingTonicUse { get; set; }
-        
+
         [Setting, DefaultValue(50)]
         [Browsable(false)]
         public int HealingTonicHp { get; set; }

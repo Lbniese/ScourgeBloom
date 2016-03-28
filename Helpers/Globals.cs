@@ -9,7 +9,6 @@
 using System;
 using System.Diagnostics;
 using Styx;
-using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 
 namespace ScourgeBloom.Helpers

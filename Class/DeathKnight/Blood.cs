@@ -6,6 +6,9 @@
  * Licensed under Microsoft Reference Source License (Ms-RSL)
  */
 
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Buddy.Coroutines;
 using CommonBehaviors.Actions;
 using JetBrains.Annotations;
@@ -20,9 +23,6 @@ using Styx.CommonBot.Inventory;
 using Styx.TreeSharp;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using S = ScourgeBloom.Lists.SpellLists;
 using TTD = ScourgeBloom.Helpers.TimeToDeath.TimeToDeathExtension;
 
@@ -62,7 +62,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> CombatRoutine(WoWUnit onunit)
         {
-            if (!Me.Combat || Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting ||
+            if (Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting ||
                 Me.IsChanneling) return true;
 
             if (Capabilities.IsTargetingAllowed)
@@ -70,6 +70,14 @@ namespace ScourgeBloom.Class.DeathKnight
 
             if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
                 await MovementManager.MoveToTarget();
+
+            if (!Me.Combat) return true;
+
+            if (!Me.IsAutoAttacking)
+            {
+                Lua.DoString("StartAttack()");
+                return true;
+            }
 
             if (Capabilities.IsRacialUsageAllowed)
             {
@@ -86,40 +94,10 @@ namespace ScourgeBloom.Class.DeathKnight
                 await Trinkets.Trinket2Method();
             }
 
-            if (!Me.IsAutoAttacking)
+            if (Me.Combat)
             {
-                Lua.DoString("StartAttack()");
-                return true;
+                await Defensives.DefensivesMethod();
             }
-
-            // Use defensivecooldowns
-            await Spell.CoCast(S.AntiMagicShell, Me,
-                Units.EnemyUnitsNearTarget(10)
-                    .Any(u => (u.IsCasting || u.ChanneledCastingSpellId != 0) && u.CurrentTargetGuid == Me.Guid) &&
-                Capabilities.IsCooldownUsageAllowed && DeathKnightSettings.Instance.UseAms);
-
-            await Spell.CoCast(S.DeathPact, Me.HealthPercent < 45 && Capabilities.IsCooldownUsageAllowed);
-
-            await Spell.CoCast(S.IceboundFortitude, Me,
-                Me.HealthPercent < DeathKnightSettings.Instance.UseIceBoundFortitudeHp &&
-                DeathKnightSettings.Instance.UseIceBoundFortitude && Capabilities.IsCooldownUsageAllowed);
-
-            if (await Spell.CoCast(S.DeathSiphon, onunit,
-                Me.GotTarget && Me.HealthPercent < DeathKnightSettings.Instance.UseDeathSiphonHp &&
-                DeathKnightSettings.Instance.UseDeathSiphon && Me.CurrentTarget.Distance <= 40)) return true;
-
-            if (await Spell.CoCast(S.Conversion,
-                Me.HealthPercent < 50 && Me.RunicPowerPercent >= 20 && !Me.HasAura(S.Conversion) &&
-                Capabilities.IsCooldownUsageAllowed)) return true;
-
-            if (await Spell.CoCast(S.Conversion,
-                Me.HealthPercent > 65 && Me.HasAura(S.Conversion) && Capabilities.IsCooldownUsageAllowed))
-                return true;
-
-            if (await Spell.CoCast(S.DeathStrike, onunit,
-                Me.GotTarget && Me.HealthPercent < DeathKnightSettings.Instance.UseDeathStrikeHp &&
-                DeathKnightSettings.Instance.UseDeathStrike && Me.CurrentTarget.IsWithinMeleeRange))
-                return true;
 
             if (Capabilities.IsInterruptingAllowed && Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.IsCasting &&
                 Me.CurrentTarget.CanInterruptCurrentSpellCast)
@@ -157,9 +135,12 @@ namespace ScourgeBloom.Class.DeathKnight
             //G	0.00	run_action_list,name=bos,if=dot.breath_of_sindragosa.ticking
             await BoS(Me.HasAura(S.BreathofSindragosa));
             //H	0.00	run_action_list,name=nbos,if=!dot.breath_of_sindragosa.ticking&cooldown.breath_of_sindragosa.remains<4
-            await NboS(!Me.HasAura(S.BreathofSindragosa) && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds < 4);
+            await
+                NboS(!Me.HasAura(S.BreathofSindragosa) && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds < 4);
             //I	0.00	run_action_list,name=cdbos,if=!dot.breath_of_sindragosa.ticking&cooldown.breath_of_sindragosa.remains>=4
-            await CdBoS(onunit, !Me.HasAura(S.BreathofSindragosa) && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds >= 4);
+            await
+                CdBoS(onunit,
+                    !Me.HasAura(S.BreathofSindragosa) && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds >= 4);
 
             if (Capabilities.IsTargetingAllowed)
                 MovementManager.AutoTarget();
@@ -199,7 +180,8 @@ namespace ScourgeBloom.Class.DeathKnight
                 return true;
             //{	1.85	death_coil,if=runic_power>75|target.time_to_die<4|!dot.breath_of_sindragosa.ticking
             if (await Spell.CoCast(S.DeathCoil, onunit,
-                Me.CurrentRunicPower > 75 || TTD.TimeToDeath(onunit) < 4 || !(Me.HasAura("Breath of Sindragosa") || Me.Auras["Breath of Sindragosa"].IsActive)))
+                Me.CurrentRunicPower > 75 || TTD.TimeToDeath(onunit) < 4 ||
+                !(Me.HasAura("Breath of Sindragosa") || Me.Auras["Breath of Sindragosa"].IsActive)))
                 return true;
             //|	0.27	plague_strike,if=target.time_to_die<2|cooldown.empower_rune_weapon.remains<2
             if (await Spell.CoCast(S.PlagueStrike, onunit,

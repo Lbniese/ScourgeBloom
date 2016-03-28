@@ -65,6 +65,7 @@
     <Compile Include="Class\DeathKnight\Blood.cs" />
     <Compile Include="Class\DeathKnight\Frost.cs" />
     <Compile Include="Class\DeathKnight\Unholy.cs" />
+    <Compile Include="Class\Defensives.cs" />
     <Compile Include="Class\Interrupts.cs" />
     <Compile Include="Class\Racials.cs" />
     <Compile Include="Class\Trinkets.cs" />

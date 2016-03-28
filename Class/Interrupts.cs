@@ -13,7 +13,6 @@ using ScourgeBloom.Lists;
 using ScourgeBloom.Settings;
 using Styx;
 using Styx.Common;
-using Styx.CommonBot;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 using S = ScourgeBloom.Lists.SpellLists;
@@ -51,7 +50,7 @@ namespace ScourgeBloom.Class
             var castTime = Globals.CurrentTarget.CastingSpell.CastTime;
             var timeLeft = Globals.CurrentTarget.CurrentCastTimeLeft.TotalMilliseconds;
 
-            var percentage = 100 - (timeLeft * 100 / castTime);
+            var percentage = 100 - timeLeft*100/castTime;
 
             if (DeathKnightSettings.Instance.MindFreezeRandomTimerUse)
             {
@@ -65,7 +64,8 @@ namespace ScourgeBloom.Class
                 if (!await Spell.CoCast(S.MindFreeze))
                     return false;
 
-                Logging.Write(Colors.YellowGreen, "[ScourgeBloom] Interrupting {0} with Mind Freeze", Globals.CurrentTarget.SafeName);
+                Logging.Write(Colors.YellowGreen, "[ScourgeBloom] Interrupting {0} with Mind Freeze",
+                    Globals.CurrentTarget.SafeName);
 
                 return true;
             }
@@ -73,10 +73,10 @@ namespace ScourgeBloom.Class
             if (!await Spell.CoCast(S.MindFreeze))
                 return false;
 
-            Logging.Write(Colors.YellowGreen, "[ScourgeBloom] Interrupting {0} with Mind Freeze", Globals.CurrentTarget.SafeName);
+            Logging.Write(Colors.YellowGreen, "[ScourgeBloom] Interrupting {0} with Mind Freeze",
+                Globals.CurrentTarget.SafeName);
 
             return true;
-
         }
 
         public static async Task<bool> StrangulateMethod()
@@ -108,7 +108,7 @@ namespace ScourgeBloom.Class
             var castTime = Globals.CurrentTarget.CastingSpell.CastTime;
             var timeLeft = Globals.CurrentTarget.CurrentCastTimeLeft.TotalMilliseconds;
 
-            var percentage = 100 - (timeLeft * 100 / castTime);
+            var percentage = 100 - timeLeft*100/castTime;
 
             if (DeathKnightSettings.Instance.StrangulateRandomTimerUse)
             {
@@ -122,7 +122,8 @@ namespace ScourgeBloom.Class
                 if (!await Spell.CoCast(S.Strangulate))
                     return false;
 
-                Logging.Write(Colors.YellowGreen, "[ScourgeBloom] Interrupting {0} with Strangulate!", Globals.CurrentTarget.SafeName);
+                Logging.Write(Colors.YellowGreen, "[ScourgeBloom] Interrupting {0} with Strangulate!",
+                    Globals.CurrentTarget.SafeName);
 
                 return true;
             }
@@ -130,15 +131,17 @@ namespace ScourgeBloom.Class
             if (!await Spell.CoCast(S.Strangulate))
                 return false;
 
-            Logging.Write(Colors.YellowGreen, "[ScourgeBloom] Interrupting {0} with Strangulate!", Globals.CurrentTarget.SafeName);
+            Logging.Write(Colors.YellowGreen, "[ScourgeBloom] Interrupting {0} with Strangulate!",
+                Globals.CurrentTarget.SafeName);
 
             return true;
-
         }
 
         private static bool InterruptCheck(WoWUnit unit, double millisecondsleft, bool includeUninterruptable = true)
         {
-            return unit != null && unit.IsValid && unit.Combat && (unit.IsCasting || unit.IsChanneling) && (includeUninterruptable || unit.CanInterruptCurrentSpellCast) && (!unit.IsCasting || !(unit.CurrentCastTimeLeft.TotalMilliseconds > millisecondsleft));
+            return unit != null && unit.IsValid && unit.Combat && (unit.IsCasting || unit.IsChanneling) &&
+                   (includeUninterruptable || unit.CanInterruptCurrentSpellCast) &&
+                   (!unit.IsCasting || !(unit.CurrentCastTimeLeft.TotalMilliseconds > millisecondsleft));
         }
     }
 }

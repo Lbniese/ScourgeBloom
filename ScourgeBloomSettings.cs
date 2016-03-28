@@ -6,14 +6,14 @@
  * Licensed under Microsoft Reference Source License (Ms-RSL)
  */
 
-using ScourgeBloom.Helpers;
-using ScourgeBloom.Lists;
-using ScourgeBloom.Settings;
-using Styx;
 using System;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using ScourgeBloom.Helpers;
+using ScourgeBloom.Lists;
+using ScourgeBloom.Settings;
+using Styx;
 
 namespace ScourgeBloom
 {
@@ -65,8 +65,8 @@ namespace ScourgeBloom
             //Mind Freeze
             UseMFcheckBox.Checked = DeathKnightSettings.Instance.MindFreezeUse;
             DelayMFcheckBox.Checked = DeathKnightSettings.Instance.MindFreezeRandomTimerUse;
-            numMFmax.Value = (decimal)DeathKnightSettings.Instance.MindFreezeRandomTimerMax;
-            numMFmin.Value = (decimal)DeathKnightSettings.Instance.MindFreezeRandomTimerMin;
+            numMFmax.Value = (decimal) DeathKnightSettings.Instance.MindFreezeRandomTimerMax;
+            numMFmin.Value = (decimal) DeathKnightSettings.Instance.MindFreezeRandomTimerMin;
 
             DelayMFcheckBox.Enabled = DeathKnightSettings.Instance.MindFreezeUse;
             numMFmax.Enabled = DeathKnightSettings.Instance.MindFreezeUse &&
@@ -77,14 +77,14 @@ namespace ScourgeBloom
             //Strangulate
             StrangulateCheckBox.Checked = DeathKnightSettings.Instance.StrangulateUse;
             DelayStrangulateCheckBox.Checked = DeathKnightSettings.Instance.StrangulateRandomTimerUse;
-            numStrangulatemax.Value = (decimal)DeathKnightSettings.Instance.StrangulateRandomTimerMax;
-            numStrangulatemin.Value = (decimal)DeathKnightSettings.Instance.StrangulateRandomTimerMin;
+            numStrangulatemax.Value = (decimal) DeathKnightSettings.Instance.StrangulateRandomTimerMax;
+            numStrangulatemin.Value = (decimal) DeathKnightSettings.Instance.StrangulateRandomTimerMin;
 
             DelayStrangulateCheckBox.Enabled = DeathKnightSettings.Instance.StrangulateUse;
             numStrangulatemax.Enabled = DeathKnightSettings.Instance.StrangulateUse &&
-                               DeathKnightSettings.Instance.StrangulateRandomTimerUse;
+                                        DeathKnightSettings.Instance.StrangulateRandomTimerUse;
             numStrangulatemin.Enabled = DeathKnightSettings.Instance.StrangulateUse &&
-                               DeathKnightSettings.Instance.StrangulateRandomTimerUse;
+                                        DeathKnightSettings.Instance.StrangulateRandomTimerUse;
         }
 
         private void RacialsLoad()
@@ -165,20 +165,19 @@ namespace ScourgeBloom
         private void SurvivabilityLoad()
         {
             DeathStrikecheckBox.Checked = DeathKnightSettings.Instance.UseDeathStrike;
-            numDeathStrikeHp.Value = (decimal)DeathKnightSettings.Instance.UseDeathStrikeHp;
+            numDeathStrikeHp.Value = DeathKnightSettings.Instance.UseDeathStrikeHp;
 
             DeathSiphoncheckBox.Checked = DeathKnightSettings.Instance.UseDeathSiphon;
-            numDeathSiphonHp.Value = (decimal) DeathKnightSettings.Instance.UseDeathSiphonHp;
-
+            numDeathSiphonHp.Value = DeathKnightSettings.Instance.UseDeathSiphonHp;
         }
 
         private void ItemsLoad()
         {
             useHealingToniccheckBox.Checked = GeneralSettings.Instance.HealingTonicUse;
-            numHealingTonicHp.Value = (decimal) GeneralSettings.Instance.HealingTonicHp;
+            numHealingTonicHp.Value = GeneralSettings.Instance.HealingTonicHp;
 
             UseHealthstonecheckBox.Checked = GeneralSettings.Instance.HealthstoneUse;
-            numHealthstoneUseHp.Value = (decimal) GeneralSettings.Instance.HealthstoneHp;
+            numHealthstoneUseHp.Value = GeneralSettings.Instance.HealthstoneHp;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -270,7 +269,7 @@ namespace ScourgeBloom
 
         private void numGiftOfTheNaaruHp_ValueChanged(object sender, EventArgs e)
         {
-            GeneralSettings.GiftOfTheNaaruHealHp = (int)numGiftOfTheNaaruHp.Value;
+            GeneralSettings.GiftOfTheNaaruHealHp = (int) numGiftOfTheNaaruHp.Value;
         }
 
         private void UseArcaneTorrentCheckBox_CheckedChanged(object sender, EventArgs e)
@@ -285,12 +284,12 @@ namespace ScourgeBloom
 
         private void numericUpDown3_ValueChanged(object sender, EventArgs e)
         {
-            GeneralSettings.StoneformUseHp = (int)numStoneformHp.Value;
+            GeneralSettings.StoneformUseHp = (int) numStoneformHp.Value;
         }
 
         private void numWarStompEnemies_ValueChanged(object sender, EventArgs e)
         {
-            GeneralSettings.WarStompEnemiesToUse = (int)numWarStompEnemies.Value;
+            GeneralSettings.WarStompEnemiesToUse = (int) numWarStompEnemies.Value;
         }
 
         private void UseWarStompCheckBox_CheckedChanged(object sender, EventArgs e)
@@ -344,17 +343,17 @@ namespace ScourgeBloom
 
         private void numTrinket1MyHealth_ValueChanged(object sender, EventArgs e)
         {
-            GeneralSettings.Trinket1MyHealth = (int)numTrinket1MyHealth.Value;
+            GeneralSettings.Trinket1MyHealth = (int) numTrinket1MyHealth.Value;
         }
 
         private void numTrinket1EnemyHealth_ValueChanged(object sender, EventArgs e)
         {
-            GeneralSettings.Trinket1EnemyHealth = (int)numTrinket1EnemyHealth.Value;
+            GeneralSettings.Trinket1EnemyHealth = (int) numTrinket1EnemyHealth.Value;
         }
 
         private void numTrinket2EnemyHealth_ValueChanged(object sender, EventArgs e)
         {
-            GeneralSettings.Trinket2EnemyHealth = (int)numTrinket2EnemyHealth.Value;
+            GeneralSettings.Trinket2EnemyHealth = (int) numTrinket2EnemyHealth.Value;
         }
 
         private void groupBox9_Enter(object sender, EventArgs e)
@@ -509,7 +508,7 @@ namespace ScourgeBloom
 
         private void numTrinket2MyHealth_ValueChanged(object sender, EventArgs e)
         {
-            GeneralSettings.Trinket2MyHealth = (int)numTrinket2MyHealth.Value;
+            GeneralSettings.Trinket2MyHealth = (int) numTrinket2MyHealth.Value;
         }
 
         #region Form Dragging API Support
@@ -563,12 +562,12 @@ namespace ScourgeBloom
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
         {
-            DeathKnightSettings.Instance.UseIceBoundFortitudeHp = (int)numIceBoundFortitudeHp.Value;
+            DeathKnightSettings.Instance.UseIceBoundFortitudeHp = (int) numIceBoundFortitudeHp.Value;
         }
 
         private void numHealingTonicHp_ValueChanged(object sender, EventArgs e)
         {
-            GeneralSettings.Instance.HealingTonicHp = (int)numHealingTonicHp.Value;
+            GeneralSettings.Instance.HealingTonicHp = (int) numHealingTonicHp.Value;
         }
 
         private void useHealingToniccheckBox_CheckedChanged(object sender, EventArgs e)
@@ -583,7 +582,7 @@ namespace ScourgeBloom
 
         private void numericUpDown1_ValueChanged_1(object sender, EventArgs e)
         {
-            GeneralSettings.Instance.HealthstoneHp = (int)numHealthstoneUseHp.Value;
+            GeneralSettings.Instance.HealthstoneHp = (int) numHealthstoneUseHp.Value;
         }
 
         private void DeathStrikecheckBox_CheckedChanged(object sender, EventArgs e)
@@ -593,7 +592,7 @@ namespace ScourgeBloom
 
         private void numericUpDown1_ValueChanged_2(object sender, EventArgs e)
         {
-            DeathKnightSettings.Instance.UseDeathStrikeHp = (int)numDeathStrikeHp.Value;
+            DeathKnightSettings.Instance.UseDeathStrikeHp = (int) numDeathStrikeHp.Value;
         }
 
         private void DeathSiphoncheckBox_CheckedChanged(object sender, EventArgs e)
@@ -603,7 +602,7 @@ namespace ScourgeBloom
 
         private void numDeathSiphonHp_ValueChanged(object sender, EventArgs e)
         {
-            DeathKnightSettings.Instance.UseDeathSiphonHp = (int)numDeathSiphonHp.Value;
+            DeathKnightSettings.Instance.UseDeathSiphonHp = (int) numDeathSiphonHp.Value;
         }
 
         private void UseMFcheckBox_CheckedChanged(object sender, EventArgs e)
@@ -627,12 +626,12 @@ namespace ScourgeBloom
 
         private void numericUpDown1_ValueChanged_3(object sender, EventArgs e)
         {
-            DeathKnightSettings.Instance.MindFreezeRandomTimerMin = (int)numMFmin.Value;
+            DeathKnightSettings.Instance.MindFreezeRandomTimerMin = (int) numMFmin.Value;
         }
 
         private void numMFmax_ValueChanged(object sender, EventArgs e)
         {
-            DeathKnightSettings.Instance.MindFreezeRandomTimerMax = (int)numMFmax.Value;
+            DeathKnightSettings.Instance.MindFreezeRandomTimerMax = (int) numMFmax.Value;
         }
 
         private void StrangulateCheckBox_CheckedChanged(object sender, EventArgs e)
@@ -656,31 +655,12 @@ namespace ScourgeBloom
 
         private void numStrangulatemin_ValueChanged(object sender, EventArgs e)
         {
-            DeathKnightSettings.Instance.StrangulateRandomTimerMin = (int)numStrangulatemin.Value;
+            DeathKnightSettings.Instance.StrangulateRandomTimerMin = (int) numStrangulatemin.Value;
         }
 
         private void numStrangulatemax_ValueChanged(object sender, EventArgs e)
         {
-            DeathKnightSettings.Instance.StrangulateRandomTimerMax = (int)numStrangulatemax.Value;
-        }
-
-        public static class ClassSettings
-        {
-            public static Styx.Helpers.Settings Settings;
-
-            public static void Initialize()
-            {
-                Settings = null;
-                // ReSharper disable once SwitchStatementMissingSomeCases
-                switch (StyxWoW.Me.Class)
-                {
-                    case WoWClass.DeathKnight:
-                        Settings = DeathKnightSettings.Instance;
-                        break;
-                }
-                if (Settings != null)
-                    Settings.Load();
-            }
+            DeathKnightSettings.Instance.StrangulateRandomTimerMax = (int) numStrangulatemax.Value;
         }
 
         private void UseTrinket1OnBoS_CheckedChanged(object sender, EventArgs e)
@@ -700,6 +680,25 @@ namespace ScourgeBloom
         private void AutoAmsCheckbox_CheckedChanged(object sender, EventArgs e)
         {
             DeathKnightSettings.Instance.UseAms = AutoAmsCheckbox.Checked;
+        }
+
+        public static class ClassSettings
+        {
+            public static Styx.Helpers.Settings Settings;
+
+            public static void Initialize()
+            {
+                Settings = null;
+                // ReSharper disable once SwitchStatementMissingSomeCases
+                switch (StyxWoW.Me.Class)
+                {
+                    case WoWClass.DeathKnight:
+                        Settings = DeathKnightSettings.Instance;
+                        break;
+                }
+                if (Settings != null)
+                    Settings.Load();
+            }
         }
     }
 }
