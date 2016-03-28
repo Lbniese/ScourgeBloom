@@ -6,6 +6,9 @@
  * Licensed under Microsoft Reference Source License (Ms-RSL)
  */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using ScourgeBloom.Helpers;
 using Styx;
 using Styx.Common;
@@ -13,9 +16,6 @@ using Styx.Common.Helpers;
 using Styx.CommonBot;
 using Styx.CommonBot.CharacterManagement;
 using Styx.WoWInternals;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace ScourgeBloom.Managers
 {

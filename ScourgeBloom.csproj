@@ -80,6 +80,7 @@
     <Compile Include="Helpers\Item.cs" />
     <Compile Include="Helpers\KeyboardPolling.cs" />
     <Compile Include="Helpers\Log.cs" />
+    <Compile Include="Managers\RuneManager.cs" />
     <Compile Include="Helpers\PvP.cs" />
     <Compile Include="Helpers\Spell.cs" />
     <Compile Include="Helpers\TimeToDeath.cs" />
