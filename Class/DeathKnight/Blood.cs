@@ -176,7 +176,7 @@ namespace ScourgeBloom.Class.DeathKnight
             //y	1.86	death_strike
             if (await Spell.CoCast(S.DeathStrike, onunit)) return true;
             //z	2.39	blood_boil,if=blood=2|target.time_to_die<=7
-            if (await Spell.CoCast(S.BloodBoil, onunit, Me.BloodRuneCount == 2 || TTD.TimeToDeath(onunit) <= 8))
+            if (await Spell.CoCast(S.BloodBoil, onunit, (Me.BloodRuneCount == 2 || TTD.TimeToDeath(onunit) <= 8)) && Me.CurrentTarget.IsWithinMeleeRange)
                 return true;
             //{	1.85	death_coil,if=runic_power>75|target.time_to_die<4|!dot.breath_of_sindragosa.ticking
             if (await Spell.CoCast(S.DeathCoil, onunit,

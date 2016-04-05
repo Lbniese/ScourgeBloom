@@ -174,7 +174,7 @@ namespace ScourgeBloom.Class.DeathKnight
             //if (await BoSActive(onunit, Me.Combat && Me.Auras["Breath of Sindragosa"].IsActive))
             //    return true;
 
-            if (await Spell.CoCast(S.ArmyoftheDead, Me.CurrentTarget.IsBoss && Capabilities.IsCooldownUsageAllowed))
+            if (await Spell.CoCast(S.ArmyoftheDead, Me, Me.CurrentTarget.IsBoss && Capabilities.IsCooldownUsageAllowed))
                 return true;
 
             // actions.unholy=plague_leech,if=((cooldown.outbreak.remains<1)|disease.min_remains<1)&((blood<1&frost<1)|(blood<1&unholy<1)|(frost<1&unholy<1))
@@ -231,7 +231,7 @@ namespace ScourgeBloom.Class.DeathKnight
             // actions.unholy+=/blood_boil,cycle_targets=1,if=(spell_targets.blood_boil>1&!talent.necrotic_plague.enabled)&(!(dot.blood_plague.ticking|dot.frost_fever.ticking))
             var radius = TalentManager.HasGlyph("Blood Boil") ? 15 : 10;
             if (await Spell.CoCast(S.BloodBoil, onunit,
-                SpellManager.CanCast(S.BloodBoil) && Capabilities.IsAoeAllowed &&
+                SpellManager.CanCast(S.BloodBoil) && Capabilities.IsAoeAllowed && Me.CurrentTarget.IsWithinMeleeRange &&
                 Units.EnemiesInRange(radius) > 1 && ShouldSpreadDiseases &&
                 !NecroticPlagueSelected() && (!Me.CurrentTarget.HasMyAura(S.AuraFrostFever)
                                               || Me.CurrentTarget.HasMyAura(S.AuraBloodPlague))))
@@ -288,7 +288,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
             // actions.unholy+=/blood_boil,cycle_targets=1,if=(talent.necrotic_plague.enabled&!dot.necrotic_plague.ticking)&spell_targets.blood_boil>1
             if (await Spell.CoCast(S.BloodBoil, onunit,
-                Capabilities.IsAoeAllowed && NecroticPlagueSelected() &&
+                Capabilities.IsAoeAllowed && Me.CurrentTarget.IsWithinMeleeRange && NecroticPlagueSelected() &&
                 !Me.CurrentTarget.HasMyAura(S.AuraNecroticPlague) && Units.EnemiesInRange(radius) > 1))
                 return true;
 
@@ -312,14 +312,14 @@ namespace ScourgeBloom.Class.DeathKnight
 
             // actions.unholy+=/blood_boil,if=talent.breath_of_sindragosa.enabled&((spell_targets.blood_boil>=4&(blood=2|(frost=2&death=2)))&(cooldown.breath_of_sindragosa.remains>6|runic_power<75))
             if (await Spell.CoCast(S.BloodBoil, onunit,
-                Capabilities.IsAoeAllowed && BoSSelected() && Units.EnemiesInRange(radius) >= 4 &&
+                Capabilities.IsAoeAllowed && Me.CurrentTarget.IsWithinMeleeRange && BoSSelected() && Units.EnemiesInRange(radius) >= 4 &&
                 (Me.BloodRuneCount == 2 || (Me.FrostRuneCount == 2 && Me.DeathRuneCount == 2)) &&
                 (Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 6 || Me.CurrentRunicPower < 75)))
                 return true;
 
             // actions.unholy+=/blood_boil,if=!talent.breath_of_sindragosa.enabled&(spell_targets.blood_boil>=4&(blood=2|(frost=2&death=2)))
             if (await Spell.CoCast(S.BloodBoil, onunit,
-                Capabilities.IsAoeAllowed && !BoSSelected() && Units.EnemiesInRange(radius) >= 4 &&
+                Capabilities.IsAoeAllowed && Me.CurrentTarget.IsWithinMeleeRange && !BoSSelected() && Units.EnemiesInRange(radius) >= 4 &&
                 (Me.BloodRuneCount == 2 || (Me.FrostRuneCount == 2 && Me.DeathRuneCount == 2))))
                 return true;
 
@@ -340,7 +340,7 @@ namespace ScourgeBloom.Class.DeathKnight
                     Me.HasAura(S.AuraSuddenDoom)))
                     return true;
 
-                if (Me.HasAura("Breath of Sindragosa")) return true;
+                //if (Me.HasAura("Breath of Sindragosa")) return true;
 
                 if (await Spell.CoCast(S.DeathCoil, onunit,
                     Me.CurrentRunicPower > 85))
