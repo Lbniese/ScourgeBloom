@@ -171,9 +171,6 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await BoSActive(onunit, Me.Combat && Me.HasAura("Breath of Sindragosa")))
                 return true;
 
-            //if (await BoSActive(onunit, Me.Combat && Me.Auras["Breath of Sindragosa"].IsActive))
-            //    return true;
-
             if (await Spell.CoCast(S.ArmyoftheDead, Me, Me.CurrentTarget.IsBoss && Capabilities.IsCooldownUsageAllowed))
                 return true;
 
@@ -231,10 +228,10 @@ namespace ScourgeBloom.Class.DeathKnight
             // actions.unholy+=/blood_boil,cycle_targets=1,if=(spell_targets.blood_boil>1&!talent.necrotic_plague.enabled)&(!(dot.blood_plague.ticking|dot.frost_fever.ticking))
             var radius = TalentManager.HasGlyph("Blood Boil") ? 15 : 10;
             if (await Spell.CoCast(S.BloodBoil, onunit,
-                SpellManager.CanCast(S.BloodBoil) && Capabilities.IsAoeAllowed && Me.CurrentTarget.IsWithinMeleeRange &&
-                Units.EnemiesInRange(radius) > 1 && ShouldSpreadDiseases &&
-                !NecroticPlagueSelected() && (!Me.CurrentTarget.HasMyAura(S.AuraFrostFever)
-                                              || Me.CurrentTarget.HasMyAura(S.AuraBloodPlague))))
+                SpellManager.CanCast(S.BloodBoil) && Units.EnemiesInRange(radius) > 1 && ShouldSpreadDiseases() &&
+                Capabilities.IsAoeAllowed && Me.CurrentTarget.IsWithinMeleeRange &&
+                !NecroticPlagueSelected() &&
+                (!Me.CurrentTarget.HasMyAura(S.AuraFrostFever) || Me.CurrentTarget.HasMyAura(S.AuraBloodPlague))))
                 return true;
 
             // actions.unholy+=/death_and_decay,if=spell_targets.death_and_decay>1&unholy>1
@@ -371,12 +368,10 @@ namespace ScourgeBloom.Class.DeathKnight
                 !BoSSelected())) return true;
 
             // actions.unholy+=/death_coil,if=(cooldown.breath_of_sindragosa.remains>20)|!talent.breath_of_sindragosa.enabled
-            if (
-                await
-                    Spell.CoCast(S.DeathCoil, onunit,
-                        Me.CurrentRunicPower >= 30 && BoSSelected() &&
-                        Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 20 ||
-                        !BoSSelected())) return true;
+            if (await Spell.CoCast(S.DeathCoil, onunit,
+                Me.CurrentRunicPower >= 30 && BoSSelected() &&
+                Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 20 ||
+                !BoSSelected())) return true;
 
             // actions.unholy+=/plague_leech
             if (await Spell.CoCast(S.PlagueLeech, onunit,
@@ -511,8 +506,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.Combat);
 
             // CUSTOM
-            await
-                Spell.CoCast(S.EmpowerRuneWeapon, Me, Me.CurrentRunicPower < 60 && Capabilities.IsCooldownUsageAllowed);
+            await  Spell.CoCast(S.EmpowerRuneWeapon, Me, Me.CurrentRunicPower < 60 && Capabilities.IsCooldownUsageAllowed);
 
             // actions.bos+=/unholy_blight,if=!disease.ticking
             if (await Spell.CoCast(S.UnholyBlight, onunit,
@@ -561,8 +555,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.CurrentTarget.IsWithinMeleeRange);
 
             // CUSTOM
-            await
-                Spell.CoCast(S.EmpowerRuneWeapon, Me, Me.CurrentRunicPower < 60 && Capabilities.IsCooldownUsageAllowed);
+            await Spell.CoCast(S.EmpowerRuneWeapon, Me, Me.CurrentRunicPower < 60 && Capabilities.IsCooldownUsageAllowed);
 
             // actions.bos+=/scourge_strike,if=spell_targets.blood_boil<=3&(runic_power<88&runic_power>30)
             if (await Spell.CoCast(S.ScourgeStrike, onunit,
@@ -602,9 +595,8 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.CurrentTarget.HasMyAura(S.AuraFrostFever) &&
                 Me.CurrentTarget.HasMyAura(S.AuraBloodPlague))) return true;
 
-            await
-                Spell.CoCast(S.EmpowerRuneWeapon, Me,
-                    Me.CurrentRunicPower < 60 && Capabilities.IsCooldownUsageAllowed && BoSSelected());
+            await Spell.CoCast(S.EmpowerRuneWeapon, Me,
+                Me.CurrentRunicPower < 60 && Capabilities.IsCooldownUsageAllowed && BoSSelected());
 
             if (await Spell.CoCast(S.DeathCoil, onunit, Me.HasAura(S.AuraSuddenDoom)))
                 return true;
@@ -624,7 +616,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
             if (Me.IsDead || SpellManager.GlobalCooldown || !CanBuffEat()) return false;
 
-            if (!(Me.HealthPercent < 60) || Me.IsMoving || Me.IsCasting || Me.Combat || Me.HasAura("Food") ||
+            if (!(Me.HealthPercent < GeneralSettings.Instance.RestingEatFoodHp) || Me.IsMoving || Me.IsCasting || Me.Combat || Me.HasAura("Food") ||
                 Consumable.GetBestFood(false) == null)
                 return false;
 
@@ -644,43 +636,48 @@ namespace ScourgeBloom.Class.DeathKnight
 
         #region Logics
 
-        public static bool ShouldSpreadDiseases
+        #region ShouldSpreadDiseases
+
+        public static bool ShouldSpreadDiseases()
         {
-            get
-            {
-                var radius = TalentManager.HasGlyph("Blood Boil") ? 15 : 10;
-                return !Me.CurrentTarget.HasAuraExpired("Blood Plague")
-                       && !Me.CurrentTarget.HasAuraExpired("Frost Fever")
-                       &&
-                       Units.EnemyUnitsNearTarget(radius).Any(u =>
-                           Me.CurrentTarget.Distance < radius && u.HasAuraExpired("Blood Plague") &&
-                           u.HasAuraExpired("Frost Fever"));
-            }
+            var radius = TalentManager.HasGlyph("Blood Boil") ? 15 : 10;
+            return !Me.CurrentTarget.HasAuraExpired("Blood Plague")
+                   && !Me.CurrentTarget.HasAuraExpired("Frost Fever")
+                   &&
+                   Units.EnemyUnitsNearTarget(10)
+                       .Any(
+                           u =>
+                               Me.CurrentTarget.Distance < radius && u.HasAuraExpired("Blood Plague") &&
+                               u.HasAuraExpired("Frost Fever"));
         }
+
+        #endregion ShouldSpreadDiseases
+
+        #region NeedToSpread
 
         public static bool NeedToSpread()
         {
-            if ((!Me.CurrentTarget.HasAura(S.AuraBloodPlague) ||
-                 !Me.CurrentTarget.HasAura(S.AuraFrostFever)) &&
-                (!Me.CurrentTarget.HasAura(S.AuraNecroticPlague) || !TalentManager.IsSelected(19)))
+            if ((!StyxWoW.Me.CurrentTarget.HasAura(S.AuraBloodPlague) ||
+                !StyxWoW.Me.CurrentTarget.HasAura(S.AuraFrostFever)) && !NecroticPlagueSelected() ||
+                (!StyxWoW.Me.CurrentTarget.HasAura(S.AuraNecroticPlague) && NecroticPlagueSelected()))
                 return false;
             var mobList =
                 ObjectManager.GetObjectsOfType<WoWUnit>()
                     .FindAll(
                         unit =>
-                            unit.Guid != Me.Guid && unit.IsAlive && unit.IsHostile && SpreadHelper(unit) &&
+                            unit.Guid != StyxWoW.Me.Guid && unit.IsAlive && unit.IsHostile && SpreadHelper(unit) &&
                             unit.Attackable && !unit.IsFriendly &&
-                            (unit.Location.Distance(Me.CurrentTarget.Location) <= 10 ||
-                             unit.Location.Distance2D(Me.CurrentTarget.Location) <= 10));
+                            (unit.Location.Distance(StyxWoW.Me.CurrentTarget.Location) <= 10 ||
+                             unit.Location.Distance2D(StyxWoW.Me.CurrentTarget.Location) <= 10));
 
             var playerList =
                 ObjectManager.GetObjectsOfType<WoWPlayer>()
                     .FindAll(
                         unit =>
-                            unit.Guid != Me.Guid && unit.IsAlive && unit.IsHostile && SpreadHelper(unit) &&
+                            unit.Guid != StyxWoW.Me.Guid && unit.IsAlive && unit.IsHostile && SpreadHelper(unit) &&
                             unit.Attackable && !unit.IsFriendly &&
-                            (unit.Location.Distance(Me.CurrentTarget.Location) <= 10 ||
-                             unit.Location.Distance2D(Me.CurrentTarget.Location) <= 10));
+                            (unit.Location.Distance(StyxWoW.Me.CurrentTarget.Location) <= 10 ||
+                             unit.Location.Distance2D(StyxWoW.Me.CurrentTarget.Location) <= 10));
 
             return mobList.Count + playerList.Count > 1;
         }
@@ -688,8 +685,12 @@ namespace ScourgeBloom.Class.DeathKnight
         private static bool SpreadHelper(WoWUnit p)
         {
             var auras = p.GetAllAuras();
-            return auras.Any(a => a.SpellId != 59879 || a.SpellId != 55095 || a.SpellId != 155159);
+            return auras.Any(a => a.SpellId != S.AuraBloodPlague || a.SpellId != S.AuraFrostFever || a.SpellId != S.AuraNecroticPlague);
         }
+
+        #endregion NeedToSpread
+
+        #region CanPlagueLeech
 
         public static bool CanPlagueLeech()
         {
@@ -703,35 +704,80 @@ namespace ScourgeBloom.Class.DeathKnight
                    Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) && SpellManager.CanCast(S.PlagueLeech);
         }
 
+        #endregion CanPlagueLeech
+
+        #region GoodPlagueLeech
+
         public static bool GoodPlagueLeech()
         {
-            if (Me.CurrentTarget.GetAuraById(59879) == null ||
-                Me.CurrentTarget.GetAuraById(55095) == null) return false;
-            var frTime = Me.CurrentTarget.GetAuraById(59879).TimeLeft;
-            var blTime = Me.CurrentTarget.GetAuraById(55095).TimeLeft;
+            if (!StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraFrostFever) ||
+                !StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) ||
+                (NecroticPlagueSelected() && !Me.CurrentTarget.HasMyAura(S.AuraNecroticPlague))) return false;
 
-            return frTime <= TimeSpan.FromSeconds(3) || blTime <= TimeSpan.FromSeconds(3);
+            var ffTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraFrostFever).TimeLeft;
+            var bpTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraBloodPlague).TimeLeft;
+
+            return ffTime <= TimeSpan.FromSeconds(3) || bpTime <= TimeSpan.FromSeconds(3);
         }
+
+        #endregion GoodPlagueLeech
+
+        #region DiseaseRemains
 
         public static bool DiseaseRemainsLessThanOne()
         {
-            if (Me.CurrentTarget.GetAuraById(59879) == null ||
-                Me.CurrentTarget.GetAuraById(55095) == null) return false;
-            var frTime = Me.CurrentTarget.GetAuraById(59879).TimeLeft;
-            var blTime = Me.CurrentTarget.GetAuraById(55095).TimeLeft;
+            if (!StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraFrostFever) ||
+                !StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) ||
+                (NecroticPlagueSelected() && !Me.CurrentTarget.HasMyAura(S.AuraNecroticPlague))) return false;
 
-            return frTime < TimeSpan.FromSeconds(1) || blTime < TimeSpan.FromSeconds(1);
+            var ffTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraFrostFever).TimeLeft;
+            var bpTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraBloodPlague).TimeLeft;
+
+            return ffTime < TimeSpan.FromSeconds(1) || bpTime < TimeSpan.FromSeconds(1);
         }
+
+        public static bool DiseaseRemainsLessThanThree()
+        {
+            if (!StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraFrostFever) ||
+                !StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) ||
+                (NecroticPlagueSelected() && !Me.CurrentTarget.HasMyAura(S.AuraNecroticPlague))) return false;
+
+            var ffTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraFrostFever).TimeLeft;
+            var bpTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraBloodPlague).TimeLeft;
+
+            return ffTime < TimeSpan.FromSeconds(3) || bpTime < TimeSpan.FromSeconds(3);
+        }
+
+        public static bool DiseaseRemainsMoreThanFive()
+        {
+            if (!StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraFrostFever) ||
+                !StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) ||
+                (NecroticPlagueSelected() && !Me.CurrentTarget.HasMyAura(S.AuraNecroticPlague))) return false;
+
+            var ffTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraFrostFever).TimeLeft;
+            var bpTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraBloodPlague).TimeLeft;
+
+            return ffTime > TimeSpan.FromSeconds(5) || bpTime > TimeSpan.FromSeconds(5);
+        }
+
+        #endregion DiseaseRemains
+
+        #region NeedToExtendNecroticPlague
 
         public static bool NeedToExtendNecroticPlague()
         {
             if (BoSSelected() || DefileSelected()) return false;
-            if (Me.CurrentTarget.GetAuraById(155159) == null) return false;
-            var npTime = Me.CurrentTarget.GetAuraById(155159).TimeLeft;
+            if (NecroticPlagueSelected() && !Me.CurrentTarget.HasMyAura(S.AuraNecroticPlague)) return false;
+
+            var npTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraNecroticPlague).TimeLeft;
             var ubTime = Spell.GetCooldownLeft(S.UnholyBlight).TotalSeconds;
 
             return npTime < TimeSpan.FromSeconds(ubTime);
         }
+
+        #endregion NeedToExtendNecroticPlague
+
+        #region TalentSelected
 
         public static bool NecroticPlagueSelected()
         {
@@ -758,6 +804,20 @@ namespace ScourgeBloom.Class.DeathKnight
             return TalentManager.IsSelected(7);
         }
 
+        public static bool RunicEmpowermentSelected()
+        {
+            return TalentManager.IsSelected(11);
+        }
+
+        public static bool BloodTapSelected()
+        {
+            return TalentManager.IsSelected(10);
+        }
+
+        #endregion TalentSelected
+
+        #region PetAttack
+
         private static async Task<bool> PetAttack()
         {
             if (Me.GotAlivePet && Me.GotTarget && Me.CurrentTarget.Attackable)
@@ -770,7 +830,9 @@ namespace ScourgeBloom.Class.DeathKnight
             return false;
         }
 
-        #endregion Logics
+        #endregion PetAttack
+
+#endregion Logics
 
         #region Overrides
 

@@ -382,10 +382,8 @@ namespace ScourgeBloom.Helpers
 
         public static bool HasAura(this WoWUnit unit, int auraid, int msLeft = 0, int stacks = 0)
         {
-            if (unit == null)
-                return false;
             var result =
-                unit.GetAllAuras()
+                unit?.GetAllAuras()
                     .FirstOrDefault(a => a.CreatorGuid == StyxWoW.Me.Guid && a.SpellId == auraid && !a.IsPassive);
             if (result == null)
                 return false;
@@ -418,10 +416,8 @@ namespace ScourgeBloom.Helpers
 
         public static bool HasAura(this WoWUnit unit, string name, bool myAurasOnly)
         {
-            if (unit == null)
-                return false;
             var result =
-                unit.GetAllAuras()
+                unit?.GetAllAuras()
                     .FirstOrDefault(a => a.CreatorGuid == StyxWoW.Me.Guid && a.Name == name && !a.IsPassive);
             if (result == null)
                 return false;
@@ -444,7 +440,7 @@ namespace ScourgeBloom.Helpers
                 unit.GetAllAuras()
                     .FirstOrDefault(a => a.CreatorGuid == StyxWoW.Me.Guid && a.SpellId == aura && !a.IsPassive);
 
-            return result == null ? 0 : result.Duration;
+            return result?.Duration ?? 0;
         }
 
         public static TimeSpan GetAuraTimeLeft(this WoWUnit onUnit, string auraName, bool fromMyAura = true)
@@ -456,7 +452,7 @@ namespace ScourgeBloom.Helpers
                             a != null && a.Name == auraName && a.TimeLeft > TimeSpan.Zero &&
                             (!fromMyAura || a.CreatorGuid == StyxWoW.Me.Guid));
 
-            return wantedAura != null ? wantedAura.TimeLeft : TimeSpan.Zero;
+            return wantedAura?.TimeLeft ?? TimeSpan.Zero;
         }
 
         public static uint GetAuraStackCount(this WoWUnit unit, string aura, bool fromMyAura = true)
@@ -464,12 +460,10 @@ namespace ScourgeBloom.Helpers
             if (unit != null && unit.IsValid)
             {
                 var s = unit.Auras.Values.FirstOrDefault(a => a.Name == aura && a.CreatorGuid == Me.Guid);
-                if (s != null)
-                {
-                    Log.WritetoFile(LogLevel.Diagnostic,
-                        string.Format("{0} has {1} stacks of {2}", unit.SafeName(), unit.Auras[aura].StackCount, aura));
-                    return s.StackCount;
-                }
+                if (s == null) return uint.MinValue;
+                Log.WritetoFile(LogLevel.Diagnostic,
+                    $"{unit.SafeName()} has {unit.Auras[aura].StackCount} stacks of {aura}");
+                return s.StackCount;
             }
             return uint.MinValue;
         }
@@ -492,62 +486,56 @@ namespace ScourgeBloom.Helpers
 
         public static bool HasPartyBuff(this WoWUnit onunit, Stat stat)
         {
-            if (stat == Stat.AttackPower)
-                return onunit.HasAnyAura("Horn of Winter", "Trueshot Aura", "Battle Shout");
-
-            if (stat == Stat.BurstHaste)
-                return onunit.HasAnyAura("Time Warp", "Ancient Hysteria", "Heroism", "Bloodlust", "Netherwinds",
-                    "Drums of Fury");
-
-            if (stat == Stat.CriticalStrike)
-                return onunit.HasAnyAura("Leader of the Pack", "Arcane Brilliance", "Dalaran Brilliance",
-                    "Legacy of the White Tiger",
-                    "Lone Wolf: Ferocity of the Raptor", "Terrifying Roar", "Fearless Roar", "Strength of the Pack",
-                    "Embrace of the Shale Spider",
-                    "Still Water", "Furious Howl");
-
-            if (stat == Stat.Haste)
-                return onunit.HasAnyAura("Unholy Aura", "Mind Quickening", "Swiftblade's Cunning", "Grace of Air",
-                    "Lone Wolf: Haste of the Hyena",
-                    "Cackling Howl", "Savage Vigor", "Energizing Spores", "Speed of the Swarm");
-
-            if (stat == Stat.Mastery)
-                return onunit.HasAnyAura("Power of the Grave", "Moonkin Aura", "Blessing of Might", "Grace of Air",
-                    "Lone Wolf: Grace of the Cat",
-                    "Roar of Courage", "Keen Senses", "Spirit Beast Blessing", "Plainswalking");
-
-            if (stat == Stat.MortalWounds)
-                return onunit.HasAnyAura("Mortal Strike", "Wild Strike", "Wound Poison", "Rising Sun Kick",
-                    "Mortal Cleave", "Legion Strike",
-                    "Bloody Screech", "Deadly Bite", "Monstrous Bite", "Gruesome Bite", "Deadly Sting");
-
-            if (stat == Stat.Multistrike)
-                return onunit.HasAnyAura("Windflurry", "Mind Quickening", "Swiftblade's Cunning", "Dark Intent",
-                    "Lone Wolf: Quickness of the Dragonhawk",
-                    "Sonic Focus", "Wild Strength", "Double Bite", "Spry Attacks", "Breath of the Winds");
-
-            if (stat == Stat.SpellPower)
-                return onunit.HasAnyAura("Arcane Brilliance", "Dalaran Brilliance", "Dark Intent",
-                    "Lone Wolf: Wisdom of the Serpent", "Still Water",
-                    "Qiraji Fortitude", "Serpent's Cunning");
-
-            if (stat == Stat.Stamina)
-                return onunit.HasAnyAura("Power Word: Fortitude", "Blood Pact", "Commanding Shout",
-                    "Lone Wolf: Fortitude of the Bear",
-                    "Fortitude", "Invigorating Roar", "Sturdiness", "Savage Vigor", "Qiraji Fortitude");
-
-            if (stat == Stat.Stats)
-                return onunit.HasAnyAura("Mark of the Wild", "Legacy of the Emperor", "Legacy of the White Tiger",
-                    "Blessing of Kings",
-                    "Lone Wolf: Power of the Primates", "Blessing of Forgotten Kings", "Bark of the Wild",
-                    "Blessing of Kongs",
-                    "Embrace of the Shale Spider", "Strength of the Earth");
-
-            if (stat == Stat.Versatility)
-                return onunit.HasAnyAura("Unholy Aura", "Mark of the Wild", "Sanctity Aura", "Inspiring Presence",
-                    "Lone Wolf: Versatility of the Ravager",
-                    "Tenacity", "Indomitable", "Wild Strength", "Defensive Quills", "Chitinous Armor", "Grace",
-                    "Strength of the Earth");
+            // ReSharper disable once SwitchStatementMissingSomeCases
+            switch (stat)
+            {
+                case Stat.AttackPower:
+                    return onunit.HasAnyAura("Horn of Winter", "Trueshot Aura", "Battle Shout");
+                case Stat.BurstHaste:
+                    return onunit.HasAnyAura("Time Warp", "Ancient Hysteria", "Heroism", "Bloodlust", "Netherwinds",
+                        "Drums of Fury");
+                case Stat.CriticalStrike:
+                    return onunit.HasAnyAura("Leader of the Pack", "Arcane Brilliance", "Dalaran Brilliance",
+                        "Legacy of the White Tiger",
+                        "Lone Wolf: Ferocity of the Raptor", "Terrifying Roar", "Fearless Roar", "Strength of the Pack",
+                        "Embrace of the Shale Spider",
+                        "Still Water", "Furious Howl");
+                case Stat.Haste:
+                    return onunit.HasAnyAura("Unholy Aura", "Mind Quickening", "Swiftblade's Cunning", "Grace of Air",
+                        "Lone Wolf: Haste of the Hyena",
+                        "Cackling Howl", "Savage Vigor", "Energizing Spores", "Speed of the Swarm");
+                case Stat.Mastery:
+                    return onunit.HasAnyAura("Power of the Grave", "Moonkin Aura", "Blessing of Might", "Grace of Air",
+                        "Lone Wolf: Grace of the Cat",
+                        "Roar of Courage", "Keen Senses", "Spirit Beast Blessing", "Plainswalking");
+                case Stat.MortalWounds:
+                    return onunit.HasAnyAura("Mortal Strike", "Wild Strike", "Wound Poison", "Rising Sun Kick",
+                        "Mortal Cleave", "Legion Strike",
+                        "Bloody Screech", "Deadly Bite", "Monstrous Bite", "Gruesome Bite", "Deadly Sting");
+                case Stat.Multistrike:
+                    return onunit.HasAnyAura("Windflurry", "Mind Quickening", "Swiftblade's Cunning", "Dark Intent",
+                        "Lone Wolf: Quickness of the Dragonhawk",
+                        "Sonic Focus", "Wild Strength", "Double Bite", "Spry Attacks", "Breath of the Winds");
+                case Stat.SpellPower:
+                    return onunit.HasAnyAura("Arcane Brilliance", "Dalaran Brilliance", "Dark Intent",
+                        "Lone Wolf: Wisdom of the Serpent", "Still Water",
+                        "Qiraji Fortitude", "Serpent's Cunning");
+                case Stat.Stamina:
+                    return onunit.HasAnyAura("Power Word: Fortitude", "Blood Pact", "Commanding Shout",
+                        "Lone Wolf: Fortitude of the Bear",
+                        "Fortitude", "Invigorating Roar", "Sturdiness", "Savage Vigor", "Qiraji Fortitude");
+                case Stat.Stats:
+                    return onunit.HasAnyAura("Mark of the Wild", "Legacy of the Emperor", "Legacy of the White Tiger",
+                        "Blessing of Kings",
+                        "Lone Wolf: Power of the Primates", "Blessing of Forgotten Kings", "Bark of the Wild",
+                        "Blessing of Kongs",
+                        "Embrace of the Shale Spider", "Strength of the Earth");
+                case Stat.Versatility:
+                    return onunit.HasAnyAura("Unholy Aura", "Mark of the Wild", "Sanctity Aura", "Inspiring Presence",
+                        "Lone Wolf: Versatility of the Ravager",
+                        "Tenacity", "Indomitable", "Wild Strength", "Defensive Quills", "Chitinous Armor", "Grace",
+                        "Strength of the Earth");
+            }
 
             return false;
         }
@@ -569,7 +557,7 @@ namespace ScourgeBloom.Helpers
 
         #endregion PartyBuffs
 
-        #region mechanic
+        #region Mechanic
 
         public static bool HasAuraWithMechanic(this WoWUnit unit, params WoWSpellMechanic[] mechanics)
         {
@@ -635,6 +623,6 @@ namespace ScourgeBloom.Helpers
                     .Any(a => a.Spell.SpellEffects.Any(e => e.AuraType == WoWApplyAuraType.ModDecreaseSpeed));
         }
 
-        #endregion mechanic
+        #endregion Mechanic
     }
 }

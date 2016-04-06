@@ -102,7 +102,9 @@ namespace ScourgeBloom.Lists
             AuraBreathofSindragosa = 155166,
             AuraSuddenDoom = 81340,
             AuraBloodCharge = 114851,
-            AuraShadowInfusion = 91342;
+            AuraShadowInfusion = 91342,
+            AuraRime = 59057,
+            AuraKillingMachine = 51124;
 
         #endregion Auras
 
