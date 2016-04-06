@@ -42,7 +42,7 @@ namespace ScourgeBloom
             var webClient = new WebClient();
             var textboxValue =
                 webClient.DownloadString(
-                    "https://botpipe.com:2087/product/e5bb544a-9489-11e5-8f94-adc8e00a91b8/changelog.txt");
+                    "https://botpipe.com:2087/product/6b041b2c-fc26-11e5-84d4-11866f97a98b/changelog.txt");
             textBox1.Text = textboxValue;
         }
 
