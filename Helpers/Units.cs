@@ -380,48 +380,65 @@ namespace ScourgeBloom.Helpers
 
         #region Auras
 
-        public static bool HasAura(this WoWUnit unit, int auraid, int msLeft = 0, int stacks = 0)
+
+
+
+        /// <summary>
+        ///  Check the aura count thats created by yourself by the name on specified unit
+        /// </summary>
+        /// <param name="aura"> The name of the aura in English. </param>
+        /// <param name="unit"> The unit to check auras for. </param>
+        /// <returns></returns>
+        public static bool HasMyAura(this WoWUnit unit, string aura)
         {
-            var result =
-                unit?.GetAllAuras()
-                    .FirstOrDefault(a => a.CreatorGuid == StyxWoW.Me.Guid && a.SpellId == auraid && !a.IsPassive);
-            if (result == null)
+            return HasMyAura(unit, aura, 0);
+        }
+
+        /// <summary>
+        ///  Check the aura count thats created by yourself by the name on specified unit
+        /// </summary>
+        /// <param name="aura"> The name of the aura in English. </param>
+        /// <param name="unit"> The unit to check auras for. </param>
+        /// <param name="stacks"> The stack count of the aura to return true. </param>
+        /// <returns></returns>
+        public static bool HasMyAura(this WoWUnit unit, string aura, int stacks)
+        {
+            return HasAura(unit, aura, stacks, StyxWoW.Me);
+        }
+
+        private static bool HasAura(this WoWUnit unit, string aura, int stacks, WoWUnit creator)
+        {
+            if (unit == null)
                 return false;
-
-            if (result.TimeLeft.TotalMilliseconds < msLeft && msLeft != 0)
-                return false;
-
-            return result.StackCount >= stacks || stacks == 0;
+            return unit.GetAllAuras().Any(a => a.Name == aura && a.StackCount >= stacks && (creator == null || a.CreatorGuid == creator.Guid));
         }
 
-        public static bool HasAura(this WoWUnit unit, string aura, int stacks)
+        /// <summary>
+        ///  Check the aura count thats created by yourself by the name on specified unit
+        /// </summary>
+        /// <param name="aura"> The name of the aura in English. </param>
+        /// <param name="unit"> The unit to check auras for. </param>
+        /// <returns></returns>
+        public static bool HasMyAura(this WoWUnit unit, int id)
         {
-            return HasAura(unit, aura, stacks, null);
+            return HasMyAura(unit, id, 0);
         }
 
-        public static bool HasMyAura(this WoWUnit unit, int aura)
+        /// <summary>
+        ///  Check the aura count thats created by yourself by the name on specified unit
+        /// </summary>
+        /// <param name="aura"> The name of the aura in English. </param>
+        /// <param name="unit"> The unit to check auras for. </param>
+        /// <param name="stacks"> The stack count of the aura to return true. </param>
+        /// <returns></returns>
+        public static bool HasMyAura(this WoWUnit unit, int id, int stacks)
         {
-            return unit.GetAllAuras().Any(a => a.SpellId == aura && a.CreatorGuid == Me.Guid);
+            return HasAura(unit, id, stacks, StyxWoW.Me);
         }
 
-        private static bool HasAura(this WoWUnit unit, string aura, int stacks, WoWObject creator)
+        private static bool HasAura(this WoWUnit unit, int id, int stacks, WoWUnit creator)
         {
-            return
-                unit.GetAllAuras()
-                    .Any(
-                        a =>
-                            a.Name == aura && a.StackCount >= stacks &&
-                            (creator == null || a.CreatorGuid == creator.Guid));
-        }
-
-        public static bool HasAura(this WoWUnit unit, string name, bool myAurasOnly)
-        {
-            var result =
-                unit?.GetAllAuras()
-                    .FirstOrDefault(a => a.CreatorGuid == StyxWoW.Me.Guid && a.Name == name && !a.IsPassive);
-            if (result == null)
-                return false;
-            return true;
+            return unit.GetAllAuras().Any(a => a.SpellId == id && a.StackCount >= stacks && (creator == null || a.CreatorGuid == creator.Guid));
         }
 
         public static bool HasAnyAura(this WoWUnit unit, params string[] auraNames)
