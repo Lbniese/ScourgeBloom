@@ -262,13 +262,13 @@ namespace ScourgeBloom.Class.DeathKnight
                 return true;
 
             //actions+=/soul_reaper,if=target.health.pct-3*(target.health.pct%target.time_to_die)<=35
-            if (await Spell.CoCast(S.SoulReaperUh, onunit, Me.CurrentTarget.HealthPercent <= 37))
+            if (await Spell.CoCast(S.SoulReaperFrost, onunit, Me.CurrentTarget.HealthPercent <= 37))
                 return true;
 
             //actions+=/blood_tap,if=(target.health.pct-3*(target.health.pct%target.time_to_die)<=35&cooldown.soul_reaper.remains=0)
             await Spell.CoCast(S.BloodTap, Me,
                 Me.HasAura(S.AuraBloodCharge) && Me.Auras["Blood Charge"].StackCount >= 5 &&
-                SpellManager.CanCast(S.SoulReaperUh) && Me.CurrentTarget.HealthPercent < 45 &&
+                SpellManager.CanCast(S.SoulReaperFrost) && Me.CurrentTarget.HealthPercent < 45 &&
                 Me.UnholyRuneCount == 0 && Me.BloodRuneCount == 0 && Me.FrostRuneCount == 0 &&
                 Me.DeathRuneCount == 0);
 
