@@ -700,5 +700,10 @@ namespace ScourgeBloom
                     Settings.Load();
             }
         }
+
+        private void UseArmyoftheDeadcheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            DeathKnightSettings.Instance.UseAotD = UseArmyoftheDeadcheckBox.Checked;
+        }
     }
 }

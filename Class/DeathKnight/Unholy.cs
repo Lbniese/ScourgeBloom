@@ -171,7 +171,7 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await BoSActive(onunit, Me.Combat && Me.HasAura("Breath of Sindragosa")))
                 return true;
 
-            if (await Spell.CoCast(S.ArmyoftheDead, Me, Me.CurrentTarget.IsBoss && Capabilities.IsCooldownUsageAllowed))
+            if (await Spell.CoCast(S.ArmyoftheDead, Me, Me.CurrentTarget.IsBoss && Capabilities.IsCooldownUsageAllowed && DeathKnightSettings.Instance.UseAotD))
                 return true;
 
             // actions.unholy=plague_leech,if=((cooldown.outbreak.remains<1)|disease.min_remains<1)&((blood<1&frost<1)|(blood<1&unholy<1)|(frost<1&unholy<1))
@@ -881,7 +881,7 @@ namespace ScourgeBloom.Class.DeathKnight
         private static async Task<bool> NecroBlightOpener(bool reqs)
         {
             if (!reqs) return false;
-            if (await Spell.CoCast(S.ArmyoftheDead, Capabilities.IsCooldownUsageAllowed)) return true;
+            if (await Spell.CoCast(S.ArmyoftheDead, Capabilities.IsCooldownUsageAllowed && DeathKnightSettings.Instance.UseAotD)) return true;
             if (await Spell.CoCast(S.DeathsAdvance, DeathsAdvanceSelected() && Capabilities.IsCooldownUsageAllowed))
                 return true;
             if (await Spell.CoCast(S.UnholyBlight, Me.CurrentTarget.IsWithinMeleeRange)) return true;
@@ -900,7 +900,7 @@ namespace ScourgeBloom.Class.DeathKnight
         private static async Task<bool> DefileOpener(bool reqs)
         {
             if (!reqs) return false;
-            if (await Spell.CoCast(S.ArmyoftheDead, Capabilities.IsCooldownUsageAllowed)) return true;
+            if (await Spell.CoCast(S.ArmyoftheDead, Capabilities.IsCooldownUsageAllowed && DeathKnightSettings.Instance.UseAotD)) return true;
             if (await Spell.CoCast(S.DeathsAdvance, DeathsAdvanceSelected() && Capabilities.IsCooldownUsageAllowed))
                 return true;
             if (
@@ -924,7 +924,7 @@ namespace ScourgeBloom.Class.DeathKnight
         private static async Task<bool> BreathofSindragosaOpener(bool reqs)
         {
             if (!reqs) return false;
-            if (await Spell.CoCast(S.ArmyoftheDead, Capabilities.IsCooldownUsageAllowed)) return true;
+            if (await Spell.CoCast(S.ArmyoftheDead, Capabilities.IsCooldownUsageAllowed && DeathKnightSettings.Instance.UseAotD)) return true;
             if (await Spell.CoCast(S.DeathsAdvance, DeathsAdvanceSelected() && Capabilities.IsCooldownUsageAllowed))
                 return true;
             if (await Spell.CoCast(S.SummonGargoyle,

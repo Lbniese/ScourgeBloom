@@ -109,6 +109,8 @@ namespace ScourgeBloom.Class.DeathKnight
                 await Interrupts.StrangulateMethod();
 
             // Actual Routine
+            if (await Spell.CoCast(S.ArmyoftheDead, Me, Me.CurrentTarget.IsBoss && Capabilities.IsCooldownUsageAllowed && DeathKnightSettings.Instance.UseAotD))
+                return true;
 
             //0.00	blood_fury,if=target.time_to_die>120|buff.draenic_armor_potion.remains<=buff.blood_fury.duration
 

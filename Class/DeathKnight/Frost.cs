@@ -247,6 +247,8 @@ namespace ScourgeBloom.Class.DeathKnight
                 await Interrupts.StrangulateMethod();
 
             // Actual Routine
+            if (await Spell.CoCast(S.ArmyoftheDead, Me, Me.CurrentTarget.IsBoss && Capabilities.IsCooldownUsageAllowed && DeathKnightSettings.Instance.UseAotD))
+                return true;
 
             //actions+=/pillar_of_frost
             await Spell.CoCast(S.PillarofFrost, Me, GeneralSettings.Instance.Cooldowns); //Add PoF on Cooldown check

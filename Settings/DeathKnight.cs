@@ -86,6 +86,13 @@ namespace ScourgeBloom.Settings
         public bool PillarofFrostOnCd { get; set; }
 
         [Setting, DefaultValue(true)]
+        [ReadOnly(true)]
+        [Category("Common")]
+        [Browsable(false)]
+        [Description("Use Army of the Dead")]
+        public bool UseAotD { get; set; }
+
+        [Setting, DefaultValue(true)]
         [Browsable(false)]
         public bool BosArcaneTorrent { get; set; }
 

@@ -184,6 +184,7 @@ namespace ScourgeBloom
             this.SaveButton = new System.Windows.Forms.Button();
             this.PVPPresetButton = new System.Windows.Forms.Button();
             this.groupBox11 = new System.Windows.Forms.GroupBox();
+            this.UseArmyoftheDeadcheckBox = new System.Windows.Forms.CheckBox();
             this.TabControl1.SuspendLayout();
             this.Changelog.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -329,6 +330,7 @@ namespace ScourgeBloom
             // 
             // groupBox16
             // 
+            this.groupBox16.Controls.Add(this.UseArmyoftheDeadcheckBox);
             this.groupBox16.Controls.Add(this.AutoAmsCheckbox);
             this.groupBox16.Controls.Add(this.label10);
             this.groupBox16.Controls.Add(this.numIceBoundFortitudeHp);
@@ -1822,6 +1824,19 @@ namespace ScourgeBloom
             this.groupBox11.TabStop = false;
             this.groupBox11.Text = "Presets";
             // 
+            // UseArmyoftheDeadcheckBox
+            // 
+            this.UseArmyoftheDeadcheckBox.AutoSize = true;
+            this.UseArmyoftheDeadcheckBox.Checked = true;
+            this.UseArmyoftheDeadcheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.UseArmyoftheDeadcheckBox.Location = new System.Drawing.Point(168, 19);
+            this.UseArmyoftheDeadcheckBox.Name = "UseArmyoftheDeadcheckBox";
+            this.UseArmyoftheDeadcheckBox.Size = new System.Drawing.Size(130, 17);
+            this.UseArmyoftheDeadcheckBox.TabIndex = 9;
+            this.UseArmyoftheDeadcheckBox.Text = "Use Army of the Dead";
+            this.UseArmyoftheDeadcheckBox.UseVisualStyleBackColor = true;
+            this.UseArmyoftheDeadcheckBox.CheckedChanged += new System.EventHandler(this.UseArmyoftheDeadcheckBox_CheckedChanged);
+            // 
             // ScourgeBloomSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2083,5 +2098,6 @@ namespace ScourgeBloom
         private CheckBox UseAsphyxiatecheckBox;
         private CheckBox UseDeathsAdvancecheckBox;
         private CheckBox UseAMZcheckBox;
+        private CheckBox UseArmyoftheDeadcheckBox;
     }
 }
