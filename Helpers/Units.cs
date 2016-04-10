@@ -404,7 +404,7 @@ namespace ScourgeBloom.Helpers
             return unit.GetAllAuras().Any(a => a.SpellId == aura && a.CreatorGuid == Me.Guid);
         }
 
-        private static bool HasAura(this WoWUnit unit, string aura, int stacks, WoWUnit creator)
+        private static bool HasAura(this WoWUnit unit, string aura, int stacks, WoWObject creator)
         {
             return
                 unit.GetAllAuras()
