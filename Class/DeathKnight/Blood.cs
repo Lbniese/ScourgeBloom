@@ -130,19 +130,20 @@ namespace ScourgeBloom.Class.DeathKnight
 
             //0.00	death_pact,if=health.pct<30
 
-            //F	0.00	run_action_list,name=last,if=target.time_to_die<8|target.time_to_die<13&cooldown.empower_rune_weapon.remains<4
+            //run_action_list,name=last,if=target.time_to_die<8|target.time_to_die<13&cooldown.empower_rune_weapon.remains<4
             await Last(onunit, TTD.TimeToDeath(onunit) < 8 ||
                                TTD.TimeToDeath(onunit) < 13 &&
                                Spell.GetCooldownLeft(S.EmpowerRuneWeapon).TotalSeconds < 4);
-            //G	0.00	run_action_list,name=bos,if=dot.breath_of_sindragosa.ticking
+
+            //run_action_list,name=bos,if=dot.breath_of_sindragosa.ticking
             await BoS(Me.HasAura(S.BreathofSindragosa));
-            //H	0.00	run_action_list,name=nbos,if=!dot.breath_of_sindragosa.ticking&cooldown.breath_of_sindragosa.remains<4
-            await
-                NboS(!Me.HasAura(S.BreathofSindragosa) && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds < 4);
-            //I	0.00	run_action_list,name=cdbos,if=!dot.breath_of_sindragosa.ticking&cooldown.breath_of_sindragosa.remains>=4
-            await
-                CdBoS(onunit,
-                    !Me.HasAura(S.BreathofSindragosa) && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds >= 4);
+
+            //run_action_list,name=nbos,if=!dot.breath_of_sindragosa.ticking&cooldown.breath_of_sindragosa.remains<4
+            await NboS(onunit, !Me.HasAura(S.BreathofSindragosa) && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds < 4);
+
+            //run_action_list,name=cdbos,if=!dot.breath_of_sindragosa.ticking&cooldown.breath_of_sindragosa.remains>=4
+            await CdBoS(onunit,
+                !Me.HasAura(S.BreathofSindragosa) && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds >= 4);
 
             if (Capabilities.IsTargetingAllowed)
                 MovementManager.AutoTarget();
@@ -285,18 +286,39 @@ namespace ScourgeBloom.Class.DeathKnight
 
         #region Coroutine nBoS
 
-        private static async Task<bool> NboS(bool reqs)
+        private static async Task<bool> NboS(WoWUnit onunit, bool reqs)
         {
             if (!reqs) return false;
 
-            //"	4.12	breath_of_sindragosa,if=runic_power>=80
-            //#	0.96	soul_reaper,if=target.health.pct-3*(target.health.pct%target.time_to_die)<=35
-            //$	1.00	chains_of_ice,if=!dot.frost_fever.ticking
-            //    0.00	icy_touch,if=!dot.frost_fever.ticking
-            //%	1.00	plague_strike,if=!dot.blood_plague.ticking
-            //&	1.72	death_strike,if=(blood.frac>1.8&blood.death>=1|frost.frac>1.8|unholy.frac>1.8)&runic_power<80
-            //'	0.52	death_and_decay,if=buff.crimson_scourge.up
-            //(	2.62	blood_boil,if=buff.crimson_scourge.up|(blood=2&runic_power<80&blood.death<2)
+            //breath_of_sindragosa,if=runic_power>=80
+            await Spell.CoCast(S.BreathofSindragosa, Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentRunicPower >= 80);
+
+            //soul_reaper,if=target.health.pct-3*(target.health.pct%target.time_to_die)<=35
+            if (await Spell.CoCast(S.SoulReaperBlood, onunit, Me.CurrentTarget.HealthPercent <= 37))
+                return true;
+
+            //chains_of_ice,if=!dot.frost_fever.ticking
+            if (await Spell.CoCast(S.ChainsOfIce, onunit, !NecroticPlagueSelected() && !Me.CurrentTarget.HasMyAura(S.AuraFrostFever)))
+                return true;
+
+            //icy_touch,if=!dot.frost_fever.ticking
+            if (await Spell.CoCast(S.IcyTouch, onunit, !NecroticPlagueSelected() && !Me.CurrentTarget.HasMyAura(S.AuraFrostFever)))
+                return true;
+
+            //plague_strike,if=!dot.blood_plague.ticking
+            if (await Spell.CoCast(S.PlagueStrike, onunit, !NecroticPlagueSelected() && !Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) && Me.CurrentTarget.IsWithinMeleeRange))
+                return true;
+
+            //death_strike,if=(blood.frac>1.8&blood.death>=1|frost.frac>1.8|unholy.frac>1.8)&runic_power<80
+            if (await Spell.CoCast(S.DeathStrike, onunit,
+                (Me.BloodRuneCount > 2 || Me.FrostRuneCount > 2 || Me.UnholyRuneCount > 2) &&
+                Me.CurrentRunicPower < 80)) return true;
+
+            //death_and_decay,if=buff.crimson_scourge.up
+            if (await Spell.CastOnGround(S.DeathandDecay, Me, Me.HasAura("Crimson Scourge"))) return true;
+
+            //blood_boil,if=buff.crimson_scourge.up|(blood=2&runic_power<80&blood.death<2)
+            if (await Spell.CastOnGround(S.BloodBoil, Me, Me.HasAura("Crimson Scourge") || Me.BloodRuneCount == 2 && Me.CurrentRunicPower < 80)) return true;
 
             await CommonCoroutines.SleepForLagDuration();
 
@@ -311,9 +333,19 @@ namespace ScourgeBloom.Class.DeathKnight
         {
             if (!reqs) return false;
             //e	16.50	soul_reaper,if=target.health.pct-3*(target.health.pct%target.time_to_die)<=35
+            if (await Spell.CoCast(S.SoulReaperBlood, onunit, Me.CurrentTarget.HealthPercent <= 37))
+                return true;
+
             //   0.00	blood_tap,if=buff.blood_charge.stack>=10
+            await Spell.CoCast(S.BloodTap, onunit,
+                Me.HasAura("Blood Charge") && Me.Auras["Blood Charge"].StackCount >= 5 &&
+                SpellManager.CanCast(S.SoulReaperUh) && Me.CurrentTarget.HealthPercent < 47 &&
+                Me.UnholyRuneCount == 0 && Me.BloodRuneCount == 0 && Me.FrostRuneCount == 0 &&
+                Me.DeathRuneCount == 0);
+
             //f	23.04	death_coil,if=runic_power>65
             if (await Spell.CoCast(S.DeathCoil, onunit, Me.CurrentRunicPower > 65)) return true;
+
             //g	0.10	plague_strike,if=!dot.blood_plague.ticking&unholy=2
             //h	0.06	icy_touch,if=!dot.frost_fever.ticking&frost=2
             //i	7.28	death_strike,if=unholy=2|frost=2|blood=2&blood.death>=1

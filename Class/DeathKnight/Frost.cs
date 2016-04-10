@@ -201,6 +201,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> CombatRoutine(WoWUnit onunit)
         {
+            var radius = TalentManager.HasGlyph("Blood Boil") ? 15 : 10;
+
             if (Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting ||
                 Me.IsChanneling) return true;
 
@@ -256,7 +258,8 @@ namespace ScourgeBloom.Class.DeathKnight
             
             //actions+=/empower_rune_weapon,if=target.time_to_die<=60
             await Spell.CoCast(S.EmpowerRuneWeapon, Me,
-                TTD.TimeToDeath(onunit) <= 60 && Me.CurrentTarget.IsBoss && Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.Attackable && Me.Combat && Me.GotTarget);
+                TTD.TimeToDeath(onunit) <= 60 && Me.CurrentTarget.IsBoss && Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.Attackable && Me.Combat && Me.GotTarget && Me.UnholyRuneCount < 1 && Me.FrostRuneCount < 1 && Me.BloodRuneCount < 1 &&
+                Me.DeathRuneCount < 1);
 
             //actions+=/plague_leech,if=disease.min_remains<1
             if (await Spell.CoCast(S.PlagueLeech, onunit, CanPlagueLeech() && DiseaseRemainsLessThanOne()))
@@ -273,18 +276,18 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.UnholyRuneCount == 0 && Me.BloodRuneCount == 0 && Me.FrostRuneCount == 0 &&
                 Me.DeathRuneCount == 0);
 
-            if (await single_target_2h(onunit, Units.EnemyUnitsSub10.Count() < 4 && !IsDualWielding))
+            if (await single_target_2h(onunit, Units.EnemiesInRange(10) < 4 && !IsDualWielding))
             {
                 return true;
             }
 
-            if (await single_target_1h(onunit, Units.EnemyUnitsSub10.Count() < 3 && IsDualWielding))
+            if (await single_target_1h(onunit, Units.EnemiesInRange(10) < 3 && IsDualWielding))
             {
                 return true;
             }
 
-            if (await multi_target(onunit, Units.EnemyUnitsSub10.Count() >= 4 && !IsDualWielding ||
-                                           (Units.EnemyUnitsSub10.Count() >= 3 && IsDualWielding)))
+            if (await multi_target(onunit, Units.EnemiesInRange(10) >= 4 && !IsDualWielding ||
+                                           (Units.EnemiesInRange(10) >= 3 && IsDualWielding)))
             {
                 return true;
             }

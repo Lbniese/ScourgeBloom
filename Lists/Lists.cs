@@ -69,7 +69,8 @@ namespace ScourgeBloom.Lists
             DeathsAdvance = 96268,
             FrostPresence = 48266,
             BloodPresence = 48263,
-            DeathGrip = 49576;
+            DeathGrip = 49576,
+            ChainsOfIce = 45524;
 
         #endregion DeathKnight Spells
 
