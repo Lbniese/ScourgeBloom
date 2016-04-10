@@ -251,7 +251,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 return true;
 
             //actions+=/pillar_of_frost
-            await Spell.CoCast(S.PillarofFrost, Me, GeneralSettings.Instance.Cooldowns); //Add PoF on Cooldown check
+            await Spell.CoCast(S.PillarofFrost, Capabilities.IsCooldownUsageAllowed && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.Attackable && DeathKnightSettings.Instance.PillarofFrostOnCd); //Add PoF on Cooldown check
             //actions+=/empower_rune_weapon,if=target.time_to_die<=60
             await Spell.CoCast(S.EmpowerRuneWeapon, Me,
                 TTD.TimeToDeath(onunit) <= 60 && Me.CurrentTarget.IsBoss && Capabilities.IsCooldownUsageAllowed);
@@ -971,7 +971,7 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CoCast(S.DeathsAdvance, TalentManager.IsSelected(7) && Capabilities.IsCooldownUsageAllowed))
                 return true;
 
-            await Spell.CoCast(S.PillarofFrost, Capabilities.IsCooldownUsageAllowed);
+            await Spell.CoCast(S.PillarofFrost, Capabilities.IsCooldownUsageAllowed && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.Attackable && DeathKnightSettings.Instance.PillarofFrostOnCd);
 
             if (await Spell.CoCast(S.HowlingBlast, !Me.CurrentTarget.IsWithinMeleeRange)) return true;
 
@@ -1007,7 +1007,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
             if (await Spell.CoCast(S.Outbreak)) return true;
 
-            if (await Spell.CoCast(S.PillarofFrost, Capabilities.IsCooldownUsageAllowed)) return true;
+            if (await Spell.CoCast(S.PillarofFrost, Capabilities.IsCooldownUsageAllowed && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.Attackable && DeathKnightSettings.Instance.PillarofFrostOnCd)) return true;
 
             if (await Spell.CastOnGround(S.Defile, Me, Me.CurrentTarget.IsWithinMeleeRange)) return true;
 
@@ -1046,7 +1046,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 !Me.CurrentTarget.IsWithinMeleeRange && TalentManager.IsSelected(7) &&
                 Capabilities.IsCooldownUsageAllowed)) return true;
 
-            if (await Spell.CoCast(S.PillarofFrost, Capabilities.IsCooldownUsageAllowed)) return true;
+            if (await Spell.CoCast(S.PillarofFrost, Capabilities.IsCooldownUsageAllowed && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.Attackable && DeathKnightSettings.Instance.PillarofFrostOnCd)) return true;
 
             if (await Spell.CoCast(S.Obliterate, Me.CurrentTarget.IsWithinMeleeRange)) return true;
 
