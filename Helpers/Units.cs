@@ -416,8 +416,8 @@ namespace ScourgeBloom.Helpers
         /// <summary>
         ///  Check the aura count thats created by yourself by the name on specified unit
         /// </summary>
-        /// <param name="aura"> The name of the aura in English. </param>
         /// <param name="unit"> The unit to check auras for. </param>
+        /// <param name="id"></param>
         /// <returns></returns>
         public static bool HasMyAura(this WoWUnit unit, int id)
         {
@@ -429,6 +429,7 @@ namespace ScourgeBloom.Helpers
         /// </summary>
         /// <param name="aura"> The name of the aura in English. </param>
         /// <param name="unit"> The unit to check auras for. </param>
+        /// <param name="id"></param>
         /// <param name="stacks"> The stack count of the aura to return true. </param>
         /// <returns></returns>
         public static bool HasMyAura(this WoWUnit unit, int id, int stacks)
@@ -436,7 +437,7 @@ namespace ScourgeBloom.Helpers
             return HasAura(unit, id, stacks, StyxWoW.Me);
         }
 
-        private static bool HasAura(this WoWUnit unit, int id, int stacks, WoWUnit creator)
+        private static bool HasAura(this WoWUnit unit, int id, int stacks, WoWObject creator)
         {
             return unit.GetAllAuras().Any(a => a.SpellId == id && a.StackCount >= stacks && (creator == null || a.CreatorGuid == creator.Guid));
         }

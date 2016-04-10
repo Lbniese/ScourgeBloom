@@ -74,6 +74,8 @@ namespace ScourgeBloom.Helpers
                 var sp = WoWSpell.FromId(spell);
                 var sname = sp != null ? sp.Name : "#" + spell;
 
+                Log.WriteLog(LogLevel.Normal, $"Casting {sname}");
+
                 if (!reqs || !SpellManager.CanCast(spell) || unit == null)
                     return false;
 
@@ -84,7 +86,7 @@ namespace ScourgeBloom.Helpers
 
                 if (!await Coroutine.Wait(1000, () => StyxWoW.Me.CurrentPendingCursorSpell != null))
                 {
-                    Logging.Write(Colors.DarkRed, "[ScourgeBloom] Cursor Spell Did not happen");
+                    Logging.Write(Colors.DarkRed, "[ScourgeBloom] Cursor Spell did not happen");
                     return false;
                 }
 
@@ -106,26 +108,34 @@ namespace ScourgeBloom.Helpers
 
         public static async Task<bool> CoCast(int spell, WoWUnit unit, bool reqs, bool cancel)
         {
-            var sp = WoWSpell.FromId(spell);
-            var sname = sp != null ? sp.Name : "#" + spell;
-
-            Log.WritetoFile(LogLevel.Diagnostic, $"Casting {sname}");
-
-            if (unit == null || !reqs || !SpellManager.CanCast(spell, unit, true))
-                return false;
-
-            if (!SpellManager.Cast(spell, unit))
-                return false;
-
-            if (!await Coroutine.Wait(GetSpellCastTime(sname), () => cancel) && GetSpellCastTime(sname).TotalSeconds > 0)
+            try
             {
-                SpellManager.StopCasting();
-                Log.WriteLog("[ScourgeBloom] Canceling " + sname + ".");
-                return false;
-            }
+                var sp = WoWSpell.FromId(spell);
+                var sname = sp != null ? sp.Name : "#" + spell;
 
-            await CommonCoroutines.SleepForLagDuration();
-            return true;
+                Log.WriteLog(LogLevel.Normal, $"Casting {sname}");
+
+                if (unit == null || !reqs || !SpellManager.CanCast(spell, unit, true))
+                    return false;
+
+                if (!SpellManager.Cast(spell, unit))
+                    return false;
+
+                if (!await Coroutine.Wait(GetSpellCastTime(sname), () => cancel) && GetSpellCastTime(sname).TotalSeconds > 0)
+                {
+                    SpellManager.StopCasting();
+                    Log.WriteLog("[ScourgeBloom] Canceling " + sname + ".");
+                    return false;
+                }
+
+                await CommonCoroutines.SleepForLagDuration();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Logging.WriteDiagnostic("[ScourgeBloom] Cast: {0} {1}", spell, e);
+            }
+            return false;
         }
 
         #endregion CoCast
