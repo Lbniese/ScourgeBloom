@@ -8,6 +8,7 @@
 
 using System.ComponentModel;
 using System.IO;
+using Styx;
 using Styx.Helpers;
 using DefaultValue = Styx.Helpers.DefaultValueAttribute;
 
@@ -17,9 +18,13 @@ namespace ScourgeBloom.Settings
     {
         public static DeathKnightSettings Instance = new DeathKnightSettings();
 
-        public DeathKnightSettings()
+        public string SavePath = Path.Combine(Styx.Common.Utilities.AssemblyDirectory,
+            $@"Routines/ScourgeBloom/Styx.Helpers.Settings/{StyxWoW.Me.RealmName}/{StyxWoW.Me.Name}_ScourgeBloom_DeathKnightSettings.xml");
+
+
+public DeathKnightSettings()
             : base(Path.Combine(Styx.Common.Utilities.AssemblyDirectory,
-                "Settings//ScourgeBloom//DeathKnightSettings.xml"))
+                $@"Routines/ScourgeBloom/Styx.Helpers.Settings/{StyxWoW.Me.RealmName}/{StyxWoW.Me.Name}_ScourgeBloom_DeathKnightSettings.xml"))
         {
         }
 

@@ -8,6 +8,7 @@
 
 using System.ComponentModel;
 using System.IO;
+using Styx;
 using Styx.Helpers;
 using DefaultValue = Styx.Helpers.DefaultValueAttribute;
 
@@ -17,8 +18,10 @@ namespace ScourgeBloom.Settings
     {
         public static GeneralSettings Instance = new GeneralSettings();
 
+        public string SavePath = Path.Combine(Styx.Common.Utilities.AssemblyDirectory, ($@"Routines/ScourgeBloom/Styx.Helpers.Settings/{StyxWoW.Me.RealmName}/{StyxWoW.Me.Name}_ScourgeBloom_GeneralSettings.xml"));
+
         public GeneralSettings()
-            : base(Path.Combine(Styx.Common.Utilities.AssemblyDirectory, @"Settings/ScourgeBloom/General.xml"))
+            : base(Path.Combine(Styx.Common.Utilities.AssemblyDirectory, $@"Routines/ScourgeBloom/Styx.Helpers.Settings/{StyxWoW.Me.RealmName}/{StyxWoW.Me.Name}_ScourgeBloom_GeneralSettings.xml"))
         {
         }
 
@@ -310,5 +313,17 @@ namespace ScourgeBloom.Settings
         public int HealthstoneHp { get; set; }
 
         #endregion
+
+        #region Hotkeys
+
+        [Setting, DefaultValue("Alt"), Category("Hotkeys")]
+        [Browsable(false)]
+        public string ModPauseHotkey { get; set; }
+
+        [Setting, DefaultValue("P"), Category("Hotkeys")]
+        [Browsable(false)]
+        public string PauseHotkey { get; set; }
+
+        #endregion Hotkeys
     }
 }
