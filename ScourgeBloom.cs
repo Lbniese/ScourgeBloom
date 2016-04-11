@@ -55,7 +55,7 @@ namespace ScourgeBloom
 
         protected static readonly LocalPlayer Me = StyxWoW.Me;
 
-        public static readonly Version Version = new Version(1, 0, 10);
+        public static readonly Version Version = new Version(1, 0, 11);
 
         private static bool _initialized;
 
@@ -498,12 +498,14 @@ namespace ScourgeBloom
 
         private static void OnBotStartEvent(object o)
         {
+            HotkeyManager.RegisterHotKeys();
             InitializeOnce();
             EventLog.AttachCombatLogEvent();
         }
 
         private static void OnBotStopEvent(object o)
         {
+            HotkeyManager.RemoveHotkeys();
             EventLog.DetachCombatLogEvent();
         }
 

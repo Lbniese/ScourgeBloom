@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using ScourgeBloom.Helpers;
 using ScourgeBloom.Lists;
+using ScourgeBloom.Managers;
 using ScourgeBloom.Settings;
 using Styx;
 
@@ -50,6 +51,7 @@ namespace ScourgeBloom
         private void On_Exit(object sender, EventArgs e)
         {
             Log.WriteLog("Saving Settings");
+            HotkeyManager.RegisterHotKeys();
             ClassSettings.Settings.Save();
             ClassSettings.Initialize();
             GeneralSettings.Instance.Save();
@@ -59,6 +61,11 @@ namespace ScourgeBloom
         private void ScourgeBloomSettings_Load(object sender, EventArgs e)
         {
             On_Load(sender, e);
+        }
+
+        private void ScourgeBloomSettings_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            On_Exit(sender, e);
         }
 
         private void InterruptsLoad()
