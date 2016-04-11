@@ -55,7 +55,7 @@ namespace ScourgeBloom
 
         protected static readonly LocalPlayer Me = StyxWoW.Me;
 
-        public static readonly Version Version = new Version(1, 0, 11);
+        public static readonly Version Version = new Version(1, 0, 12);
 
         private static bool _initialized;
 
@@ -103,6 +103,8 @@ namespace ScourgeBloom
         public override Composite CombatBuffBehavior => CreateCombatBuff();
 
         public override Composite PullBuffBehavior => CreatePullBuff();
+
+        public static bool Paused => HotkeyManager.PauseHotkey;
 
         public static event EventHandler<WoWContextEventArg> OnWoWContextChanged;
 
@@ -441,6 +443,8 @@ namespace ScourgeBloom
         {
             try
             {
+                if (Paused) return;
+
                 if (Me.IsDead && GeneralSettings.Instance.AutoReleaseSpirit)
                 {
                     SpiritHandler.ReleaseSpirit();

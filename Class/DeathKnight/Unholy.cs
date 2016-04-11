@@ -34,6 +34,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> PullRoutine()
         {
+            if (Paused) return false;
+
             if (!Me.Combat || Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting ||
                 Me.IsChanneling) return true;
 
@@ -87,6 +89,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> HealRoutine()
         {
+            if (Paused) return false;
+
             Globals.HealPulsed = true;
 
             Globals.Update();
@@ -114,6 +118,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> CombatCoroutine(WoWUnit onunit)
         {
+            if (Paused) return false;
+
             if (Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting ||
                 Me.IsChanneling) return true;
 
@@ -402,6 +408,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> PreCombatBuffs()
         {
+            if (Paused) return false;
+
             if (!Me.IsAlive)
                 return true;
 
@@ -442,6 +450,8 @@ namespace ScourgeBloom.Class.DeathKnight
         private static async Task<bool> PullBuffs()
 #pragma warning restore 1998
         {
+            if (Paused) return false;
+
             return false;
         }
 
@@ -451,6 +461,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> CombatBuffs()
         {
+            if (Paused) return false;
+
             if (!Globals.HealPulsed)
             {
                 await HealRoutine();
@@ -494,6 +506,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> BoSActive(WoWUnit onunit, bool reqs)
         {
+            if (Paused) return false;
+
             if (!reqs) return false;
             // Use cooldowns
             // actions.bos=blood_fury,if=dot.breath_of_sindragosa.ticking
@@ -612,6 +626,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> RestCoroutine()
         {
+            if (Paused) return false;
+
             if (!GeneralSettings.Instance.RestingEatFood) return false;
 
             if (Me.IsDead || SpellManager.GlobalCooldown || !CanBuffEat()) return false;
@@ -880,6 +896,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> NecroBlightOpener(bool reqs)
         {
+            if (Paused) return false;
+
             if (!reqs) return false;
             if (await Spell.CoCast(S.ArmyoftheDead, Capabilities.IsCooldownUsageAllowed && DeathKnightSettings.Instance.UseAotD)) return true;
             if (await Spell.CoCast(S.DeathsAdvance, DeathsAdvanceSelected() && Capabilities.IsCooldownUsageAllowed))
@@ -899,6 +917,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> DefileOpener(bool reqs)
         {
+            if (Paused) return false;
+
             if (!reqs) return false;
             if (await Spell.CoCast(S.ArmyoftheDead, Capabilities.IsCooldownUsageAllowed && DeathKnightSettings.Instance.UseAotD)) return true;
             if (await Spell.CoCast(S.DeathsAdvance, DeathsAdvanceSelected() && Capabilities.IsCooldownUsageAllowed))
@@ -923,6 +943,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> BreathofSindragosaOpener(bool reqs)
         {
+            if (Paused) return false;
+
             if (!reqs) return false;
             if (await Spell.CoCast(S.ArmyoftheDead, Capabilities.IsCooldownUsageAllowed && DeathKnightSettings.Instance.UseAotD)) return true;
             if (await Spell.CoCast(S.DeathsAdvance, DeathsAdvanceSelected() && Capabilities.IsCooldownUsageAllowed))

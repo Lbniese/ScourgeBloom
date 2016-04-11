@@ -35,6 +35,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> HealRoutine()
         {
+            if (Paused) return false;
+
             Globals.HealPulsed = true;
 
             Globals.Update();
@@ -62,6 +64,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> PreCombatBuffs()
         {
+            if (Paused) return false;
+
             if (!Me.IsAlive)
                 return false;
 
@@ -101,6 +105,8 @@ namespace ScourgeBloom.Class.DeathKnight
         private static async Task<bool> PullBuffs()
 #pragma warning restore 1998
         {
+            if (Paused) return false;
+
             return false;
         }
 
@@ -110,6 +116,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> CombatBuffs()
         {
+            if (Paused) return false;
+
             if (!Globals.HealPulsed)
             {
                 await HealRoutine();
@@ -144,7 +152,7 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CoCast(S.HornofWinter, Me, !Me.HasPartyBuff(Units.Stat.AttackPower)))
                 return true;
 
-            //await CommonCoroutines.SleepForLagDuration();
+            await CommonCoroutines.SleepForLagDuration();
 
             return false;
         }
@@ -155,6 +163,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         public static async Task<bool> PullRoutine()
         {
+            if (Paused) return false;
+
             if (!Me.Combat || Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting ||
                 Me.IsChanneling) return false;
 
@@ -201,6 +211,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> CombatRoutine(WoWUnit onunit)
         {
+            if (Paused) return false;
+
             var radius = TalentManager.HasGlyph("Blood Boil") ? 15 : 10;
 
             if (Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting ||
@@ -714,6 +726,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> RestCoroutine()
         {
+            if (Paused) return false;
+
             if (!GeneralSettings.Instance.RestingEatFood) return false;
 
             if (Me.IsDead || SpellManager.GlobalCooldown || !CanBuffEat()) return false;
@@ -973,6 +987,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> NecroBlightOpener(bool reqs)
         {
+            if (Paused) return false;
+
             if (!reqs) return false;
 
             if (await Spell.CoCast(S.ArmyoftheDead, Capabilities.IsCooldownUsageAllowed)) return true;
@@ -1007,6 +1023,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> DefileOpener(bool reqs)
         {
+            if (Paused) return false;
+
             if (!reqs) return false;
 
             if (await Spell.CoCast(S.ArmyoftheDead, Capabilities.IsCooldownUsageAllowed)) return true;
@@ -1048,6 +1066,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> ThOpener(bool reqs)
         {
+            if (Paused) return false;
+
             if (!reqs) return false;
             if (await Spell.CoCast(S.ArmyoftheDead, Capabilities.IsCooldownUsageAllowed)) return true;
 

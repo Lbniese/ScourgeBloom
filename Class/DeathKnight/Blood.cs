@@ -35,6 +35,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> HealRoutine()
         {
+            if (Paused) return false;
+
             Globals.HealPulsed = true;
 
             Globals.Update();
@@ -62,6 +64,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> CombatRoutine(WoWUnit onunit)
         {
+            if (Paused) return false;
+
             if (Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting ||
                 Me.IsChanneling) return true;
 
@@ -162,6 +166,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> Last(WoWUnit onunit, bool reqs)
         {
+            if (Paused) return false;
+
             if (!reqs) return false;
 
             //v	0.76	antimagic_shell,if=runic_power<90
@@ -220,6 +226,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> BoS(bool reqs)
         {
+            if (Paused) return false;
+
             if (!reqs) return false;
 
             //    0.00	blood_tap,if=buff.blood_charge.stack>=11
@@ -288,6 +296,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> NboS(WoWUnit onunit, bool reqs)
         {
+            if (Paused) return false;
+
             if (!reqs) return false;
 
             //breath_of_sindragosa,if=runic_power>=80
@@ -331,6 +341,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> CdBoS(WoWUnit onunit, bool reqs)
         {
+            if (Paused) return false;
+
             if (!reqs) return false;
             //e	16.50	soul_reaper,if=target.health.pct-3*(target.health.pct%target.time_to_die)<=35
             if (await Spell.CoCast(S.SoulReaperBlood, onunit, Me.CurrentTarget.HealthPercent <= 37))
@@ -374,6 +386,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> RestCoroutine()
         {
+            if (Paused) return false;
+
             if (Me.IsDead || SpellManager.GlobalCooldown)
                 return false;
 
@@ -391,17 +405,18 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> PreCombatBuffs()
         {
+            if (Paused) return false;
+
             if (!Me.IsAlive)
                 return false;
 
-            if (await Spell.CoCast(S.BloodPresence, Me, !Me.HasAura(S.BloodPresence)))
+            if (await Spell.CoCast(S.BloodPresence, !Me.HasAura(S.BloodPresence)))
+                    return true;
+
+            if (await Spell.CoCast(S.HornofWinter, !Me.HasPartyBuff(Units.Stat.AttackPower)))
                 return true;
 
-            if (await Spell.CoCast(S.HornofWinter, Me, !Me.HasPartyBuff(Units.Stat.AttackPower)))
-                return true;
-
-            if (await Spell.CoCast(S.BoneShield, SpellManager.CanCast(S.BoneShield) && !Me.HasAura(S.BoneShield)))
-                return true;
+            await Spell.CoCast(S.BoneShield, SpellManager.CanCast(S.BoneShield) && !Me.HasAura(S.BoneShield));
 
             if (GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.Attackable &&
                 Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight && Me.IsSafelyFacing(Me.CurrentTarget))
@@ -431,6 +446,8 @@ namespace ScourgeBloom.Class.DeathKnight
         private static async Task<bool> PullBuffs()
 #pragma warning restore 1998
         {
+            if (Paused) return false;
+
             return false;
         }
 
@@ -440,6 +457,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> CombatBuffs()
         {
+            if (Paused) return false;
+
             if (!Globals.HealPulsed)
             {
                 await HealRoutine();
@@ -468,16 +487,15 @@ namespace ScourgeBloom.Class.DeathKnight
             if (SpellManager.GlobalCooldown)
                 return false;
 
-            if (await Spell.CoCast(S.BloodPresence, Me, !Me.HasAura(S.BloodPresence)))
+            if (await Spell.CoCast(S.BloodPresence, !Me.HasAura(S.BloodPresence)))
                 return true;
 
-            if (await Spell.CoCast(S.HornofWinter, Me, !Me.HasPartyBuff(Units.Stat.AttackPower)))
+            if (await Spell.CoCast(S.HornofWinter, !Me.HasPartyBuff(Units.Stat.AttackPower)))
                 return true;
 
-            if (await Spell.CoCast(S.BoneShield, SpellManager.CanCast(S.BoneShield) && !Me.HasAura(S.BoneShield)))
-                return true;
+            await Spell.CoCast(S.BoneShield, SpellManager.CanCast(S.BoneShield) && !Me.HasAura(S.BoneShield));
 
-            //await CommonCoroutines.SleepForLagDuration();
+            await CommonCoroutines.SleepForLagDuration();
 
             return false;
         }
@@ -488,6 +506,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         public static async Task<bool> PullRoutine()
         {
+            if (Paused) return false;
+
             if (!Me.Combat || Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting ||
                 Me.IsChanneling) return true;
 

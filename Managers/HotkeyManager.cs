@@ -24,12 +24,12 @@ namespace ScourgeBloom.Managers
             HotkeysManager.Register("PauseHotkey", KeyPause, ModifKeyPause, ret =>
             {
                 PauseHotkey = !PauseHotkey;
-                Lua.DoString(PauseHotkey ? @"print('Routine Paused: \124cFF15E61C Enabled!')" : @"print('Routine Paused: \124cFFE61515 Disabled!')");
+                Lua.DoString(PauseHotkey ? @"print('Pause: \124cFF15E61C Enabled!')" : @"print('Pause: \124cFFE61515 Disabled!')");
             });
 
             KeysRegistered = true;
             Log.WriteLog(LogLevel.Normal, " " + "\r\n");
-            Log.WriteLog(LogLevel.Normal, "Pause ScourgeBloom: "+ ModifKeyPause + "+ " + KeyPause);
+            Log.WriteLog(LogLevel.Normal, "Pause Key: "+ ModifKeyPause + "+ " + KeyPause);
         }
         public static void RemoveHotkeys()
         {

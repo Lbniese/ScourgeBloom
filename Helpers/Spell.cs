@@ -74,7 +74,7 @@ namespace ScourgeBloom.Helpers
                 var sp = WoWSpell.FromId(spell);
                 var sname = sp != null ? sp.Name : "#" + spell;
 
-                Log.WriteLog(LogLevel.Normal, $"Casting {sname}");
+                //Log.WriteLog(LogLevel.Normal, $"Casting {sname}");
 
                 if (!reqs || !SpellManager.CanCast(spell) || unit == null)
                     return false;
@@ -91,7 +91,7 @@ namespace ScourgeBloom.Helpers
                 }
 
                 SpellManager.ClickRemoteLocation(onLocation);
-                Log.WritetoFile(LogLevel.Diagnostic, $"Casting {sname}");
+                Log.WriteLog(LogLevel.Diagnostic, $"Casting {sname}", Colors.DarkGreen);
                 await CommonCoroutines.SleepForLagDuration();
                 return true;
             }
@@ -113,7 +113,7 @@ namespace ScourgeBloom.Helpers
                 var sp = WoWSpell.FromId(spell);
                 var sname = sp != null ? sp.Name : "#" + spell;
 
-                Log.WriteLog(LogLevel.Normal, $"Casting {sname}");
+                //Log.WriteLog(LogLevel.Normal, $"Casting {sname}");
 
                 if (unit == null || !reqs || !SpellManager.CanCast(spell, unit, true))
                     return false;
@@ -128,6 +128,7 @@ namespace ScourgeBloom.Helpers
                     return false;
                 }
 
+                Log.WriteLog(LogLevel.Diagnostic, $"Casting {sname}", Colors.DarkGreen);
                 await CommonCoroutines.SleepForLagDuration();
                 return true;
             }
