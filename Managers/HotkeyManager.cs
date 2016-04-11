@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Windows.Media;
+using ScourgeBloom.Helpers;
 using ScourgeBloom.Settings;
 using Styx.Common;
 using Styx.WoWInternals;
@@ -27,8 +28,8 @@ namespace ScourgeBloom.Managers
             });
 
             KeysRegistered = true;
-            Logging.Write(" " + "\r\n");
-            Logging.Write(Colors.Bisque, "Pause ScourgeBloom: " + ModifKeyPause + "+ " + KeyPause);
+            Log.WriteLog(LogLevel.Normal, " " + "\r\n");
+            Log.WriteLog(LogLevel.Normal, "Pause ScourgeBloom: "+ ModifKeyPause + "+ " + KeyPause);
         }
         public static void RemoveHotkeys()
         {
@@ -40,7 +41,7 @@ namespace ScourgeBloom.Managers
             KeysRegistered = false;
 
             Lua.DoString(@"print('Hotkeys: \124cFFE61515 Removed!')");
-            Logging.Write(Colors.OrangeRed, "Hotkeys: Removed!");
+            Log.WriteLog(LogLevel.Normal, "Hotkeys: Removed!");
         }
     }
 }

@@ -35,6 +35,7 @@ namespace ScourgeBloom
             InterruptsLoad();
             DeathGripLoad();
             SurvivabilityLoad();
+            HotkeysLoad();
             ItemsLoad();
 
             // Changelog
@@ -170,6 +171,13 @@ namespace ScourgeBloom
             DeathSiphoncheckBox.Checked = DeathKnightSettings.Instance.UseDeathSiphon;
             numDeathSiphonHp.Value = DeathKnightSettings.Instance.UseDeathSiphonHp;
         }
+
+        private void HotkeysLoad()
+        {
+            //Pause Hotkey
+            GeneralSettings.Instance.ModPauseHotkey = PauseCrModcomboBox.SelectedItem.ToString();
+            GeneralSettings.Instance.PauseHotkey = PauseCrKeycomboBox.SelectedItem.ToString();
+    }
 
         private void ItemsLoad()
         {
