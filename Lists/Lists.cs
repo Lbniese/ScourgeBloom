@@ -16,7 +16,7 @@ namespace ScourgeBloom.Lists
     [UsedImplicitly]
     internal class SpellLists : ScourgeBloom
     {
-        #region DeathKnight Spells
+        #region Class Spells
 
         public const int
             AntiMagicShell = 48707,
@@ -72,7 +72,7 @@ namespace ScourgeBloom.Lists
             DeathGrip = 49576,
             ChainsOfIce = 45524;
 
-        #endregion DeathKnight Spells
+        #endregion Class Spells
 
         #region Racials
 
@@ -94,7 +94,7 @@ namespace ScourgeBloom.Lists
 
         #endregion Racials
 
-        #region Auras
+        #region Class Auras
 
         public const int
             AuraNecroticPlague = 155159,
@@ -105,6 +105,7 @@ namespace ScourgeBloom.Lists
             AuraBloodCharge = 114851,
             AuraShadowInfusion = 91342,
             AuraRime = 59057,
+            AuraFreezingFog = 59052,
             AuraKillingMachine = 51124;
 
         #endregion Auras
