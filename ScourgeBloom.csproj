@@ -37,10 +37,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="GreyMagic">
-      <HintPath>..\..\..\Downloads\Honorbuddy 2.5.14801.812\GreyMagic.dll</HintPath>
+      <HintPath>..\..\..\Downloads\Honorbuddy 2.5.14973.817\GreyMagic.dll</HintPath>
     </Reference>
     <Reference Include="Honorbuddy">
-      <HintPath>..\..\..\Downloads\Honorbuddy 2.5.14801.812\Honorbuddy.exe</HintPath>
+      <HintPath>..\..\..\Downloads\Honorbuddy 2.5.14973.817\Honorbuddy.exe</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="PresentationCore" />
@@ -53,7 +53,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Tripper.Tools">
-      <HintPath>..\..\..\Downloads\Honorbuddy 2.5.14801.812\Tripper.Tools.dll</HintPath>
+      <HintPath>..\..\..\Downloads\Honorbuddy 2.5.14973.817\Tripper.Tools.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -66,6 +66,7 @@
     <Compile Include="Class\DeathKnight\Frost.cs" />
     <Compile Include="Class\DeathKnight\Unholy.cs" />
     <Compile Include="Class\Defensives.cs" />
+    <Compile Include="Class\Hotkeys.cs" />
     <Compile Include="Class\Interrupts.cs" />
     <Compile Include="Class\Racials.cs" />
     <Compile Include="Class\Trinkets.cs" />

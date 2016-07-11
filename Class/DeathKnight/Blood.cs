@@ -201,7 +201,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 TTD.TimeToDeath(onunit) < 2 || Spell.GetCooldownLeft(S.EmpowerRuneWeapon).TotalSeconds < 2))
                 return true;
             //~	0.20	empower_rune_weapon,if=!blood&!unholy&!frost&runic_power<76|target.time_to_die<5
-            await Spell.CoCast(S.EmpowerRuneWeapon, Me,
+            await Spell.CoCast(S.EmpowerRuneWeapon,
                 Me.BloodRuneCount == 0 && Me.UnholyRuneCount == 0 && Me.FrostRuneCount == 0 &&
                 Me.CurrentRunicPower < 76 || TTD.TimeToDeath(onunit) < 5);
             //!	0.21	plague_leech

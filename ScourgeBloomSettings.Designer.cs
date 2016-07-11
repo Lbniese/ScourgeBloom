@@ -144,6 +144,12 @@ namespace ScourgeBloom
             this.T1OnCdCheckBox = new System.Windows.Forms.CheckBox();
             this.T1OnLoCCheckBox = new System.Windows.Forms.CheckBox();
             this.UseTrinket1CheckBox = new System.Windows.Forms.CheckBox();
+            this.Hotkeys = new System.Windows.Forms.TabPage();
+            this.groupBox35 = new System.Windows.Forms.GroupBox();
+            this.PauseCrKeycomboBox = new System.Windows.Forms.ComboBox();
+            this.PauseCrModcomboBox = new System.Windows.Forms.ComboBox();
+            this.label21 = new System.Windows.Forms.Label();
+            this.label20 = new System.Windows.Forms.Label();
             this.Advanced = new System.Windows.Forms.TabPage();
             this.groupBox19 = new System.Windows.Forms.GroupBox();
             this.numStrangulatemax = new System.Windows.Forms.NumericUpDown();
@@ -185,12 +191,6 @@ namespace ScourgeBloom
             this.SaveButton = new System.Windows.Forms.Button();
             this.PVPPresetButton = new System.Windows.Forms.Button();
             this.groupBox11 = new System.Windows.Forms.GroupBox();
-            this.Hotkeys = new System.Windows.Forms.TabPage();
-            this.groupBox35 = new System.Windows.Forms.GroupBox();
-            this.label20 = new System.Windows.Forms.Label();
-            this.label21 = new System.Windows.Forms.Label();
-            this.PauseCrModcomboBox = new System.Windows.Forms.ComboBox();
-            this.PauseCrKeycomboBox = new System.Windows.Forms.ComboBox();
             this.TabControl1.SuspendLayout();
             this.Changelog.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -235,6 +235,8 @@ namespace ScourgeBloom
             this.groupBox8.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numTrinket1EnemyHealth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numTrinket1MyHealth)).BeginInit();
+            this.Hotkeys.SuspendLayout();
+            this.groupBox35.SuspendLayout();
             this.Advanced.SuspendLayout();
             this.groupBox19.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numStrangulatemax)).BeginInit();
@@ -250,8 +252,6 @@ namespace ScourgeBloom
             this.groupBox12.SuspendLayout();
             this.Debug.SuspendLayout();
             this.groupBox11.SuspendLayout();
-            this.Hotkeys.SuspendLayout();
-            this.groupBox35.SuspendLayout();
             this.SuspendLayout();
             // 
             // TabControl1
@@ -1399,6 +1399,109 @@ namespace ScourgeBloom
             this.UseTrinket1CheckBox.UseVisualStyleBackColor = true;
             this.UseTrinket1CheckBox.CheckedChanged += new System.EventHandler(this.UseTrinket1CheckBox_CheckedChanged);
             // 
+            // Hotkeys
+            // 
+            this.Hotkeys.Controls.Add(this.groupBox35);
+            this.Hotkeys.Location = new System.Drawing.Point(4, 22);
+            this.Hotkeys.Name = "Hotkeys";
+            this.Hotkeys.Padding = new System.Windows.Forms.Padding(3);
+            this.Hotkeys.Size = new System.Drawing.Size(575, 504);
+            this.Hotkeys.TabIndex = 10;
+            this.Hotkeys.Text = "Hotkeys";
+            this.Hotkeys.UseVisualStyleBackColor = true;
+            // 
+            // groupBox35
+            // 
+            this.groupBox35.Controls.Add(this.PauseCrKeycomboBox);
+            this.groupBox35.Controls.Add(this.PauseCrModcomboBox);
+            this.groupBox35.Controls.Add(this.label21);
+            this.groupBox35.Controls.Add(this.label20);
+            this.groupBox35.Location = new System.Drawing.Point(8, 6);
+            this.groupBox35.Name = "groupBox35";
+            this.groupBox35.Size = new System.Drawing.Size(179, 149);
+            this.groupBox35.TabIndex = 0;
+            this.groupBox35.TabStop = false;
+            this.groupBox35.Text = "General";
+            // 
+            // PauseCrKeycomboBox
+            // 
+            this.PauseCrKeycomboBox.FormattingEnabled = true;
+            this.PauseCrKeycomboBox.Items.AddRange(new object[] {
+            "A",
+            "B",
+            "C",
+            "D",
+            "E",
+            "F",
+            "G",
+            "H",
+            "I",
+            "J",
+            "K",
+            "L",
+            "M",
+            "N",
+            "O",
+            "P",
+            "Q",
+            "R",
+            "S",
+            "T",
+            "U",
+            "V",
+            "W",
+            "X",
+            "Y",
+            "Z",
+            "F1",
+            "F2",
+            "F3",
+            "F4",
+            "F5",
+            "F6",
+            "F7",
+            "F8",
+            "F9",
+            "F10",
+            "F11",
+            "F12"});
+            this.PauseCrKeycomboBox.Location = new System.Drawing.Point(9, 41);
+            this.PauseCrKeycomboBox.Name = "PauseCrKeycomboBox";
+            this.PauseCrKeycomboBox.Size = new System.Drawing.Size(144, 21);
+            this.PauseCrKeycomboBox.TabIndex = 3;
+            this.PauseCrKeycomboBox.SelectedIndexChanged += new System.EventHandler(this.PauseCrKeycomboBox_SelectedIndexChanged);
+            // 
+            // PauseCrModcomboBox
+            // 
+            this.PauseCrModcomboBox.FormattingEnabled = true;
+            this.PauseCrModcomboBox.Items.AddRange(new object[] {
+            "Alt",
+            "Shift",
+            "Ctrl"});
+            this.PauseCrModcomboBox.Location = new System.Drawing.Point(9, 100);
+            this.PauseCrModcomboBox.Name = "PauseCrModcomboBox";
+            this.PauseCrModcomboBox.Size = new System.Drawing.Size(144, 21);
+            this.PauseCrModcomboBox.TabIndex = 2;
+            this.PauseCrModcomboBox.SelectedIndexChanged += new System.EventHandler(this.PauseCrModcomboBox_SelectedIndexChanged);
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(6, 74);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(159, 13);
+            this.label21.TabIndex = 1;
+            this.label21.Text = "Pause Combat Routine Modifier:";
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(6, 16);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(140, 13);
+            this.label20.TabIndex = 0;
+            this.label20.Text = "Pause Combat Routine Key:";
+            // 
             // Advanced
             // 
             this.Advanced.Controls.Add(this.groupBox19);
@@ -1846,109 +1949,6 @@ namespace ScourgeBloom
             this.groupBox11.TabStop = false;
             this.groupBox11.Text = "Presets";
             // 
-            // Hotkeys
-            // 
-            this.Hotkeys.Controls.Add(this.groupBox35);
-            this.Hotkeys.Location = new System.Drawing.Point(4, 22);
-            this.Hotkeys.Name = "Hotkeys";
-            this.Hotkeys.Padding = new System.Windows.Forms.Padding(3);
-            this.Hotkeys.Size = new System.Drawing.Size(575, 504);
-            this.Hotkeys.TabIndex = 10;
-            this.Hotkeys.Text = "Hotkeys";
-            this.Hotkeys.UseVisualStyleBackColor = true;
-            // 
-            // groupBox35
-            // 
-            this.groupBox35.Controls.Add(this.PauseCrKeycomboBox);
-            this.groupBox35.Controls.Add(this.PauseCrModcomboBox);
-            this.groupBox35.Controls.Add(this.label21);
-            this.groupBox35.Controls.Add(this.label20);
-            this.groupBox35.Location = new System.Drawing.Point(8, 6);
-            this.groupBox35.Name = "groupBox35";
-            this.groupBox35.Size = new System.Drawing.Size(179, 149);
-            this.groupBox35.TabIndex = 0;
-            this.groupBox35.TabStop = false;
-            this.groupBox35.Text = "General";
-            // 
-            // label20
-            // 
-            this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(6, 16);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(140, 13);
-            this.label20.TabIndex = 0;
-            this.label20.Text = "Pause Combat Routine Key:";
-            // 
-            // label21
-            // 
-            this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(6, 74);
-            this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(159, 13);
-            this.label21.TabIndex = 1;
-            this.label21.Text = "Pause Combat Routine Modifier:";
-            // 
-            // PauseCrModcomboBox
-            // 
-            this.PauseCrModcomboBox.FormattingEnabled = true;
-            this.PauseCrModcomboBox.Items.AddRange(new object[] {
-            "Alt",
-            "Shift",
-            "Ctrl"});
-            this.PauseCrModcomboBox.Location = new System.Drawing.Point(9, 41);
-            this.PauseCrModcomboBox.Name = "PauseCrModcomboBox";
-            this.PauseCrModcomboBox.Size = new System.Drawing.Size(144, 21);
-            this.PauseCrModcomboBox.TabIndex = 2;
-            this.PauseCrModcomboBox.SelectedIndexChanged += new System.EventHandler(this.PauseCrModcomboBox_SelectedIndexChanged);
-            // 
-            // PauseCrKeycomboBox
-            // 
-            this.PauseCrKeycomboBox.FormattingEnabled = true;
-            this.PauseCrKeycomboBox.Items.AddRange(new object[] {
-            "A",
-            "B",
-            "C",
-            "D",
-            "E",
-            "F",
-            "G",
-            "H",
-            "I",
-            "J",
-            "K",
-            "L",
-            "M",
-            "N",
-            "O",
-            "P",
-            "Q",
-            "R",
-            "S",
-            "T",
-            "U",
-            "V",
-            "W",
-            "X",
-            "Y",
-            "Z",
-            "F1",
-            "F2",
-            "F3",
-            "F4",
-            "F5",
-            "F6",
-            "F7",
-            "F8",
-            "F9",
-            "F10",
-            "F11",
-            "F12"});
-            this.PauseCrKeycomboBox.Location = new System.Drawing.Point(9, 100);
-            this.PauseCrKeycomboBox.Name = "PauseCrKeycomboBox";
-            this.PauseCrKeycomboBox.Size = new System.Drawing.Size(144, 21);
-            this.PauseCrKeycomboBox.TabIndex = 3;
-            this.PauseCrKeycomboBox.SelectedIndexChanged += new System.EventHandler(this.PauseCrKeycomboBox_SelectedIndexChanged);
-            // 
             // ScourgeBloomSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2040,6 +2040,9 @@ namespace ScourgeBloom
             this.groupBox8.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numTrinket1EnemyHealth)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numTrinket1MyHealth)).EndInit();
+            this.Hotkeys.ResumeLayout(false);
+            this.groupBox35.ResumeLayout(false);
+            this.groupBox35.PerformLayout();
             this.Advanced.ResumeLayout(false);
             this.groupBox19.ResumeLayout(false);
             this.groupBox19.PerformLayout();
@@ -2059,9 +2062,6 @@ namespace ScourgeBloom
             this.groupBox12.PerformLayout();
             this.Debug.ResumeLayout(false);
             this.groupBox11.ResumeLayout(false);
-            this.Hotkeys.ResumeLayout(false);
-            this.groupBox35.ResumeLayout(false);
-            this.groupBox35.PerformLayout();
             this.ResumeLayout(false);
 
         }

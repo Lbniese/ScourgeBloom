@@ -144,6 +144,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 return true;
             }
 
+
             if (Capabilities.IsRacialUsageAllowed)
             {
                 await Racials.RacialsMethod();
@@ -387,7 +388,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 return true;
 
             // actions.unholy+=/empower_rune_weapon,if=!talent.breath_of_sindragosa.enabled (CUSTOM REQUIREMENTS ADDED)
-            await Spell.CoCast(S.EmpowerRuneWeapon, Me,
+            await Spell.CoCast(S.EmpowerRuneWeapon,
                 !BoSSelected() && Me.UnholyRuneCount < 1 && Me.FrostRuneCount < 1 && Me.BloodRuneCount < 1 &&
                 Me.DeathRuneCount < 1 && Capabilities.IsCooldownUsageAllowed);
 
@@ -520,7 +521,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.Combat);
 
             // CUSTOM
-            await  Spell.CoCast(S.EmpowerRuneWeapon, Me, Me.CurrentRunicPower < 60 && Capabilities.IsCooldownUsageAllowed);
+            await  Spell.CoCast(S.EmpowerRuneWeapon, Me.CurrentRunicPower < 60 && Capabilities.IsCooldownUsageAllowed);
 
             // actions.bos+=/unholy_blight,if=!disease.ticking
             if (await Spell.CoCast(S.UnholyBlight, onunit,
@@ -569,7 +570,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.CurrentTarget.IsWithinMeleeRange);
 
             // CUSTOM
-            await Spell.CoCast(S.EmpowerRuneWeapon, Me, Me.CurrentRunicPower < 60 && Capabilities.IsCooldownUsageAllowed);
+            await Spell.CoCast(S.EmpowerRuneWeapon, Me.CurrentRunicPower < 60 && Capabilities.IsCooldownUsageAllowed);
 
             // actions.bos+=/scourge_strike,if=spell_targets.blood_boil<=3&(runic_power<88&runic_power>30)
             if (await Spell.CoCast(S.ScourgeStrike, onunit,
@@ -609,7 +610,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.CurrentTarget.HasMyAura(S.AuraFrostFever) &&
                 Me.CurrentTarget.HasMyAura(S.AuraBloodPlague))) return true;
 
-            await Spell.CoCast(S.EmpowerRuneWeapon, Me,
+            await Spell.CoCast(S.EmpowerRuneWeapon,
                 Me.CurrentRunicPower < 60 && Capabilities.IsCooldownUsageAllowed && BoSSelected());
 
             if (await Spell.CoCast(S.DeathCoil, onunit, Me.HasAura(S.AuraSuddenDoom)))
@@ -974,7 +975,7 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CoCast(S.ScourgeStrike, Me.GotTarget)) return true;
             if (await Spell.CoCast(S.ScourgeStrike, Me.GotTarget)) return true;
             if (await Spell.CoCast(S.ScourgeStrike, Me.GotTarget)) return true;
-            await Spell.CoCast(S.EmpowerRuneWeapon, Me, Capabilities.IsCooldownUsageAllowed);
+            await Spell.CoCast(S.EmpowerRuneWeapon, Capabilities.IsCooldownUsageAllowed);
             if (await Spell.CoCast(S.FesteringStrike, Me.GotTarget)) return true;
             if (await Spell.CoCast(S.ScourgeStrike, Me.GotTarget)) return true;
             if (await Spell.CoCast(S.DarkTransformation,

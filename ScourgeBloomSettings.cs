@@ -37,6 +37,7 @@ namespace ScourgeBloom
             DeathGripLoad();
             SurvivabilityLoad();
             HotkeysLoad();
+            CooldownsLoad();
             ItemsLoad();
 
             // Changelog
@@ -63,10 +64,6 @@ namespace ScourgeBloom
             On_Load(sender, e);
         }
 
-        private void ScourgeBloomSettings_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            On_Exit(sender, e);
-        }
 
         private void InterruptsLoad()
         {
@@ -179,12 +176,17 @@ namespace ScourgeBloom
             numDeathSiphonHp.Value = DeathKnightSettings.Instance.UseDeathSiphonHp;
         }
 
+        private void CooldownsLoad()
+        {
+            
+        }
+
         private void HotkeysLoad()
         {
             //Pause Hotkey
-            GeneralSettings.Instance.ModPauseHotkey = PauseCrModcomboBox.SelectedItem.ToString();
-            GeneralSettings.Instance.PauseHotkey = PauseCrKeycomboBox.SelectedItem.ToString();
-    }
+            PauseCrModcomboBox.SelectedText = GeneralSettings.Instance.ModPauseHotkey;
+            PauseCrKeycomboBox.SelectedText = GeneralSettings.Instance.PauseHotkey;
+        }
 
         private void ItemsLoad()
         {
@@ -729,5 +731,6 @@ namespace ScourgeBloom
         {
             GeneralSettings.Instance.PauseHotkey = PauseCrKeycomboBox.SelectedItem.ToString();
         }
+
     }
 }
