@@ -22,9 +22,10 @@ namespace ScourgeBloom.Settings
             $@"Routines/ScourgeBloom/Settings/{StyxWoW.Me.RealmName}/{StyxWoW.Me.Name}_ScourgeBloom_DeathKnightSettings.xml");
 
 
-public DeathKnightSettings()
+        public DeathKnightSettings()
             : base(Path.Combine(Styx.Common.Utilities.AssemblyDirectory,
-                $@"Routines/ScourgeBloom/Settings/{StyxWoW.Me.RealmName}/{StyxWoW.Me.Name}_ScourgeBloom_DeathKnightSettings.xml"))
+                $@"Routines/ScourgeBloom/Settings/{StyxWoW.Me.RealmName}/{StyxWoW.Me.Name}_ScourgeBloom_DeathKnightSettings.xml")
+                )
         {
         }
 

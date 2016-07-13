@@ -380,11 +380,8 @@ namespace ScourgeBloom.Helpers
 
         #region Auras
 
-
-
-
         /// <summary>
-        ///  Check the aura count thats created by yourself by the name on specified unit
+        ///     Check the aura count thats created by yourself by the name on specified unit
         /// </summary>
         /// <param name="aura"> The name of the aura in English. </param>
         /// <param name="unit"> The unit to check auras for. </param>
@@ -395,7 +392,7 @@ namespace ScourgeBloom.Helpers
         }
 
         /// <summary>
-        ///  Check the aura count thats created by yourself by the name on specified unit
+        ///     Check the aura count thats created by yourself by the name on specified unit
         /// </summary>
         /// <param name="aura"> The name of the aura in English. </param>
         /// <param name="unit"> The unit to check auras for. </param>
@@ -410,11 +407,16 @@ namespace ScourgeBloom.Helpers
         {
             if (unit == null)
                 return false;
-            return unit.GetAllAuras().Any(a => a.Name == aura && a.StackCount >= stacks && (creator == null || a.CreatorGuid == creator.Guid));
+            return
+                unit.GetAllAuras()
+                    .Any(
+                        a =>
+                            a.Name == aura && a.StackCount >= stacks &&
+                            (creator == null || a.CreatorGuid == creator.Guid));
         }
 
         /// <summary>
-        ///  Check the aura count thats created by yourself by the name on specified unit
+        ///     Check the aura count thats created by yourself by the name on specified unit
         /// </summary>
         /// <param name="unit"> The unit to check auras for. </param>
         /// <param name="id"></param>
@@ -425,7 +427,7 @@ namespace ScourgeBloom.Helpers
         }
 
         /// <summary>
-        ///  Check the aura count thats created by yourself by the name on specified unit
+        ///     Check the aura count thats created by yourself by the name on specified unit
         /// </summary>
         /// <param name="aura"> The name of the aura in English. </param>
         /// <param name="unit"> The unit to check auras for. </param>
@@ -439,7 +441,12 @@ namespace ScourgeBloom.Helpers
 
         private static bool HasAura(this WoWUnit unit, int id, int stacks, WoWObject creator)
         {
-            return unit.GetAllAuras().Any(a => a.SpellId == id && a.StackCount >= stacks && (creator == null || a.CreatorGuid == creator.Guid));
+            return
+                unit.GetAllAuras()
+                    .Any(
+                        a =>
+                            a.SpellId == id && a.StackCount >= stacks &&
+                            (creator == null || a.CreatorGuid == creator.Guid));
         }
 
         public static bool HasAnyAura(this WoWUnit unit, params string[] auraNames)

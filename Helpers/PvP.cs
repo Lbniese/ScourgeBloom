@@ -131,7 +131,7 @@ namespace ScourgeBloom.Helpers
                 BattlegroundStart = DateTime.UtcNow;
             else
                 BattlegroundStart = DateTime.UtcNow + TimeSpan.FromSeconds(120);
-                    // just add enough for now... accurate time set by event handler
+            // just add enough for now... accurate time set by event handler
         }
 
         #endregion

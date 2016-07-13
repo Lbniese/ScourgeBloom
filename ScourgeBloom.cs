@@ -55,7 +55,7 @@ namespace ScourgeBloom
 
         protected static readonly LocalPlayer Me = StyxWoW.Me;
 
-        public static readonly Version Version = new Version(1, 0, 16);
+        public static readonly Version Version = new Version(1, 0, 17);
 
         private static bool _initialized;
 
@@ -105,7 +105,6 @@ namespace ScourgeBloom
         public override Composite PullBuffBehavior => CreatePullBuff();
 
         public static bool Paused => HotkeyManager.PauseHotkey;
-
 
 
         public static event EventHandler<WoWContextEventArg> OnWoWContextChanged;

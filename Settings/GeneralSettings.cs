@@ -18,10 +18,14 @@ namespace ScourgeBloom.Settings
     {
         public static GeneralSettings Instance = new GeneralSettings();
 
-        public string SavePath = Path.Combine(Styx.Common.Utilities.AssemblyDirectory, ($@"Routines/ScourgeBloom/Settings/{StyxWoW.Me.RealmName}/{StyxWoW.Me.Name}_ScourgeBloom_GeneralSettings.xml"));
+        public string SavePath = Path.Combine(Styx.Common.Utilities.AssemblyDirectory,
+            $@"Routines/ScourgeBloom/Settings/{StyxWoW.Me.RealmName}/{StyxWoW.Me.Name}_ScourgeBloom_GeneralSettings.xml");
 
         public GeneralSettings()
-            : base(Path.Combine(Styx.Common.Utilities.AssemblyDirectory, $@"Routines/ScourgeBloom/Settings/{StyxWoW.Me.RealmName}/{StyxWoW.Me.Name}_ScourgeBloom_GeneralSettings.xml"))
+            : base(
+                Path.Combine(Styx.Common.Utilities.AssemblyDirectory,
+                    $@"Routines/ScourgeBloom/Settings/{StyxWoW.Me.RealmName}/{StyxWoW.Me.Name}_ScourgeBloom_GeneralSettings.xml")
+                )
         {
         }
 

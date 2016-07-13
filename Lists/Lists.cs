@@ -107,7 +107,8 @@ namespace ScourgeBloom.Lists
             AuraRime = 59057,
             AuraFreezingFog = 59052,
             AuraCrimsonScourge = 81136,
-            AuraDancingRuneWeapon = 49028, //Is that one correct?
+            AuraDancingRuneWeapon = 49028,
+            //Is that one correct?
             AuraKillingMachine = 51124;
 
         #endregion Auras

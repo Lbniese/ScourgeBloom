@@ -178,7 +178,6 @@ namespace ScourgeBloom
 
         private void CooldownsLoad()
         {
-            
         }
 
         private void HotkeysLoad()
@@ -699,6 +698,21 @@ namespace ScourgeBloom
             DeathKnightSettings.Instance.UseAms = AutoAmsCheckbox.Checked;
         }
 
+        private void UseArmyoftheDeadcheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            DeathKnightSettings.Instance.UseAotD = UseArmyoftheDeadcheckBox.Checked;
+        }
+
+        private void PauseCrModcomboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            GeneralSettings.Instance.ModPauseHotkey = PauseCrModcomboBox.SelectedItem.ToString();
+        }
+
+        private void PauseCrKeycomboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            GeneralSettings.Instance.PauseHotkey = PauseCrKeycomboBox.SelectedItem.ToString();
+        }
+
         public static class ClassSettings
         {
             public static Styx.Helpers.Settings Settings;
@@ -716,21 +730,5 @@ namespace ScourgeBloom
                 Settings?.Load();
             }
         }
-
-        private void UseArmyoftheDeadcheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            DeathKnightSettings.Instance.UseAotD = UseArmyoftheDeadcheckBox.Checked;
-        }
-
-        private void PauseCrModcomboBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            GeneralSettings.Instance.ModPauseHotkey = PauseCrModcomboBox.SelectedItem.ToString();
-        }
-
-        private void PauseCrKeycomboBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            GeneralSettings.Instance.PauseHotkey = PauseCrKeycomboBox.SelectedItem.ToString();
-        }
-
     }
 }

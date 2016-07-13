@@ -121,7 +121,8 @@ namespace ScourgeBloom.Helpers
                 if (!SpellManager.Cast(spell, unit))
                     return false;
 
-                if (!await Coroutine.Wait(GetSpellCastTime(sname), () => cancel) && GetSpellCastTime(sname).TotalSeconds > 0)
+                if (!await Coroutine.Wait(GetSpellCastTime(sname), () => cancel) &&
+                    GetSpellCastTime(sname).TotalSeconds > 0)
                 {
                     SpellManager.StopCasting();
                     Log.WriteLog("[ScourgeBloom] Canceling " + sname + ".");

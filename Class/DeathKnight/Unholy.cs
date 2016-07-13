@@ -178,7 +178,11 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await BoSActive(onunit, Me.Combat && Me.HasAura("Breath of Sindragosa")))
                 return true;
 
-            if (await Spell.CoCast(S.ArmyoftheDead, Me, Me.CurrentTarget.IsBoss && Capabilities.IsCooldownUsageAllowed && DeathKnightSettings.Instance.UseAotD))
+            if (
+                await
+                    Spell.CoCast(S.ArmyoftheDead, Me,
+                        Me.CurrentTarget.IsBoss && Capabilities.IsCooldownUsageAllowed &&
+                        DeathKnightSettings.Instance.UseAotD))
                 return true;
 
             // actions.unholy=plague_leech,if=((cooldown.outbreak.remains<1)|disease.min_remains<1)&((blood<1&frost<1)|(blood<1&unholy<1)|(frost<1&unholy<1))
@@ -316,14 +320,16 @@ namespace ScourgeBloom.Class.DeathKnight
 
             // actions.unholy+=/blood_boil,if=talent.breath_of_sindragosa.enabled&((spell_targets.blood_boil>=4&(blood=2|(frost=2&death=2)))&(cooldown.breath_of_sindragosa.remains>6|runic_power<75))
             if (await Spell.CoCast(S.BloodBoil, onunit,
-                Capabilities.IsAoeAllowed && Me.CurrentTarget.IsWithinMeleeRange && BoSSelected() && Units.EnemiesInRange(radius) >= 4 &&
+                Capabilities.IsAoeAllowed && Me.CurrentTarget.IsWithinMeleeRange && BoSSelected() &&
+                Units.EnemiesInRange(radius) >= 4 &&
                 (Me.BloodRuneCount == 2 || (Me.FrostRuneCount == 2 && Me.DeathRuneCount == 2)) &&
                 (Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 6 || Me.CurrentRunicPower < 75)))
                 return true;
 
             // actions.unholy+=/blood_boil,if=!talent.breath_of_sindragosa.enabled&(spell_targets.blood_boil>=4&(blood=2|(frost=2&death=2)))
             if (await Spell.CoCast(S.BloodBoil, onunit,
-                Capabilities.IsAoeAllowed && Me.CurrentTarget.IsWithinMeleeRange && !BoSSelected() && Units.EnemiesInRange(radius) >= 4 &&
+                Capabilities.IsAoeAllowed && Me.CurrentTarget.IsWithinMeleeRange && !BoSSelected() &&
+                Units.EnemiesInRange(radius) >= 4 &&
                 (Me.BloodRuneCount == 2 || (Me.FrostRuneCount == 2 && Me.DeathRuneCount == 2))))
                 return true;
 
@@ -521,7 +527,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.Combat);
 
             // CUSTOM
-            await  Spell.CoCast(S.EmpowerRuneWeapon, Me.CurrentRunicPower < 60 && Capabilities.IsCooldownUsageAllowed);
+            await Spell.CoCast(S.EmpowerRuneWeapon, Me.CurrentRunicPower < 60 && Capabilities.IsCooldownUsageAllowed);
 
             // actions.bos+=/unholy_blight,if=!disease.ticking
             if (await Spell.CoCast(S.UnholyBlight, onunit,
@@ -633,7 +639,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
             if (Me.IsDead || SpellManager.GlobalCooldown || !CanBuffEat()) return false;
 
-            if (!(Me.HealthPercent < GeneralSettings.Instance.RestingEatFoodHp) || Me.IsMoving || Me.IsCasting || Me.Combat || Me.HasAura("Food") ||
+            if (!(Me.HealthPercent < GeneralSettings.Instance.RestingEatFoodHp) || Me.IsMoving || Me.IsCasting ||
+                Me.Combat || Me.HasAura("Food") ||
                 Consumable.GetBestFood(false) == null)
                 return false;
 
@@ -675,7 +682,7 @@ namespace ScourgeBloom.Class.DeathKnight
         public static bool NeedToSpread()
         {
             if ((!StyxWoW.Me.CurrentTarget.HasAura(S.AuraBloodPlague) ||
-                !StyxWoW.Me.CurrentTarget.HasAura(S.AuraFrostFever)) && !NecroticPlagueSelected() ||
+                 !StyxWoW.Me.CurrentTarget.HasAura(S.AuraFrostFever)) && !NecroticPlagueSelected() ||
                 (!StyxWoW.Me.CurrentTarget.HasAura(S.AuraNecroticPlague) && NecroticPlagueSelected()))
                 return false;
             var mobList =
@@ -702,7 +709,11 @@ namespace ScourgeBloom.Class.DeathKnight
         private static bool SpreadHelper(WoWUnit p)
         {
             var auras = p.GetAllAuras();
-            return auras.Any(a => a.SpellId != S.AuraBloodPlague || a.SpellId != S.AuraFrostFever || a.SpellId != S.AuraNecroticPlague);
+            return
+                auras.Any(
+                    a =>
+                        a.SpellId != S.AuraBloodPlague || a.SpellId != S.AuraFrostFever ||
+                        a.SpellId != S.AuraNecroticPlague);
         }
 
         #endregion NeedToSpread
@@ -849,7 +860,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
         #endregion PetAttack
 
-#endregion Logics
+        #endregion Logics
 
         #region Overrides
 
@@ -900,7 +911,10 @@ namespace ScourgeBloom.Class.DeathKnight
             if (Paused) return false;
 
             if (!reqs) return false;
-            if (await Spell.CoCast(S.ArmyoftheDead, Capabilities.IsCooldownUsageAllowed && DeathKnightSettings.Instance.UseAotD)) return true;
+            if (
+                await
+                    Spell.CoCast(S.ArmyoftheDead,
+                        Capabilities.IsCooldownUsageAllowed && DeathKnightSettings.Instance.UseAotD)) return true;
             if (await Spell.CoCast(S.DeathsAdvance, DeathsAdvanceSelected() && Capabilities.IsCooldownUsageAllowed))
                 return true;
             if (await Spell.CoCast(S.UnholyBlight, Me.CurrentTarget.IsWithinMeleeRange)) return true;
@@ -908,8 +922,8 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CoCast(S.ScourgeStrike, Me.CurrentTarget.IsWithinMeleeRange)) return true;
             if (await Spell.CoCast(S.Outbreak, Me.GotTarget)) return true;
             if (await Spell.CoCast(S.SummonGargoyle,
-                        Me.GotTarget && DeathKnightSettings.Instance.SummonGargoyleOnCd &&
-                        Capabilities.IsCooldownUsageAllowed)) return true;
+                Me.GotTarget && DeathKnightSettings.Instance.SummonGargoyleOnCd &&
+                Capabilities.IsCooldownUsageAllowed)) return true;
 
             return true;
         }
@@ -919,16 +933,19 @@ namespace ScourgeBloom.Class.DeathKnight
             if (Paused) return false;
 
             if (!reqs) return false;
-            if (await Spell.CoCast(S.ArmyoftheDead, Capabilities.IsCooldownUsageAllowed && DeathKnightSettings.Instance.UseAotD)) return true;
+            if (
+                await
+                    Spell.CoCast(S.ArmyoftheDead,
+                        Capabilities.IsCooldownUsageAllowed && DeathKnightSettings.Instance.UseAotD)) return true;
             if (await Spell.CoCast(S.DeathsAdvance, DeathsAdvanceSelected() && Capabilities.IsCooldownUsageAllowed))
                 return true;
             if (await Spell.CoCast(S.SummonGargoyle,
-                        Me.GotTarget && DeathKnightSettings.Instance.SummonGargoyleOnCd &&
-                        Capabilities.IsCooldownUsageAllowed)) return true;
+                Me.GotTarget && DeathKnightSettings.Instance.SummonGargoyleOnCd &&
+                Capabilities.IsCooldownUsageAllowed)) return true;
             if (await Spell.CoCast(S.Outbreak, Me.GotTarget)) return true;
             if (await Spell.CoCast(S.FesteringStrike, Me.CurrentTarget.IsWithinMeleeRange)) return true;
             if (await Spell.CastOnGround(S.Defile, Me,
-                        Me.GotTarget && Me.CurrentTarget.IsWithinMeleeRange && Capabilities.IsAoeAllowed)) return true;
+                Me.GotTarget && Me.CurrentTarget.IsWithinMeleeRange && Capabilities.IsAoeAllowed)) return true;
             if (await Spell.CoCast(S.DeathCoil, Me.HasAura(S.AuraSuddenDoom))) return true;
             if (await Spell.CoCast(S.FesteringStrike, Me.CurrentTarget.IsWithinMeleeRange)) return true;
             if (await Spell.CoCast(S.ScourgeStrike, Me.CurrentTarget.IsWithinMeleeRange)) return true;
@@ -941,7 +958,10 @@ namespace ScourgeBloom.Class.DeathKnight
             if (Paused) return false;
 
             if (!reqs) return false;
-            if (await Spell.CoCast(S.ArmyoftheDead, Capabilities.IsCooldownUsageAllowed && DeathKnightSettings.Instance.UseAotD)) return true;
+            if (
+                await
+                    Spell.CoCast(S.ArmyoftheDead,
+                        Capabilities.IsCooldownUsageAllowed && DeathKnightSettings.Instance.UseAotD)) return true;
             if (await Spell.CoCast(S.DeathsAdvance, DeathsAdvanceSelected() && Capabilities.IsCooldownUsageAllowed))
                 return true;
             if (await Spell.CoCast(S.SummonGargoyle,

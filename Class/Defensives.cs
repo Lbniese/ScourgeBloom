@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using ScourgeBloom.Helpers;
 using ScourgeBloom.Lists;
 using ScourgeBloom.Settings;
-using Styx;
-using Styx.WoWInternals.WoWObjects;
 
 namespace ScourgeBloom.Class
 {
     internal class Defensives : ScourgeBloom
     {
-
         public static async Task<bool> DefensivesMethod()
         {
             if (!Capabilities.IsCooldownUsageAllowed)
@@ -31,7 +25,8 @@ namespace ScourgeBloom.Class
                 DeathKnightSettings.Instance.UseIceBoundFortitude && Capabilities.IsCooldownUsageAllowed);
 
             if (await Spell.CoCast(SpellLists.DeathSiphon,
-                Me.GotTarget && Me.CurrentTarget.Attackable && Me.HealthPercent < DeathKnightSettings.Instance.UseDeathSiphonHp &&
+                Me.GotTarget && Me.CurrentTarget.Attackable &&
+                Me.HealthPercent < DeathKnightSettings.Instance.UseDeathSiphonHp &&
                 DeathKnightSettings.Instance.UseDeathSiphon && Me.CurrentTarget.Distance <= 40)) return true;
 
             if (await Spell.CoCast(SpellLists.Conversion,
@@ -43,7 +38,8 @@ namespace ScourgeBloom.Class
                 return true;
 
             if (await Spell.CoCast(SpellLists.DeathStrike,
-                Me.GotTarget && Me.CurrentTarget.Attackable && Me.CurrentTarget.IsWithinMeleeRange && Me.HealthPercent < DeathKnightSettings.Instance.UseDeathStrikeHp &&
+                Me.GotTarget && Me.CurrentTarget.Attackable && Me.CurrentTarget.IsWithinMeleeRange &&
+                Me.HealthPercent < DeathKnightSettings.Instance.UseDeathStrikeHp &&
                 DeathKnightSettings.Instance.UseDeathStrike))
                 return true;
 

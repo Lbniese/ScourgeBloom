@@ -1,15 +1,9 @@
-﻿using ScourgeBloom.Class.DeathKnight;
+﻿using System;
+using System.Windows.Forms;
 using ScourgeBloom.Helpers;
 using ScourgeBloom.Settings;
-using Styx;
 using Styx.Common;
-using Styx.CommonBot;
-using Styx.CommonBot.Coroutines;
 using Styx.WoWInternals;
-using System;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Windows.Media;
 using S = ScourgeBloom.Lists.SpellLists;
 
 namespace ScourgeBloom.Managers
@@ -28,7 +22,9 @@ namespace ScourgeBloom.Managers
             HotkeysManager.Register("PauseHotkey", KeyPause, ModifKeyPause, ret =>
             {
                 PauseHotkey = !PauseHotkey;
-                Lua.DoString(PauseHotkey ? @"print('Pause: \124cFF15E61C Enabled!')" : @"print('Pause: \124cFFE61515 Disabled!')");
+                Lua.DoString(PauseHotkey
+                    ? @"print('Pause: \124cFF15E61C Enabled!')"
+                    : @"print('Pause: \124cFFE61515 Disabled!')");
             });
 
             Log.WriteLog(LogLevel.Normal, " " + "\r\n");
@@ -58,9 +54,10 @@ namespace ScourgeBloom.Managers
 
         public static bool PauseHotkey { get; set; }
 
-        private static Keys KeyPause => (Keys)Enum.Parse(typeof(Keys), GeneralSettings.Instance.PauseHotkey);
+        private static Keys KeyPause => (Keys) Enum.Parse(typeof (Keys), GeneralSettings.Instance.PauseHotkey);
 
-        private static ModifierKeys ModifKeyPause => (ModifierKeys)Enum.Parse(typeof(ModifierKeys), GeneralSettings.Instance.ModPauseHotkey);
+        private static ModifierKeys ModifKeyPause
+            => (ModifierKeys) Enum.Parse(typeof (ModifierKeys), GeneralSettings.Instance.ModPauseHotkey);
 
         #endregion Pause
     }
