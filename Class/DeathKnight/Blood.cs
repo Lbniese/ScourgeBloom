@@ -371,7 +371,7 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CoCast(S.IcyTouch, onunit, !Me.CurrentTarget.HasMyAura(S.AuraFrostFever) && Me.FrostRuneCount == 2)) return true;
 
             // death_strike,if=unholy=2|frost=2|blood=2&blood.death>=1
-            if (await Spell.CoCast(S.death_strike, onunit, Me.CurrentTarget.IsWithinMeleeRange && Me.UnholyRuneCount == 2 || Me.FrostRuneCount || Me.BloodRuneCount == 2 || Me.DeathRuneCount >= 1)) return true; //Skal måske tweakes lidt?
+            if (await Spell.CoCast(S.DeathStrike, onunit, Me.CurrentTarget.IsWithinMeleeRange && (Me.UnholyRuneCount == 2 || Me.FrostRuneCount == 2 || Me.BloodRuneCount == 2 || Me.DeathRuneCount >= 1))) return true; //Skal måske tweakes lidt?
 
             // blood_boil,if=blood=2&blood.death<2
             if (await Spell.CastOnGround(S.BloodBoil, Me, Me.BloodRuneCount == 2 && Me.DeathRuneCount < 2)) return true; //Recheck
@@ -383,26 +383,27 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CoCast(S.PlagueStrike, onunit, !Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) && Me.CurrentTarget.IsWithinMeleeRange)) return true;
 
             // icy_touch,if=!dot.frost_fever.ticking
-            if (await Spell.CoCast(S.IcyTouch, onunit, !Me.CurrentTarget.HasMyAura(S.AuraFrostFever)) return true;
+            if (await Spell.CoCast(S.IcyTouch, onunit, !Me.CurrentTarget.HasMyAura(S.AuraFrostFever))) return true;
 
             // outbreak,if=pet.dancing_rune_weapon.active&!pet.dancing_rune_weapon.dot.blood_plague.ticking
             // ØHHH??
 
             // blood_boil,if=((dot.frost_fever.remains<4&dot.frost_fever.ticking)|(dot.blood_plague.remains<4&dot.blood_plague.ticking))
-            if (await Spell.CoCast(S.BloodBoil, Me, DiseaseRemainsLessThanFour)) return true;
+            if (await Spell.CoCast(S.BloodBoil, Me, DiseaseRemainsLessThanFour())) return true;
 
             // death_and_decay,if=buff.crimson_scourge.up
             if (await Spell.CastOnGround(S.DeathandDecay, onunit,
-                Units.EnemiesInRange(10) >= 1 && Me.HasAura(S.AuraCrimsonScourges) && Capabilities.IsAoeAllowed)) return true;
+                Units.EnemiesInRange(10) >= 1 && Me.HasAura(S.AuraCrimsonScourge) && Capabilities.IsAoeAllowed)) return true;
 
             if (DefileSelected())
             {
               if (await Spell.CastOnGround(S.Defile, onunit,
-                  Units.EnemiesInRange(10) >= 1 && Me.HasAura(S.AuraCrimsonScourges) && Capabilities.IsAoeAllowed)) return true;
+                  Units.EnemiesInRange(10) >= 1 && Me.HasAura(S.AuraCrimsonScourge) && Capabilities.IsAoeAllowed)) return true;
             }
 
             // blood_boil,if=buff.crimson_scourge.up
-            if (await Spell.CoCast(S.BloodBoil, onunit, Units.EnemiesInRage(radius) >= 1 && Capabilities.IsAoeAllowed && Me.CurrentTarget.IsWithinMeleeRange && Me.HasAura(S.AuraCrimsonScourge)))
+            var radius = TalentManager.HasGlyph("Blood Boil") ? 15 : 10;
+            if (await Spell.CoCast(S.BloodBoil, onunit, Units.EnemiesInRange(radius) >= 1 && Capabilities.IsAoeAllowed && Me.CurrentTarget.IsWithinMeleeRange && Me.HasAura(S.AuraCrimsonScourge)))
                 return true;
 
             // death_coil,if=runic_power>45
@@ -419,8 +420,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 return true;
 
             // blood_boil,if=blood>=1&blood.death=0
-            var radius = TalentManager.HasGlyph("Blood Boil") ? 15 : 10;
-            if (await Spell.CoCast(S.BloodBoil, onunit, Units.EnemiesInRage(radius) >= 1 && Capabilities.IsAoeAllowed && Me.CurrentTarget.IsWithinMeleeRange && Me.BloodRuneCount >= 1 && Me.DeathRuneCount == 0))
+            if (await Spell.CoCast(S.BloodBoil, onunit, Units.EnemiesInRange(radius) >= 1 && Capabilities.IsAoeAllowed && Me.CurrentTarget.IsWithinMeleeRange && Me.BloodRuneCount >= 1 && Me.DeathRuneCount == 0))
                 return true;
 
             // death_coil
