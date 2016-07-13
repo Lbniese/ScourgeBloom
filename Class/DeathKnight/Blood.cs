@@ -116,10 +116,6 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CoCast(S.ArmyoftheDead, Me, Me.CurrentTarget.IsBoss && Capabilities.IsCooldownUsageAllowed && DeathKnightSettings.Instance.UseAotD))
                 return true;
 
-            //0.00	blood_fury,if=target.time_to_die>120|buff.draenic_armor_potion.remains<=buff.blood_fury.duration
-
-            //0.00	berserking,if=buff.dancing_rune_weapon.up
-
             //9	5.52	dancing_rune_weapon,if=target.time_to_die>90|buff.draenic_armor_potion.remains<=buff.dancing_rune_weapon.duration
 
             //A	1.00	potion,name=draenic_armor,if=target.time_to_die<(buff.draenic_armor_potion.duration+13)
@@ -170,41 +166,51 @@ namespace ScourgeBloom.Class.DeathKnight
 
             if (!reqs) return false;
 
-            //v	0.76	antimagic_shell,if=runic_power<90
+            // antimagic_shell,if=runic_power<90
             //await Spell.Cast(S.AntiMagicShell, () => Me.CurrentRunicPower < 90);
-            //  0.00	blood_tap
+
+            // blood_tap
             await Spell.CoCast(S.BloodTap,
                 DefileSelected() && SpellManager.CanCast(S.BloodTap) && Me.HasAura("Blood Charge") &&
                 Me.Auras["Blood Charge"].StackCount >= 5 && Me.UnholyRuneCount == 0 && Me.BloodRuneCount == 0 &&
                 Me.FrostRuneCount == 0 && Me.DeathRuneCount == 0);
-            //w	0.39	soul_reaper,if=target.time_to_die>7
+
+            // soul_reaper,if=target.time_to_die>7
             if (await Spell.CoCast(S.SoulReaperBlood, onunit, TTD.TimeToDeath(onunit) > 7))
                 return true;
-            //x	1.22	death_coil,if=runic_power>80
+
+            // death_coil,if=runic_power>80
             if (await Spell.CoCast(S.DeathCoil, onunit, Me.CurrentRunicPower > 80)) return true;
-            //y	1.86	death_strike
+
+            // death_strike
             if (await Spell.CoCast(S.DeathStrike, onunit)) return true;
-            //z	2.39	blood_boil,if=blood=2|target.time_to_die<=7
+
+            // blood_boil,if=blood=2|target.time_to_die<=7
             if (await Spell.CoCast(S.BloodBoil, onunit, (Me.BloodRuneCount == 2 || TTD.TimeToDeath(onunit) <= 8)) && Me.CurrentTarget.IsWithinMeleeRange)
                 return true;
-            //{	1.85	death_coil,if=runic_power>75|target.time_to_die<4|!dot.breath_of_sindragosa.ticking
+
+            // death_coil,if=runic_power>75|target.time_to_die<4|!dot.breath_of_sindragosa.ticking
             if (await Spell.CoCast(S.DeathCoil, onunit,
                 Me.CurrentRunicPower > 75 || TTD.TimeToDeath(onunit) < 4 ||
                 !(Me.HasAura("Breath of Sindragosa") || Me.Auras["Breath of Sindragosa"].IsActive)))
                 return true;
-            //|	0.27	plague_strike,if=target.time_to_die<2|cooldown.empower_rune_weapon.remains<2
+
+            // plague_strike,if=target.time_to_die<2|cooldown.empower_rune_weapon.remains<2
             if (await Spell.CoCast(S.PlagueStrike, onunit,
                 TTD.TimeToDeath(onunit) < 2 || Spell.GetCooldownLeft(S.EmpowerRuneWeapon).TotalSeconds < 2))
                 return true;
-            //}	0.03	icy_touch,if=target.time_to_die<2|cooldown.empower_rune_weapon.remains<2
+
+            // icy_touch,if=target.time_to_die<2|cooldown.empower_rune_weapon.remains<2
             if (await Spell.CoCast(S.IcyTouch, onunit,
                 TTD.TimeToDeath(onunit) < 2 || Spell.GetCooldownLeft(S.EmpowerRuneWeapon).TotalSeconds < 2))
                 return true;
-            //~	0.20	empower_rune_weapon,if=!blood&!unholy&!frost&runic_power<76|target.time_to_die<5
+
+            // empower_rune_weapon,if=!blood&!unholy&!frost&runic_power<76|target.time_to_die<5
             await Spell.CoCast(S.EmpowerRuneWeapon,
                 Me.BloodRuneCount == 0 && Me.UnholyRuneCount == 0 && Me.FrostRuneCount == 0 &&
                 Me.CurrentRunicPower < 76 || TTD.TimeToDeath(onunit) < 5);
-            //!	0.21	plague_leech
+
+            // plague_leech
             if (await Spell.CoCast(S.PlagueLeech, onunit,
                 SpellManager.CanCast(S.PlagueLeech) &&
                 Me.CurrentTarget.ActiveAuras.ContainsKey("Frost Fever") &&
@@ -230,62 +236,62 @@ namespace ScourgeBloom.Class.DeathKnight
 
             if (!reqs) return false;
 
-            //    0.00	blood_tap,if=buff.blood_charge.stack>=11
+            // blood_tap,if=buff.blood_charge.stack>=11
             await Spell.CoCast(S.BloodTap, Me,
                 Me.HasAura(S.AuraBloodCharge) && Me.Auras["Blood Charge"].StackCount >= 11 &&
                 Me.UnholyRuneCount == 0 && Me.BloodRuneCount == 0 && Me.FrostRuneCount == 0 &&
                 Me.DeathRuneCount == 0);
-            //J	3.10	soul_reaper,if=target.health.pct-3*(target.health.pct%target.time_to_die)<35&runic_power>5
+            // soul_reaper,if=target.health.pct-3*(target.health.pct%target.time_to_die)<35&runic_power>5
 
-            //    0.00	blood_tap,if=buff.blood_charge.stack>=9&runic_power>80&(blood.frac>1.8|frost.frac>1.8|unholy.frac>1.8)
+            // blood_tap,if=buff.blood_charge.stack>=9&runic_power>80&(blood.frac>1.8|frost.frac>1.8|unholy.frac>1.8)
 
-            //K	1.35	death_coil,if=runic_power>80&(blood.frac>1.8|frost.frac>1.8|unholy.frac>1.8)
+            // death_coil,if=runic_power>80&(blood.frac>1.8|frost.frac>1.8|unholy.frac>1.8)
 
-            //L	0.41	outbreak,if=(!dot.blood_plague.ticking|!dot.frost_fever.ticking)&runic_power>21
+            // outbreak,if=(!dot.blood_plague.ticking|!dot.frost_fever.ticking)&runic_power>21
 
-            //M	1.04	chains_of_ice,if=!dot.frost_fever.ticking&runic_power<90
+            // chains_of_ice,if=!dot.frost_fever.ticking&runic_power<90
 
-            //N	0.91	plague_strike,if=!dot.blood_plague.ticking&runic_power>5
+            // plague_strike,if=!dot.blood_plague.ticking&runic_power>5
 
-            //    0.00	icy_touch,if=!dot.frost_fever.ticking&runic_power>5
+            // icy_touch,if=!dot.frost_fever.ticking&runic_power>5
 
-            //O	7.14	death_strike,if=runic_power<16
+            // death_strike,if=runic_power<16
 
-            //    0.00	blood_tap,if=runic_power<16
+            // blood_tap,if=runic_power<16
 
-            //P	1.29	blood_boil,if=runic_power<16&runic_power>5&buff.crimson_scourge.down&(blood>=1&blood.death=0|blood=2&blood.death<2)
+            //blood_boil,if=runic_power<16&runic_power>5&buff.crimson_scourge.down&(blood>=1&blood.death=0|blood=2&blood.death<2)
 
-            //Q	3.01	arcane_torrent,if=runic_power<16
+            // arcane_torrent,if=runic_power<16
 
-            //R	2.62	chains_of_ice,if=runic_power<16
+            // chains_of_ice,if=runic_power<16
 
-            //S	0.41	blood_boil,if=runic_power<16&buff.crimson_scourge.down&(blood>=1&blood.death=0|blood=2&blood.death<2)
+            // blood_boil,if=runic_power<16&buff.crimson_scourge.down&(blood>=1&blood.death=0|blood=2&blood.death<2)
 
-            //    0.00	icy_touch,if=runic_power<16
+            // icy_touch,if=runic_power<16
 
-            //T	0.08	plague_strike,if=runic_power<16
+            // plague_strike,if=runic_power<16
 
-            //U	0.28	rune_tap,if=runic_power<16&blood>=1&blood.death=0&frost=0&unholy=0&buff.crimson_scourge.up
+            // rune_tap,if=runic_power<16&blood>=1&blood.death=0&frost=0&unholy=0&buff.crimson_scourge.up
 
-            //V	0.92	empower_rune_weapon,if=runic_power<16&blood=0&frost=0&unholy=0
+            // empower_rune_weapon,if=runic_power<16&blood=0&frost=0&unholy=0
 
-            //W	14.23	death_strike,if=(blood.frac>1.8&blood.death>=1|frost.frac>1.8|unholy.frac>1.8|buff.blood_charge.stack>=11)
+            // death_strike,if=(blood.frac>1.8&blood.death>=1|frost.frac>1.8|unholy.frac>1.8|buff.blood_charge.stack>=11)
 
-            //    0.00	blood_tap,if=(blood.frac>1.8&blood.death>=1|frost.frac>1.8|unholy.frac>1.8)
+            // blood_tap,if=(blood.frac>1.8&blood.death>=1|frost.frac>1.8|unholy.frac>1.8)
 
-            //X	13.39	blood_boil,if=(blood>=1&blood.death=0&target.health.pct-3*(target.health.pct%target.time_to_die)>35|blood=2&blood.death<2)&buff.crimson_scourge.down
+            // blood_boil,if=(blood>=1&blood.death=0&target.health.pct-3*(target.health.pct%target.time_to_die)>35|blood=2&blood.death<2)&buff.crimson_scourge.down
 
-            //Y	4.49	antimagic_shell,if=runic_power<65
+            // antimagic_shell,if=runic_power<65
 
-            //Z	4.68	plague_leech,if=runic_power<65
+            // plague_leech,if=runic_power<65
 
-            //a	0.00	outbreak,if=!dot.blood_plague.ticking
+            // outbreak,if=!dot.blood_plague.ticking
 
-            //b	1.18	outbreak,if=pet.dancing_rune_weapon.active&!pet.dancing_rune_weapon.dot.blood_plague.ticking
+            // outbreak,if=pet.dancing_rune_weapon.active&!pet.dancing_rune_weapon.dot.blood_plague.ticking
 
-            //c	2.23	death_and_decay,if=buff.crimson_scourge.up
+            // death_and_decay,if=buff.crimson_scourge.up
 
-            //d	3.66	blood_boil,if=buff.crimson_scourge.up
+            // blood_boil,if=buff.crimson_scourge.up
 
             return true;
         }
@@ -300,34 +306,34 @@ namespace ScourgeBloom.Class.DeathKnight
 
             if (!reqs) return false;
 
-            //breath_of_sindragosa,if=runic_power>=80
+            // breath_of_sindragosa,if=runic_power>=80
             await Spell.CoCast(S.BreathofSindragosa, Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentRunicPower >= 80);
 
-            //soul_reaper,if=target.health.pct-3*(target.health.pct%target.time_to_die)<=35
+            // soul_reaper,if=target.health.pct-3*(target.health.pct%target.time_to_die)<=35
             if (await Spell.CoCast(S.SoulReaperBlood, onunit, Me.CurrentTarget.HealthPercent <= 37))
                 return true;
 
-            //chains_of_ice,if=!dot.frost_fever.ticking
+            // chains_of_ice,if=!dot.frost_fever.ticking
             if (await Spell.CoCast(S.ChainsOfIce, onunit, !NecroticPlagueSelected() && !Me.CurrentTarget.HasMyAura(S.AuraFrostFever)))
                 return true;
 
-            //icy_touch,if=!dot.frost_fever.ticking
+            // icy_touch,if=!dot.frost_fever.ticking
             if (await Spell.CoCast(S.IcyTouch, onunit, !NecroticPlagueSelected() && !Me.CurrentTarget.HasMyAura(S.AuraFrostFever)))
                 return true;
 
-            //plague_strike,if=!dot.blood_plague.ticking
+            // plague_strike,if=!dot.blood_plague.ticking
             if (await Spell.CoCast(S.PlagueStrike, onunit, !NecroticPlagueSelected() && !Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) && Me.CurrentTarget.IsWithinMeleeRange))
                 return true;
 
-            //death_strike,if=(blood.frac>1.8&blood.death>=1|frost.frac>1.8|unholy.frac>1.8)&runic_power<80
+            // death_strike,if=(blood.frac>1.8&blood.death>=1|frost.frac>1.8|unholy.frac>1.8)&runic_power<80
             if (await Spell.CoCast(S.DeathStrike, onunit,
                 (Me.BloodRuneCount > 2 || Me.FrostRuneCount > 2 || Me.UnholyRuneCount > 2) &&
                 Me.CurrentRunicPower < 80)) return true;
 
-            //death_and_decay,if=buff.crimson_scourge.up
+            // death_and_decay,if=buff.crimson_scourge.up
             if (await Spell.CastOnGround(S.DeathandDecay, Me, Me.HasAura("Crimson Scourge"))) return true;
 
-            //blood_boil,if=buff.crimson_scourge.up|(blood=2&runic_power<80&blood.death<2)
+            // blood_boil,if=buff.crimson_scourge.up|(blood=2&runic_power<80&blood.death<2)
             if (await Spell.CastOnGround(S.BloodBoil, Me, Me.HasAura("Crimson Scourge") || Me.BloodRuneCount == 2 && Me.CurrentRunicPower < 80)) return true;
 
             await CommonCoroutines.SleepForLagDuration();
@@ -344,36 +350,87 @@ namespace ScourgeBloom.Class.DeathKnight
             if (Paused) return false;
 
             if (!reqs) return false;
-            //e	16.50	soul_reaper,if=target.health.pct-3*(target.health.pct%target.time_to_die)<=35
+            // soul_reaper,if=target.health.pct-3*(target.health.pct%target.time_to_die)<=35
             if (await Spell.CoCast(S.SoulReaperBlood, onunit, Me.CurrentTarget.HealthPercent <= 37))
                 return true;
 
-            //   0.00	blood_tap,if=buff.blood_charge.stack>=10
+            // blood_tap,if=buff.blood_charge.stack>=10
             await Spell.CoCast(S.BloodTap, onunit,
                 Me.HasAura("Blood Charge") && Me.Auras["Blood Charge"].StackCount >= 5 &&
                 SpellManager.CanCast(S.SoulReaperUh) && Me.CurrentTarget.HealthPercent < 47 &&
                 Me.UnholyRuneCount == 0 && Me.BloodRuneCount == 0 && Me.FrostRuneCount == 0 &&
                 Me.DeathRuneCount == 0);
 
-            //f	23.04	death_coil,if=runic_power>65
+            // death_coil,if=runic_power>65
             if (await Spell.CoCast(S.DeathCoil, onunit, Me.CurrentRunicPower > 65)) return true;
 
-            //g	0.10	plague_strike,if=!dot.blood_plague.ticking&unholy=2
-            //h	0.06	icy_touch,if=!dot.frost_fever.ticking&frost=2
-            //i	7.28	death_strike,if=unholy=2|frost=2|blood=2&blood.death>=1
-            //j	15.01	blood_boil,if=blood=2&blood.death<2
-            //k	0.04	outbreak,if=!dot.blood_plague.ticking
-            //l	0.10	plague_strike,if=!dot.blood_plague.ticking
-            //m	0.07	icy_touch,if=!dot.frost_fever.ticking
-            //n	3.57	outbreak,if=pet.dancing_rune_weapon.active&!pet.dancing_rune_weapon.dot.blood_plague.ticking
-            //o	0.08	blood_boil,if=((dot.frost_fever.remains<4&dot.frost_fever.ticking)|(dot.blood_plague.remains<4&dot.blood_plague.ticking))
-            //p	7.55	death_and_decay,if=buff.crimson_scourge.up
-            //q	13.37	blood_boil,if=buff.crimson_scourge.up
-            //r	62.96	death_coil,if=runic_power>45
-            //   0.00	blood_tap
-            //s	56.12	death_strike
-            //t	33.07	blood_boil,if=blood>=1&blood.death=0
-            //u	49.29	death_coil
+            // plague_strike,if=!dot.blood_plague.ticking&unholy=2
+            if (await Spell.CoCast(S.PlagueStrike, onunit, !Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) && Me.UnholyRuneCount == 2 && Me.CurrentTarget.IsWithinMeleeRange)) return true;
+
+            // icy_touch,if=!dot.frost_fever.ticking&frost=2
+            if (await Spell.CoCast(S.IcyTouch, onunit, !Me.CurrentTarget.HasMyAura(S.AuraFrostFever) && Me.FrostRuneCount == 2)) return true;
+
+            // death_strike,if=unholy=2|frost=2|blood=2&blood.death>=1
+            if (await Spell.CoCast(S.death_strike, onunit, Me.CurrentTarget.IsWithinMeleeRange && Me.UnholyRuneCount == 2 || Me.FrostRuneCount || Me.BloodRuneCount == 2 || Me.DeathRuneCount >= 1)) return true; //Skal måske tweakes lidt?
+
+            // blood_boil,if=blood=2&blood.death<2
+            if (await Spell.CastOnGround(S.BloodBoil, Me, Me.BloodRuneCount == 2 && Me.DeathRuneCount < 2)) return true; //Recheck
+
+            // outbreak,if=!dot.blood_plague.ticking
+            if (await Spell.CoCast(S.Outbreak, onunit, !Me.CurrentTarget.HasMyAura(S.AuraBloodPlague))) return true;
+
+            // plague_strike,if=!dot.blood_plague.ticking
+            if (await Spell.CoCast(S.PlagueStrike, onunit, !Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) && Me.CurrentTarget.IsWithinMeleeRange)) return true;
+
+            // icy_touch,if=!dot.frost_fever.ticking
+            if (await Spell.CoCast(S.IcyTouch, onunit, !Me.CurrentTarget.HasMyAura(S.AuraFrostFever)) return true;
+
+            // outbreak,if=pet.dancing_rune_weapon.active&!pet.dancing_rune_weapon.dot.blood_plague.ticking
+            // ØHHH??
+
+            // blood_boil,if=((dot.frost_fever.remains<4&dot.frost_fever.ticking)|(dot.blood_plague.remains<4&dot.blood_plague.ticking))
+            if (await Spell.CoCast(S.BloodBoil, Me, DiseaseRemainsLessThanFour)) return true;
+
+            // death_and_decay,if=buff.crimson_scourge.up
+            if (await Spell.CastOnGround(S.DeathandDecay, onunit,
+                Units.EnemiesInRange(10) >= 1 && Me.HasAura(S.AuraCrimsonScourges) && Capabilities.IsAoeAllowed)) return true;
+
+            if (DefileSelected())
+            {
+              if (await Spell.CastOnGround(S.Defile, onunit,
+                  Units.EnemiesInRange(10) >= 1 && Me.HasAura(S.AuraCrimsonScourges) && Capabilities.IsAoeAllowed)) return true;
+            }
+
+            // blood_boil,if=buff.crimson_scourge.up
+            if (await Spell.CoCast(S.BloodBoil, onunit, Units.EnemiesInRage(radius) >= 1 && Capabilities.IsAoeAllowed && Me.CurrentTarget.IsWithinMeleeRange && Me.HasAura(S.AuraCrimsonScourge)))
+                return true;
+
+            // death_coil,if=runic_power>45
+            if (await Spell.CoCast(S.DeathCoil, onunit, Me.CurrentRunicPower > 45))
+                return true;
+
+            // blood_tap
+            await Spell.CoCast(S.BloodTap, onunit,
+                Me.HasAura(S.AuraBloodCharge) && Me.Auras["Blood Charge"].StackCount >= 5 &&
+                SpellManager.CanCast(S.BloodTap));
+
+            // death_strike
+            if (await Spell.CoCast(S.DeathStrike, onunit))
+                return true;
+
+            // blood_boil,if=blood>=1&blood.death=0
+            var radius = TalentManager.HasGlyph("Blood Boil") ? 15 : 10;
+            if (await Spell.CoCast(S.BloodBoil, onunit, Units.EnemiesInRage(radius) >= 1 && Capabilities.IsAoeAllowed && Me.CurrentTarget.IsWithinMeleeRange && Me.BloodRuneCount >= 1 && Me.DeathRuneCount == 0))
+                return true;
+
+            // death_coil
+            if (await Spell.CoCast(S.DeathCoil, onunit, Me.CurrentRunicPower >= 30))
+                return true;
+
+            // CUSTOM death_coil
+            if (await Spell.CoCast(S.DeathCoil, onunit, Me.HasAura(S.AuraSuddenDoom)))
+                return true;
+
 
             await CommonCoroutines.SleepForLagDuration();
 
@@ -620,6 +677,58 @@ namespace ScourgeBloom.Class.DeathKnight
 
             return frTime <= TimeSpan.FromSeconds(3) || blTime <= TimeSpan.FromSeconds(3);
         }
+
+        #region DiseaseRemains
+
+        public static bool DiseaseRemainsLessThanOne()
+        {
+            if (!StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraFrostFever) ||
+                !StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) ||
+                (NecroticPlagueSelected() && !Me.CurrentTarget.HasMyAura(S.AuraNecroticPlague))) return false;
+
+            var ffTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraFrostFever).TimeLeft;
+            var bpTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraBloodPlague).TimeLeft;
+
+            return ffTime < TimeSpan.FromSeconds(1) || bpTime < TimeSpan.FromSeconds(1);
+        }
+
+        public static bool DiseaseRemainsLessThanThree()
+        {
+            if (!StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraFrostFever) ||
+                !StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) ||
+                (NecroticPlagueSelected() && !Me.CurrentTarget.HasMyAura(S.AuraNecroticPlague))) return false;
+
+            var ffTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraFrostFever).TimeLeft;
+            var bpTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraBloodPlague).TimeLeft;
+
+            return ffTime < TimeSpan.FromSeconds(3) || bpTime < TimeSpan.FromSeconds(3);
+        }
+
+        public static bool DiseaseRemainsLessThanFour()
+        {
+            if (!StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraFrostFever) ||
+                !StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) ||
+                (NecroticPlagueSelected() && !Me.CurrentTarget.HasMyAura(S.AuraNecroticPlague))) return false;
+
+            var ffTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraFrostFever).TimeLeft;
+            var bpTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraBloodPlague).TimeLeft;
+
+            return ffTime < TimeSpan.FromSeconds(4) || bpTime < TimeSpan.FromSeconds(4);
+        }
+
+        public static bool DiseaseRemainsMoreThanFive()
+        {
+            if (!StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraFrostFever) ||
+                !StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) ||
+                (NecroticPlagueSelected() && !Me.CurrentTarget.HasMyAura(S.AuraNecroticPlague))) return false;
+
+            var ffTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraFrostFever).TimeLeft;
+            var bpTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraBloodPlague).TimeLeft;
+
+            return ffTime > TimeSpan.FromSeconds(5) || bpTime > TimeSpan.FromSeconds(5);
+        }
+
+        #endregion DiseaseRemains
 
         public static bool NecroticPlagueSelected()
         {

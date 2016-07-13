@@ -907,9 +907,7 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CoCast(S.FesteringStrike, Me.CurrentTarget.IsWithinMeleeRange)) return true;
             if (await Spell.CoCast(S.ScourgeStrike, Me.CurrentTarget.IsWithinMeleeRange)) return true;
             if (await Spell.CoCast(S.Outbreak, Me.GotTarget)) return true;
-            if (
-                await
-                    Spell.CoCast(S.SummonGargoyle,
+            if (await Spell.CoCast(S.SummonGargoyle,
                         Me.GotTarget && DeathKnightSettings.Instance.SummonGargoyleOnCd &&
                         Capabilities.IsCooldownUsageAllowed)) return true;
 
@@ -924,16 +922,12 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CoCast(S.ArmyoftheDead, Capabilities.IsCooldownUsageAllowed && DeathKnightSettings.Instance.UseAotD)) return true;
             if (await Spell.CoCast(S.DeathsAdvance, DeathsAdvanceSelected() && Capabilities.IsCooldownUsageAllowed))
                 return true;
-            if (
-                await
-                    Spell.CoCast(S.SummonGargoyle,
+            if (await Spell.CoCast(S.SummonGargoyle,
                         Me.GotTarget && DeathKnightSettings.Instance.SummonGargoyleOnCd &&
                         Capabilities.IsCooldownUsageAllowed)) return true;
             if (await Spell.CoCast(S.Outbreak, Me.GotTarget)) return true;
             if (await Spell.CoCast(S.FesteringStrike, Me.CurrentTarget.IsWithinMeleeRange)) return true;
-            if (
-                await
-                    Spell.CastOnGround(S.Defile, Me,
+            if (await Spell.CastOnGround(S.Defile, Me,
                         Me.GotTarget && Me.CurrentTarget.IsWithinMeleeRange && Capabilities.IsAoeAllowed)) return true;
             if (await Spell.CoCast(S.DeathCoil, Me.HasAura(S.AuraSuddenDoom))) return true;
             if (await Spell.CoCast(S.FesteringStrike, Me.CurrentTarget.IsWithinMeleeRange)) return true;
