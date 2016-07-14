@@ -137,7 +137,7 @@ namespace ScourgeBloom.Class.DeathKnight
                                Spell.GetCooldownLeft(S.EmpowerRuneWeapon).TotalSeconds < 4);
 
             //run_action_list,name=bos,if=dot.breath_of_sindragosa.ticking
-            await BoS(Me.HasAura(S.BreathofSindragosa));
+            await BoS(onunit, Me.HasAura(S.BreathofSindragosa));
 
             //run_action_list,name=nbos,if=!dot.breath_of_sindragosa.ticking&cooldown.breath_of_sindragosa.remains<4
             await
@@ -233,7 +233,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
         #region Coroutine BoS
 
-        private static async Task<bool> BoS(bool reqs)
+        private static async Task<bool> BoS(WoWUnit onunit, bool reqs)
         {
             if (Paused) return false;
 
@@ -267,7 +267,7 @@ namespace ScourgeBloom.Class.DeathKnight
             // blood_tap,if=runic_power<16
             await Spell.CoCast(S.BloodTap, onunit,
                 Me.HasAura(S.AuraBloodCharge) && Me.Auras["Blood Charge"].StackCount >= 5 &&
-                SpellManager.CanCast(S.BloodTap && Me.CurrentRunicPower < 16));
+                SpellManager.CanCast(S.BloodTap) && Me.CurrentRunicPower < 16);
 
             //blood_boil,if=runic_power<16&runic_power>5&buff.crimson_scourge.down&(blood>=1&blood.death=0|blood=2&blood.death<2)
 
