@@ -122,10 +122,6 @@ namespace ScourgeBloom.Class.DeathKnight
 
             //9	5.52	dancing_rune_weapon,if=target.time_to_die>90|buff.draenic_armor_potion.remains<=buff.dancing_rune_weapon.duration
 
-            //A	1.00	potion,name=draenic_armor,if=target.time_to_die<(buff.draenic_armor_potion.duration+13)
-
-            //D	7.17	bone_shield,if=buff.army_of_the_dead.down&buff.bone_shield.down&buff.dancing_rune_weapon.down&buff.icebound_fortitude.down&buff.rune_tap.down
-
             //0.00	lichborne,if=health.pct<30
 
             //E	0.01	vampiric_blood,if=health.pct<40
@@ -133,6 +129,7 @@ namespace ScourgeBloom.Class.DeathKnight
             //0.00	icebound_fortitude,if=health.pct<30&buff.army_of_the_dead.down&buff.dancing_rune_weapon.down&buff.bone_shield.down&buff.rune_tap.down
 
             //0.00	death_pact,if=health.pct<30
+            await Spell.CoCast(S.DeathPact, Me, DeathPactSelected() && Me.HealthPercent < 30);
 
             //run_action_list,name=last,if=target.time_to_die<8|target.time_to_die<13&cooldown.empower_rune_weapon.remains<4
             await Last(onunit, TTD.TimeToDeath(onunit) < 8 ||
@@ -176,10 +173,9 @@ namespace ScourgeBloom.Class.DeathKnight
             //await Spell.Cast(S.AntiMagicShell, () => Me.CurrentRunicPower < 90);
 
             // blood_tap
-            await Spell.CoCast(S.BloodTap,
-                DefileSelected() && SpellManager.CanCast(S.BloodTap) && Me.HasAura("Blood Charge") &&
-                Me.Auras["Blood Charge"].StackCount >= 5 && Me.UnholyRuneCount == 0 && Me.BloodRuneCount == 0 &&
-                Me.FrostRuneCount == 0 && Me.DeathRuneCount == 0);
+            await Spell.CoCast(S.BloodTap, onunit,
+                Me.HasAura(S.AuraBloodCharge) && Me.Auras["Blood Charge"].StackCount >= 5 &&
+                SpellManager.CanCast(S.BloodTap));
 
             // soul_reaper,if=target.time_to_die>7
             if (await Spell.CoCast(S.SoulReaperBlood, onunit, TTD.TimeToDeath(onunit) > 7))
@@ -244,10 +240,9 @@ namespace ScourgeBloom.Class.DeathKnight
             if (!reqs) return false;
 
             // blood_tap,if=buff.blood_charge.stack>=11
-            await Spell.CoCast(S.BloodTap, Me,
+            await Spell.CoCast(S.BloodTap, onunit,
                 Me.HasAura(S.AuraBloodCharge) && Me.Auras["Blood Charge"].StackCount >= 11 &&
-                Me.UnholyRuneCount == 0 && Me.BloodRuneCount == 0 && Me.FrostRuneCount == 0 &&
-                Me.DeathRuneCount == 0);
+                SpellManager.CanCast(S.BloodTap));
             // soul_reaper,if=target.health.pct-3*(target.health.pct%target.time_to_die)<35&runic_power>5
 
             // blood_tap,if=buff.blood_charge.stack>=9&runic_power>80&(blood.frac>1.8|frost.frac>1.8|unholy.frac>1.8)
@@ -255,28 +250,43 @@ namespace ScourgeBloom.Class.DeathKnight
             // death_coil,if=runic_power>80&(blood.frac>1.8|frost.frac>1.8|unholy.frac>1.8)
 
             // outbreak,if=(!dot.blood_plague.ticking|!dot.frost_fever.ticking)&runic_power>21
+            if (await Spell.CoCast(S.Outbreak, onunit, (!Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) || !Me.CurrentTarget.HasMyAura(S.AuraFrostFever)) && Me.CurrentRunicPower > 21)) return true;
 
             // chains_of_ice,if=!dot.frost_fever.ticking&runic_power<90
+            if (await Spell.CoCast(S.ChainsOfIce, onunit, !Me.CurrentTarget.HasMyAura(S.AuraFrostFever) && Me.CurrentRunicPower < 90)) return true;
 
             // plague_strike,if=!dot.blood_plague.ticking&runic_power>5
+            if (await Spell.CoCast(S.PlagueStrike, onunit, Me.CurrentTarget.IsWithinMeleeRange && !Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) && Me.CurrentRunicPower > 5)) return true;
 
             // icy_touch,if=!dot.frost_fever.ticking&runic_power>5
+            if (await Spell.CoCast(S.IcyTouch, onunit, Me.CurrentTarget.HasMyAura(S.AuraFrostFever) && Me.CurrentRunicPower > 5)) return true;
 
             // death_strike,if=runic_power<16
+            if (await Spell.CoCast(S.DeathStrike, onunit, Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentRunicPower < 16)) return true;
 
             // blood_tap,if=runic_power<16
+            await Spell.CoCast(S.BloodTap, onunit,
+                Me.HasAura(S.AuraBloodCharge) && Me.Auras["Blood Charge"].StackCount >= 5 &&
+                SpellManager.CanCast(S.BloodTap && Me.CurrentRunicPower < 16));
 
             //blood_boil,if=runic_power<16&runic_power>5&buff.crimson_scourge.down&(blood>=1&blood.death=0|blood=2&blood.death<2)
 
             // arcane_torrent,if=runic_power<16
+            await Spell.CoCast(S.ArcaneTorrent, onunit,
+                Me.CurrentRunicPower < 16 && Me.Race == WoWRace.BloodElf && Capabilities.IsRacialUsageAllowed &&
+                GeneralSettings.ArcaneTorrentUse && DeathKnightSettings.Instance.BosArcaneTorrent &&
+                Me.CurrentTarget.IsWithinMeleeRange);
 
             // chains_of_ice,if=runic_power<16
+            if (await Spell.CoCast(S.ChainsOfIce, onunit, Me.CurrentRunicPower < 16)) return true;
 
             // blood_boil,if=runic_power<16&buff.crimson_scourge.down&(blood>=1&blood.death=0|blood=2&blood.death<2)
 
             // icy_touch,if=runic_power<16
+            if (await Spell.CoCast(S.IcyTouch, onunit, Me.CurrentRunicPower < 16)) return true;
 
             // plague_strike,if=runic_power<16
+            if (await Spell.CoCast(S.PlagueStrike, onunit, Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentRunicPower < 16)) return true;
 
             // rune_tap,if=runic_power<16&blood>=1&blood.death=0&frost=0&unholy=0&buff.crimson_scourge.up
 
@@ -377,10 +387,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
             // blood_tap,if=buff.blood_charge.stack>=10
             await Spell.CoCast(S.BloodTap, onunit,
-                Me.HasAura("Blood Charge") && Me.Auras["Blood Charge"].StackCount >= 5 &&
-                SpellManager.CanCast(S.SoulReaperUh) && Me.CurrentTarget.HealthPercent < 47 &&
-                Me.UnholyRuneCount == 0 && Me.BloodRuneCount == 0 && Me.FrostRuneCount == 0 &&
-                Me.DeathRuneCount == 0);
+                Me.HasAura(S.AuraBloodCharge) && Me.Auras["Blood Charge"].StackCount >= 10 &&
+                SpellManager.CanCast(S.BloodTap));
 
             // death_coil,if=runic_power>65
             if (await Spell.CoCast(S.DeathCoil, onunit, Me.CurrentRunicPower > 65)) return true;
@@ -801,6 +809,11 @@ namespace ScourgeBloom.Class.DeathKnight
         public static bool DeathsAdvanceSelected()
         {
             return TalentManager.IsSelected(7);
+        }
+
+        public static bool DeathPactSelected()
+        {
+          return TalentManager.IsSelected(13);
         }
 
         #endregion Logics
