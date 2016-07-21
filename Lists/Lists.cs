@@ -70,7 +70,15 @@ namespace ScourgeBloom.Lists
             FrostPresence = 48266,
             BloodPresence = 48263,
             DeathGrip = 49576,
-            ChainsOfIce = 45524;
+            ChainsOfIce = 45524,
+
+            //New Spells
+            SindragosasFury = 190778,
+
+            //Frost Talents --
+            HungeringRuneWeapon = 207127,
+            GlacialAdvance = 194913,
+            Frostscythe = 207230;
 
         #endregion Class Spells
 
