@@ -54,9 +54,6 @@ namespace ScourgeBloom.Lists
             RuneStrike = 56815,
             RuneTap = 48982,
             ScourgeStrike = 55090,
-            SoulReaperFrost = 130735,
-            SoulReaperUh = 130736,
-            SoulReaperBlood = 114866,
             SummonGargoyle = 49206,
             UnholyBlight = 115989,
             VampiricBlood = 55233,
@@ -74,6 +71,13 @@ namespace ScourgeBloom.Lists
 
             //New Spells
             SindragosasFury = 190778,
+            BlightedRuneWeapon = 194918,
+
+            //Unholy Talents --
+            DarkArbiter = 207349,
+            ClawingShadows = 207311,
+            Epidemic = 207317,
+            SoulReaper = 130736,
 
             //Frost Talents --
             HungeringRuneWeapon = 207127,
@@ -115,9 +119,17 @@ namespace ScourgeBloom.Lists
             AuraRime = 59057,
             AuraFreezingFog = 59052,
             AuraCrimsonScourge = 81136,
-            AuraDancingRuneWeapon = 49028,
-            //Is that one correct?
-            AuraKillingMachine = 51124;
+            AuraDancingRuneWeapon = 49028,  //Is that one correct?
+            AuraKillingMachine = 51124,
+
+            // New Auras
+            AuraVirulentPlague = 191587,
+            AuraFesteringWound = 194310,
+            AuraDeathandDecay = 188290,
+            AuraDefile = 188290,
+            AuraSoulReaper = 130736,
+            AuraNecrosis = 216974,
+            AuraUnholyStrength = 53365;
 
         #endregion Auras
 
