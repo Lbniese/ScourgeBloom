@@ -83,14 +83,14 @@ namespace ScourgeBloom.Class.DeathKnight
                     DeathKnightSettings.Instance.DeathGrip)
                     return await Spell.CoCast(S.DeathGrip, SpellManager.CanCast(S.DeathGrip));
 
-                if (Me.GotTarget && Me.CurrentTarget.Attackable && Me.IsSafelyFacing(Me.CurrentTarget) &&
-                    Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight)
-                    return await Spell.CoCast(S.Outbreak, SpellManager.CanCast(S.Outbreak));
+                //if (Me.GotTarget && Me.CurrentTarget.Attackable && Me.IsSafelyFacing(Me.CurrentTarget) &&
+                //    Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight)
+                //    return await Spell.CoCast(S.Outbreak, SpellManager.CanCast(S.Outbreak));
 
                 if (Me.GotTarget && Me.CurrentTarget.Attackable && Me.IsSafelyFacing(Me.CurrentTarget) &&
                     Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight &&
                     Spell.GetCooldownLeft(S.Outbreak).TotalSeconds > 1)
-                    return await Spell.CoCast(S.IcyTouch, SpellManager.CanCast(S.IcyTouch));
+                    return await Spell.CoCast(S.HowlingBlast, SpellManager.CanCast(S.HowlingBlast));
             }
 
             return false;
@@ -255,6 +255,12 @@ namespace ScourgeBloom.Class.DeathKnight
 
             // Actual Routine
 
+            // CUSTOM army_of_the_dead
+            if (await Spell.CoCast(S.ArmyoftheDead, Me,
+                        Me.CurrentTarget.IsBoss && Capabilities.IsCooldownUsageAllowed &&
+                        DeathKnightSettings.Instance.UseAotD))
+                return true;
+
             // pillar_of_frost
             await Spell.CoCast(S.PillarofFrost,
                     Capabilities.IsCooldownUsageAllowed && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange &&
@@ -286,7 +292,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 return true;
             }
 
-        // if (await multi_target(onunit, Units.EnemiesInRange(10) >= 4 && !IsDualWielding ||
+        // if (await AOE(onunit, Units.EnemiesInRange(10) >= 4 && !IsDualWielding ||
         //                                (Units.EnemiesInRange(10) >= 3 && IsDualWielding)))
         // {
         //     return true;
@@ -427,7 +433,7 @@ namespace ScourgeBloom.Class.DeathKnight
           return true;
         }
 
-        private static async Task<bool> multi_target(WoWUnit onunit, bool reqs)
+        private static async Task<bool> AOE(WoWUnit onunit, bool reqs)
         {
             if (!reqs) return false;
 
@@ -480,17 +486,6 @@ namespace ScourgeBloom.Class.DeathKnight
             // howling_blast,if=buff.rime.react
             if (await Spell.CoCast(S.HowlingBlast, onunit, Me.CurrentTarget.Distance <= 30 && Me.HasAura(S.AuraRime))) return true;
 
-
-            await CommonCoroutines.SleepForLagDuration();
-
-            return true;
-        }
-
-        private static async Task<bool> multi_target_bos(WoWUnit onunit, bool reqs)
-        {
-            if (!reqs) return false;
-
-            // Not enough info yet
 
             await CommonCoroutines.SleepForLagDuration();
 
