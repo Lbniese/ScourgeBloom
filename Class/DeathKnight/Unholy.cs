@@ -178,15 +178,16 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CoCast(S.BlightedRuneWeapon, Me, Me.GotTarget && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange)) return true;
 
             // run_action_list,name=valkyr,if=talent.dark_arbiter.enabled&pet.valkyr_battlemaiden.active
-            if (await ValkyrActive(onunit, Me.Combat && /*Pet.ValkyrBattlemaiden.Active*/))
+            if (await ValkyrActive(onunit, Me.Combat && Me.GotTarget && Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.Attackable && DarkArbiterSelected() && Me.HasAura(S.AuraSummonGargoyle)))
                 return true;
 
             // dark_arbiter,if=runic_power>80
             if (await Spell.CoCast(S.DarkArbiter, Me, Me.CurrentTarget.Distance <= 8 && Me.GotTarget && Me.CurrentTarget.Attackable && Me.CurrentRunicPower > 80)) return true;
 
             // summon_gargoyle
-            // -- Included in the opener
-            // Double check, if that's optimal
+            if (await Spell.CoCast(S.SummonGargoyle, onunit,
+                Me.GotTarget && Me.CurrentTarget.Distance <= 30 && DeathKnightSettings.Instance.SummonGargoyleOnCd &&
+                Capabilities.IsCooldownUsageAllowed)) return true;
 
             // death_coil,if=runic_power>80
             if (await Spell.CoCast(S.DeathCoil, onunit, Me.CurrentTarget.Distance <= 40 && Me.CurrentRunicPower > 80)) return true;
@@ -211,7 +212,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
             // defile
             if (await Spell.CastOnGround(S.Defile, Me,
-                Me.GotTarget && Me.CurrentTarget.IsWithinMeleeRange && !Me.CurrentTarget.IsMoving
+                Me.GotTarget && Me.CurrentTarget.Attackable && Me.CurrentTarget.IsWithinMeleeRange && !Me.CurrentTarget.IsMoving
                 && Capabilities.IsAoeAllowed)) return true;
 
             // call_action_list,name=aoe,if=active_enemies>=2
@@ -351,9 +352,6 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CoCast(S.UnholyPresence, Me, !Me.HasAura(S.UnholyPresence)))
                 return true;
 
-            if (await Spell.CoCast(S.HornofWinter, Me, !Me.HasPartyBuff(Units.Stat.AttackPower)))
-                return true;
-
             if (await Spell.CoCast(S.RaiseDead, Me, !Me.GotAlivePet && Capabilities.IsPetSummonAllowed))
                 return true;
 
@@ -376,7 +374,7 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CoCast(S.DeathCoil, onunit, Me.CurrentRunicPower >= 35 && Me.CurrentTarget.Distance <= 40)) return true;
 
             // call_action_list,name=aoe,if=active_enemies>=2
-            if (await AOE(onunit, Units.EnemiesInRange(10) > 1))
+            if (await AOE(onunit, Units.EnemiesInRange(10) >= 2))
             {
                 return true;
             }
@@ -407,7 +405,7 @@ namespace ScourgeBloom.Class.DeathKnight
             // death_and_decay,if=spell_targets.death_and_decay>=2
             if (await Spell.CastOnGround(S.DeathandDecay, Me,
                 Me.GotTarget && Me.CurrentTarget.IsWithinMeleeRange && !Me.CurrentTarget.IsMoving &&
-                Capabilities.IsAoeAllowed && Units.EnemiesInRange(10) > 1))
+                Capabilities.IsAoeAllowed && Units.EnemiesInRange(10) >= 2))
                 return true;
 
             // epidemic,if=spell_targets.epidemic>4
@@ -460,136 +458,6 @@ namespace ScourgeBloom.Class.DeathKnight
         #endregion RestCoroutine
 
         #region Logics
-
-        #region ShouldSpreadDiseases
-
-        public static bool ShouldSpreadDiseases()
-        {
-            var radius = TalentManager.HasGlyph("Blood Boil") ? 15 : 10;
-            return !Me.CurrentTarget.HasAuraExpired("Blood Plague")
-                   && !Me.CurrentTarget.HasAuraExpired("Frost Fever")
-                   &&
-                   Units.EnemyUnitsNearTarget(10)
-                       .Any(
-                           u =>
-                               Me.CurrentTarget.Distance < radius && u.HasAuraExpired("Blood Plague") &&
-                               u.HasAuraExpired("Frost Fever"));
-        }
-
-        #endregion ShouldSpreadDiseases
-
-        #region NeedToSpread
-
-        public static bool NeedToSpread()
-        {
-            if ((!StyxWoW.Me.CurrentTarget.HasAura(S.AuraBloodPlague) ||
-                 !StyxWoW.Me.CurrentTarget.HasAura(S.AuraFrostFever)) && !NecroticPlagueSelected() ||
-                (!StyxWoW.Me.CurrentTarget.HasAura(S.AuraNecroticPlague) && NecroticPlagueSelected()))
-                return false;
-            var mobList =
-                ObjectManager.GetObjectsOfType<WoWUnit>()
-                    .FindAll(
-                        unit =>
-                            unit.Guid != StyxWoW.Me.Guid && unit.IsAlive && unit.IsHostile && SpreadHelper(unit) &&
-                            unit.Attackable && !unit.IsFriendly &&
-                            (unit.Location.Distance(StyxWoW.Me.CurrentTarget.Location) <= 10 ||
-                             unit.Location.Distance2D(StyxWoW.Me.CurrentTarget.Location) <= 10));
-
-            var playerList =
-                ObjectManager.GetObjectsOfType<WoWPlayer>()
-                    .FindAll(
-                        unit =>
-                            unit.Guid != StyxWoW.Me.Guid && unit.IsAlive && unit.IsHostile && SpreadHelper(unit) &&
-                            unit.Attackable && !unit.IsFriendly &&
-                            (unit.Location.Distance(StyxWoW.Me.CurrentTarget.Location) <= 10 ||
-                             unit.Location.Distance2D(StyxWoW.Me.CurrentTarget.Location) <= 10));
-
-            return mobList.Count + playerList.Count > 1;
-        }
-
-        private static bool SpreadHelper(WoWUnit p)
-        {
-            var auras = p.GetAllAuras();
-            return
-                auras.Any(
-                    a =>
-                        a.SpellId != S.AuraBloodPlague || a.SpellId != S.AuraFrostFever ||
-                        a.SpellId != S.AuraNecroticPlague);
-        }
-
-        #endregion NeedToSpread
-
-        #region CanPlagueLeech
-
-        public static bool CanPlagueLeech()
-        {
-            return (Me.BloodRuneCount < 1 && Me.FrostRuneCount < 1 ||
-                    Me.BloodRuneCount < 1 && Me.UnholyRuneCount < 1 ||
-                    Me.FrostRuneCount < 1 && Me.UnholyRuneCount < 1 ||
-                    Me.DeathRuneCount < 1 && Me.BloodRuneCount < 1 ||
-                    Me.DeathRuneCount < 1 && Me.FrostRuneCount < 1 ||
-                    Me.DeathRuneCount < 1 && Me.UnholyRuneCount < 1)
-                   && Me.CurrentTarget.HasMyAura(S.AuraFrostFever) &&
-                   Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) && SpellManager.CanCast(S.PlagueLeech);
-        }
-
-        #endregion CanPlagueLeech
-
-        #region GoodPlagueLeech
-
-        public static bool GoodPlagueLeech()
-        {
-            if (!StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraFrostFever) ||
-                !StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) ||
-                (NecroticPlagueSelected() && !Me.CurrentTarget.HasMyAura(S.AuraNecroticPlague))) return false;
-
-            var ffTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraFrostFever).TimeLeft;
-            var bpTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraBloodPlague).TimeLeft;
-
-            return ffTime <= TimeSpan.FromSeconds(3) || bpTime <= TimeSpan.FromSeconds(3);
-        }
-
-        #endregion GoodPlagueLeech
-
-        #region DiseaseRemains
-
-        public static bool DiseaseRemainsLessThanOne()
-        {
-            if (!StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraFrostFever) ||
-                !StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) ||
-                (NecroticPlagueSelected() && !Me.CurrentTarget.HasMyAura(S.AuraNecroticPlague))) return false;
-
-            var ffTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraFrostFever).TimeLeft;
-            var bpTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraBloodPlague).TimeLeft;
-
-            return ffTime < TimeSpan.FromSeconds(1) || bpTime < TimeSpan.FromSeconds(1);
-        }
-
-        public static bool DiseaseRemainsLessThanThree()
-        {
-            if (!StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraFrostFever) ||
-                !StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) ||
-                (NecroticPlagueSelected() && !Me.CurrentTarget.HasMyAura(S.AuraNecroticPlague))) return false;
-
-            var ffTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraFrostFever).TimeLeft;
-            var bpTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraBloodPlague).TimeLeft;
-
-            return ffTime < TimeSpan.FromSeconds(3) || bpTime < TimeSpan.FromSeconds(3);
-        }
-
-        public static bool DiseaseRemainsMoreThanFive()
-        {
-            if (!StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraFrostFever) ||
-                !StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) ||
-                (NecroticPlagueSelected() && !Me.CurrentTarget.HasMyAura(S.AuraNecroticPlague))) return false;
-
-            var ffTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraFrostFever).TimeLeft;
-            var bpTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraBloodPlague).TimeLeft;
-
-            return ffTime > TimeSpan.FromSeconds(5) || bpTime > TimeSpan.FromSeconds(5);
-        }
-
-        #endregion DiseaseRemains
 
         #region TalentSelected
 
@@ -694,10 +562,6 @@ namespace ScourgeBloom.Class.DeathKnight
             if (!reqs) return false;
             if (await Spell.CoCast(S.ArmyoftheDead,
                 Capabilities.IsCooldownUsageAllowed && DeathKnightSettings.Instance.UseAotD)) return true;
-
-            if (await Spell.CoCast(S.SummonGargoyle,
-                Me.GotTarget && DeathKnightSettings.Instance.SummonGargoyleOnCd &&
-                Capabilities.IsCooldownUsageAllowed)) return true;
 
             return true;
         }

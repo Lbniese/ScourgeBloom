@@ -72,7 +72,7 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CoCast(S.FrostPresence, Me, !Me.HasAura(S.FrostPresence)))
                 return true;
 
-            if (await Spell.CoCast(S.HornofWinter, Me, !Me.HasPartyBuff(Units.Stat.AttackPower)))
+            if (await Spell.CoCast(S.HornofWinter, Me, HornofWinterSelected() && !Me.HasPartyBuff(Units.Stat.AttackPower)))
                 return true;
 
             if (GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.Attackable &&
@@ -149,7 +149,7 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CoCast(S.FrostPresence, Me, !Me.HasAura(S.FrostPresence)))
                 return true;
 
-            if (await Spell.CoCast(S.HornofWinter, Me, !Me.HasPartyBuff(Units.Stat.AttackPower)))
+            if (await Spell.CoCast(S.HornofWinter, Me, HornofWinterSelected() && !Me.HasPartyBuff(Units.Stat.AttackPower)))
                 return true;
 
             await CommonCoroutines.SleepForLagDuration();
@@ -254,24 +254,19 @@ namespace ScourgeBloom.Class.DeathKnight
                 await Interrupts.StrangulateMethod();
 
             // Actual Routine
-
-            // CUSTOM army_of_the_dead
-            if (await Spell.CoCast(S.ArmyoftheDead, Me,
-                        Me.CurrentTarget.IsBoss && Capabilities.IsCooldownUsageAllowed &&
-                        DeathKnightSettings.Instance.UseAotD))
-                return true;
-
             // pillar_of_frost
             await Spell.CoCast(S.PillarofFrost,
                     Capabilities.IsCooldownUsageAllowed && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange &&
                     Me.CurrentTarget.Attackable && DeathKnightSettings.Instance.PillarofFrostOnCd);
 
             // sindragosas_fury
-            await Spell.CoCast(S.SindragosasFury,
+            if (await Spell.CoCast(S.SindragosasFury, Me,
                     Capabilities.IsCooldownUsageAllowed && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange &&
-                    Me.CurrentTarget.Attackable);
+                    Me.CurrentTarget.Attackable)) return true;
 
-            // obliteration -- Buff???
+            // obliteration
+            await Spell.CoCast(S.Obliteration, Me, Capabilities.IsCooldownUsageAllowed && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange &&
+            Me.CurrentTarget.Attackable);
 
             // breath_of_sindragosa,if=runic_power>=80
             await Spell.CoCast(S.BreathofSindragosa, onunit, Me.GotTarget && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentRunicPower >= 80);
@@ -349,7 +344,7 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CoCast(S.FrostStrike, onunit, Me.CurrentTarget.IsWithinMeleeRange && !BoSSelected())) return true;
 
             // horn_of_winter,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
-            if (await Spell.CoCast(S.HornofWinter, Me, BoSSelected() && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
+            if (await Spell.CoCast(S.HornofWinter, Me, HornofWinterSelected() && BoSSelected() && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
 
             // empower_rune_weapon,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
             if (await Spell.CoCast(S.EmpowerRuneWeapon, Me, BoSSelected() && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
@@ -358,7 +353,7 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CoCast(S.HungeringRuneWeapon, Me, HungeringRuneWeaponSelected() && Me.GotTarget && Me.CurrentTarget.Distance <= 8 && BoSSelected() && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
 
             // horn_of_winter,if=!talent.breath_of_sindragosa.enabled
-            if (await Spell.CoCast(S.HornofWinter, Me, !BoSSelected())) return true;
+            if (await Spell.CoCast(S.HornofWinter, Me, HornofWinterSelected() && !BoSSelected())) return true;
 
             // empower_rune_weapon,if=!talent.breath_of_sindragosa.enabled
             if (await Spell.CoCast(S.EmpowerRuneWeapon, Me, !BoSSelected())) return true;
@@ -411,7 +406,7 @@ namespace ScourgeBloom.Class.DeathKnight
           if (await Spell.CoCast(S.FrostStrike, onunit, Me.CurrentTarget.IsWithinMeleeRange && !BoSSelected())) return true;
 
           // horn_of_winter,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
-          if (await Spell.CoCast(S.HornofWinter, Me, BoSSelected() && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
+          if (await Spell.CoCast(S.HornofWinter, Me, HornofWinterSelected() && BoSSelected() && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
 
           // empower_rune_weapon,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
           if (await Spell.CoCast(S.EmpowerRuneWeapon, Me, BoSSelected() && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
@@ -420,7 +415,7 @@ namespace ScourgeBloom.Class.DeathKnight
           if (await Spell.CoCast(S.HungeringRuneWeapon, Me, HungeringRuneWeaponSelected() && Me.GotTarget && Me.CurrentTarget.Distance <= 8 && BoSSelected() && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
 
           // horn_of_winter,if=!talent.breath_of_sindragosa.enabled
-          if (await Spell.CoCast(S.HornofWinter, Me, !BoSSelected())) return true;
+          if (await Spell.CoCast(S.HornofWinter, Me, HornofWinterSelected() && !BoSSelected())) return true;
 
           // empower_rune_weapon,if=!talent.breath_of_sindragosa.enabled
           if (await Spell.CoCast(S.EmpowerRuneWeapon, Me, !BoSSelected())) return true;
@@ -448,7 +443,7 @@ namespace ScourgeBloom.Class.DeathKnight
         {
             if (!reqs) return false;
 
-            / glacial_advance
+            // glacial_advance
             if (await Spell.CoCast(S.GlacialAdvance, Me, Me.CurrentTarget.IsWithinMeleeRange)) return true;
 
             // frostscythe,if=buff.killing_machine.react|spell_targets.frostscythe>=4
@@ -473,7 +468,7 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CoCast(S.HowlingBlast, onunit, Me.CurrentTarget.Distance <= 30 && !Me.CurrentTarget.HasMyAura(S.AuraFrostFever))) return true;
 
             // horn_of_winter
-            if (await Spell.CoCast(S.HornofWinter, Me, Me.GotTarget)) return true;
+            if (await Spell.CoCast(S.HornofWinter, Me, HornofWinterSelected() && Me.GotTarget)) return true;
 
             // empower_rune_weapon
             if (await Spell.CoCast(S.EmpowerRuneWeapon,
@@ -532,156 +527,16 @@ namespace ScourgeBloom.Class.DeathKnight
 
         #endregion IsDualWielding
 
-        #region ShouldSpreadDiseases
-
-        public static bool ShouldSpreadDiseases()
-        {
-            var radius = TalentManager.HasGlyph("Blood Boil") ? 15 : 10;
-            return !Me.CurrentTarget.HasAuraExpired("Blood Plague")
-                   && !Me.CurrentTarget.HasAuraExpired("Frost Fever")
-                   &&
-                   Units.EnemyUnitsNearTarget(10)
-                       .Any(
-                           u =>
-                               Me.CurrentTarget.Distance < radius && u.HasAuraExpired("Blood Plague") &&
-                               u.HasAuraExpired("Frost Fever"));
-        }
-
-        #endregion ShouldSpreadDiseases
-
-        #region NeedToSpread
-
-        public static bool NeedToSpread()
-        {
-            if ((!StyxWoW.Me.CurrentTarget.HasAura(S.AuraBloodPlague) ||
-                 !StyxWoW.Me.CurrentTarget.HasAura(S.AuraFrostFever)) && !NecroticPlagueSelected() ||
-                (!StyxWoW.Me.CurrentTarget.HasAura(S.AuraNecroticPlague) && NecroticPlagueSelected()))
-                return false;
-            var mobList =
-                ObjectManager.GetObjectsOfType<WoWUnit>()
-                    .FindAll(
-                        unit =>
-                            unit.Guid != StyxWoW.Me.Guid && unit.IsAlive && unit.IsHostile && SpreadHelper(unit) &&
-                            unit.Attackable && !unit.IsFriendly &&
-                            (unit.Location.Distance(StyxWoW.Me.CurrentTarget.Location) <= 10 ||
-                             unit.Location.Distance2D(StyxWoW.Me.CurrentTarget.Location) <= 10));
-
-            var playerList =
-                ObjectManager.GetObjectsOfType<WoWPlayer>()
-                    .FindAll(
-                        unit =>
-                            unit.Guid != StyxWoW.Me.Guid && unit.IsAlive && unit.IsHostile && SpreadHelper(unit) &&
-                            unit.Attackable && !unit.IsFriendly &&
-                            (unit.Location.Distance(StyxWoW.Me.CurrentTarget.Location) <= 10 ||
-                             unit.Location.Distance2D(StyxWoW.Me.CurrentTarget.Location) <= 10));
-
-            return mobList.Count + playerList.Count > 1;
-        }
-
-        private static bool SpreadHelper(WoWUnit p)
-        {
-            var auras = p.GetAllAuras();
-            return
-                auras.Any(
-                    a =>
-                        a.SpellId != S.AuraBloodPlague || a.SpellId != S.AuraFrostFever ||
-                        a.SpellId != S.AuraNecroticPlague);
-        }
-
-        #endregion NeedToSpread
-
-        #region CanPlagueLeech
-
-        public static bool CanPlagueLeech()
-        {
-            return (Me.BloodRuneCount < 1 && Me.FrostRuneCount < 1 ||
-                    Me.BloodRuneCount < 1 && Me.UnholyRuneCount < 1 ||
-                    Me.FrostRuneCount < 1 && Me.UnholyRuneCount < 1 ||
-                    Me.DeathRuneCount < 1 && Me.BloodRuneCount < 1 ||
-                    Me.DeathRuneCount < 1 && Me.FrostRuneCount < 1 ||
-                    Me.DeathRuneCount < 1 && Me.UnholyRuneCount < 1)
-                   && Me.CurrentTarget.HasMyAura(S.AuraFrostFever) &&
-                   Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) && SpellManager.CanCast(S.PlagueLeech);
-        }
-
-        #endregion CanPlagueLeech
-
-        #region GoodPlagueLeech
-
-        public static bool GoodPlagueLeech()
-        {
-            if (!StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraFrostFever) ||
-                !StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) ||
-                (NecroticPlagueSelected() && !Me.CurrentTarget.HasMyAura(S.AuraNecroticPlague))) return false;
-
-            var ffTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraFrostFever).TimeLeft;
-            var bpTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraBloodPlague).TimeLeft;
-
-            return ffTime <= TimeSpan.FromSeconds(3) || bpTime <= TimeSpan.FromSeconds(3);
-        }
-
-        #endregion GoodPlagueLeech
-
-        #region DiseaseRemains
-
-        public static bool DiseaseRemainsLessThanOne()
-        {
-            if (!StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraFrostFever) ||
-                !StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) ||
-                (NecroticPlagueSelected() && !Me.CurrentTarget.HasMyAura(S.AuraNecroticPlague))) return false;
-
-            var ffTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraFrostFever).TimeLeft;
-            var bpTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraBloodPlague).TimeLeft;
-
-            return ffTime < TimeSpan.FromSeconds(1) || bpTime < TimeSpan.FromSeconds(1);
-        }
-
-        public static bool DiseaseRemainsLessThanThree()
-        {
-            if (!StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraFrostFever) ||
-                !StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) ||
-                (NecroticPlagueSelected() && !Me.CurrentTarget.HasMyAura(S.AuraNecroticPlague))) return false;
-
-            var ffTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraFrostFever).TimeLeft;
-            var bpTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraBloodPlague).TimeLeft;
-
-            return ffTime < TimeSpan.FromSeconds(3) || bpTime < TimeSpan.FromSeconds(3);
-        }
-
-        public static bool DiseaseRemainsMoreThanFive()
-        {
-            if (!StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraFrostFever) ||
-                !StyxWoW.Me.CurrentTarget.HasMyAura(S.AuraBloodPlague) ||
-                (NecroticPlagueSelected() && !Me.CurrentTarget.HasMyAura(S.AuraNecroticPlague))) return false;
-
-            var ffTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraFrostFever).TimeLeft;
-            var bpTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraBloodPlague).TimeLeft;
-
-            return ffTime > TimeSpan.FromSeconds(5) || bpTime > TimeSpan.FromSeconds(5);
-        }
-
-        #endregion DiseaseRemains
-
-        #region NeedToExtendNecroticPlague
-
-        public static bool NeedToExtendNecroticPlague()
-        {
-            if (BoSSelected() || DefileSelected()) return false;
-            if (NecroticPlagueSelected() && !Me.CurrentTarget.HasMyAura(S.AuraNecroticPlague)) return false;
-
-            var npTime = StyxWoW.Me.CurrentTarget.GetAuraById(S.AuraNecroticPlague).TimeLeft;
-            var ubTime = Spell.GetCooldownLeft(S.UnholyBlight).TotalSeconds;
-
-            return npTime < TimeSpan.FromSeconds(ubTime);
-        }
-
-        #endregion NeedToExtendNecroticPlague
-
         #region TalentSelected
 
         public static bool FrozenPulseSelected()
         {
             return TalentManager.IsSelected(5);
+        }
+
+        public static bool HornofWinterSelected()
+        {
+            return TalentManager.IsSelected(6);
         }
 
         public static bool HungeringRuneWeaponSelected()
@@ -753,13 +608,6 @@ namespace ScourgeBloom.Class.DeathKnight
 
             if (!reqs) return false;
             if (await Spell.CoCast(S.ArmyoftheDead, Capabilities.IsCooldownUsageAllowed)) return true;
-
-
-            if (await Spell.CoCast(S.PillarofFrost,
-                        Capabilities.IsCooldownUsageAllowed && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange &&
-                        Me.CurrentTarget.Attackable && DeathKnightSettings.Instance.PillarofFrostOnCd)) return true;
-
-            if (await Spell.CoCast(S.Outbreak)) return true;
 
             await CommonCoroutines.SleepForLagDuration();
 

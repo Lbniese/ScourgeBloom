@@ -82,7 +82,8 @@ namespace ScourgeBloom.Lists
             //Frost Talents --
             HungeringRuneWeapon = 207127,
             GlacialAdvance = 194913,
-            Frostscythe = 207230;
+            Frostscythe = 207230,
+            Obliteration = 207256;
 
         #endregion Class Spells
 
@@ -129,7 +130,10 @@ namespace ScourgeBloom.Lists
             AuraDefile = 188290,
             AuraSoulReaper = 130736,
             AuraNecrosis = 216974,
-            AuraUnholyStrength = 53365;
+            AuraUnholyStrength = 53365,
+            AuraSummonGargoyle = 61777,
+            AuraObliterationProc = 187893;
+            AuraObliterationTalent = 207256;
 
         #endregion Auras
 
