@@ -30,6 +30,9 @@ namespace ScourgeBloom.Class.DeathKnight
     [UsedImplicitly]
     public class Unholy : ScourgeBloom
     {
+
+      public static long RunicPowerDeficit => Me.MaxRunicPower - Me.CurrentRunicPower;
+
         #region PullRoutine
 
         private static async Task<bool> PullRoutine()
@@ -164,6 +167,8 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.CurrentTarget.IsCasting &&
                 Me.CurrentTarget.CanInterruptCurrentSpellCast)
                 await Interrupts.StrangulateMethod();
+
+            if (await LowbieRotation(onunit, Me.Combat && Me.GotTarget && Me.Level < 100)) return true;
 
             // Actual Routine
             // outbreak,target_if=!dot.virulent_plague.ticking
@@ -395,6 +400,35 @@ namespace ScourgeBloom.Class.DeathKnight
         }
 
         #endregion Coroutine Valkyr
+
+        #region LowbieRotation
+
+        priate static async Task<bool> LowbieRotation(WoWUnit onunit, bool reqs)
+        {
+          if (!reqs) return false;
+
+          //Custom - SingularBased LowbieRotation
+          if (await Spell.CoCast(S.SummonGargoyle, onunit, Me.CurrentTarget.IsStressful() && DeathKnightSettings.Instance.SummonGargoyleOnCd)) return true;
+
+          if (await Spell.CoCast(S.Outbreak, onunit, Me.CurrentTarget.GetAuraTimeLeft(S.AuraVirulentPlague).TotalSeconds < 1.8)) return true;
+
+          if (await Spell.CoCast(S.DarkTransformation, onunit,
+              Me.GotAlivePet && !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation")))
+              return true;
+
+          if (await Spell.CoCast(S.FesteringStrike, onunit, Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) < 5)) return true;
+
+          if (await Spell.CoCast(S.ScourgeStrike, onunit, Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 1)) return true;
+
+          if (await Spell.CoCast(S.DeathCoil, onunit, RunicPowerDeficit < 10)) return true;
+
+
+          await CommonCoroutines.SleepForLagDuration();
+
+          return true;
+        }
+
+        #endregion LowbieRotation
 
         #region AOE
 

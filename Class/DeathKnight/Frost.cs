@@ -31,6 +31,9 @@ namespace ScourgeBloom.Class.DeathKnight
     [UsedImplicitly]
     public class Frost : ScourgeBloom
     {
+
+      public static long RunicPowerDeficit => Me.MaxRunicPower - Me.CurrentRunicPower;
+
         #region Heals
 
         private static async Task<bool> HealRoutine()
@@ -253,6 +256,8 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.CurrentTarget.CanInterruptCurrentSpellCast)
                 await Interrupts.StrangulateMethod();
 
+            if (await LowbieRotation(onunit, Me.Combat && Me.GotTarget && Me.Level < 100)) return true;
+
             // Actual Routine
             // pillar_of_frost
             await Spell.CoCast(S.PillarofFrost,
@@ -422,6 +427,31 @@ namespace ScourgeBloom.Class.DeathKnight
 
           // hungering_rune_weapon,if=!talent.breath_of_sindragosa.enabled
           if (await Spell.CoCast(S.HungeringRuneWeapon, Me, HungeringRuneWeaponSelected() && Me.GotTarget && Me.CurrentTarget.Distance <= 8 && !BoSSelected())) return true;
+
+          await CommonCoroutines.SleepForLagDuration();
+
+          return true;
+        }
+
+        priate static async Task<bool> LowbieRotation(WoWUnit onunit, bool reqs)
+        {
+          if (!reqs) return false;
+
+          //Custom - SingularBased LowbieRotation
+          if (await Spell.CoCast(S.HowlingBlast, onunit, Me.CurrentTarget.GetAuraTimeLeft(S.AuraFrostFever).TotalSeconds < 1.8d)) return true;
+
+          if (await Spell.CoCast(S.RemorselessWinter, Me, Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed && Unit.NearbyUnfriendlyUnits.Count(u => u.IsWithinMeleeRange) >= 2)) return true;
+
+          if (await Spell.CoCast(S.Frostscythe, onunit, Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed && Clusters.GetClusterCount(Me.CurrentTarget, Unit.NearbyUnfriendlyUnits, ClusterType.Cone, 8) >= 3)) return true;
+
+          if (await Spell.CoCast(S.HowlingBlast, onunit, Me.HasActiveAura(S.AuraRime))) return true;
+
+          if (await Spell.CoCast(S.Obliterate, onunit, Me.CurrentTarget.IsWithinMeleeRange && RunicPowerDeficit >= 10)) return true;
+
+          if (await Spell.CoCast(S.FrostStrike, onunit, Me.CurrentTarget.IsWithinMeleeRange && RunicPowerDeficit < 35)) return true;
+
+          if (await Spell.CoCast(S.HornofWinter, Me, HornofWinterSelected() && Me.CurrentRunes < 4 && RunicPowerDeficit >= 20)) return true;
+
 
           await CommonCoroutines.SleepForLagDuration();
 

@@ -403,6 +403,17 @@ namespace ScourgeBloom.Helpers
             return HasAura(unit, aura, stacks, StyxWoW.Me);
         }
 
+        /// <summary>
+        /// Checks the active aura by the name on unit.
+        /// </summary>
+        /// <param name="unit"> The unit to check the active auras for. </param>
+        /// <param name="aura"> The name of the aura in English. </param>
+        /// <returns></returns>
+        public static bool HasActiveAura(this WoWUnit unit, string aura)
+        {
+            return unit.ActiveAuras.ContainsKey(aura);
+        }
+
         private static bool HasAura(this WoWUnit unit, string aura, int stacks, WoWUnit creator)
         {
             if (unit == null)
@@ -456,41 +467,81 @@ namespace ScourgeBloom.Helpers
             return auras.Any(a => hashes.Contains(a.Name));
         }
 
-        public static uint AuraTimeLeft(this WoWUnit unit, int aura)
-        {
-            if (!unit.IsValid)
-                return 0;
-
-            var result =
-                unit.GetAllAuras()
-                    .FirstOrDefault(a => a.CreatorGuid == StyxWoW.Me.Guid && a.SpellId == aura && !a.IsPassive);
-
-            return result?.Duration ?? 0;
-        }
-
+        /// <summary>
+        ///  Returns the timeleft of an aura by TimeSpan. Return TimeSpan.Zero if the aura doesn't exist.
+        /// </summary>
+        /// <param name="auraName"> The name of the aura in English. </param>
+        /// <param name="onUnit"> The unit to check the aura for. </param>
+        /// <param name="fromMyAura"> Check for only self or all buffs</param>
+        /// <returns></returns>
         public static TimeSpan GetAuraTimeLeft(this WoWUnit onUnit, string auraName, bool fromMyAura = true)
         {
-            var wantedAura =
-                onUnit.GetAllAuras()
-                    .FirstOrDefault(
-                        a =>
-                            a != null && a.Name == auraName && a.TimeLeft > TimeSpan.Zero &&
-                            (!fromMyAura || a.CreatorGuid == StyxWoW.Me.Guid));
+            if (onUnit == null)
+                return TimeSpan.Zero;
 
-            return wantedAura?.TimeLeft ?? TimeSpan.Zero;
+            WoWAura wantedAura =
+                onUnit.GetAllAuras().Where(a => a != null && a.Name == auraName && a.TimeLeft > TimeSpan.Zero && (!fromMyAura || a.CreatorGuid == StyxWoW.Me.Guid)).FirstOrDefault();
+
+            return wantedAura != null ? wantedAura.TimeLeft : TimeSpan.Zero;
         }
 
-        public static uint GetAuraStackCount(this WoWUnit unit, string aura, bool fromMyAura = true)
+        public static TimeSpan GetAuraStacksAndTimeLeft(this WoWUnit onUnit, string auraName, out uint stackCount, bool fromMyAura = true)
         {
-            if (unit != null && unit.IsValid)
+            if (onUnit == null)
             {
-                var s = unit.Auras.Values.FirstOrDefault(a => a.Name == aura && a.CreatorGuid == Me.Guid);
-                if (s == null) return uint.MinValue;
-                Log.WritetoFile(LogLevel.Diagnostic,
-                    $"{unit.SafeName()} has {unit.Auras[aura].StackCount} stacks of {aura}");
-                return s.StackCount;
+                stackCount = 0;
+                return TimeSpan.Zero;
             }
-            return uint.MinValue;
+
+            WoWAura wantedAura =
+                onUnit.GetAllAuras().Where(a => a != null && a.Name == auraName && a.TimeLeft > TimeSpan.Zero && (!fromMyAura || a.CreatorGuid == StyxWoW.Me.Guid)).FirstOrDefault();
+
+            if (wantedAura == null)
+            {
+                stackCount = 0;
+                return TimeSpan.Zero;
+            }
+
+            stackCount = Math.Max( 1, wantedAura.StackCount);
+            return wantedAura.TimeLeft;
+        }
+
+        public static TimeSpan GetAuraTimeLeft(this WoWUnit onUnit, int auraID, bool fromMyAura = true)
+        {
+            if (onUnit == null)
+                return TimeSpan.Zero;
+
+            WoWAura wantedAura = onUnit.GetAllAuras()
+                .Where(a => a.SpellId == auraID && a.TimeLeft > TimeSpan.Zero && (!fromMyAura || a.CreatorGuid == StyxWoW.Me.Guid)).FirstOrDefault();
+
+            return wantedAura != null ? wantedAura.TimeLeft : TimeSpan.Zero;
+        }
+
+        public static uint GetAuraStacks(this WoWUnit onUnit, string auraName, bool fromMyAura = true)
+        {
+	        WoWAura wantedAura =
+		        onUnit?.GetAllAuras()
+			        .FirstOrDefault(
+				        a => a.Name == auraName && a.TimeLeft > TimeSpan.Zero && (!fromMyAura || a.CreatorGuid == StyxWoW.Me.Guid));
+
+            if (wantedAura == null)
+                return 0;
+
+            return wantedAura.StackCount == 0 ? 1 : wantedAura.StackCount;
+        }
+
+        public static uint GetAuraStacks(this WoWUnit onUnit, int spellId, bool fromMyAura = true)
+        {
+            if (onUnit == null)
+                return 0;
+
+            WoWAura wantedAura =
+                onUnit.GetAllAuras().Where(a => a.SpellId == spellId && a.TimeLeft > TimeSpan.Zero && (!fromMyAura || a.CreatorGuid == StyxWoW.Me.Guid)).FirstOrDefault();
+
+            if (wantedAura == null)
+                return 0;
+
+            return wantedAura.StackCount == 0 ? 1 : wantedAura.StackCount;
         }
 
         public static bool HasAuraExpired(this WoWUnit u, string aura, int secs = 3, bool myAura = true)
@@ -649,5 +700,95 @@ namespace ScourgeBloom.Helpers
         }
 
         #endregion Mechanic
+
+        public static bool IsEvading(this WoWUnit u)
+        {
+            return (u.Flags & 0x10) != 0;
+        }
+
+        /// <summary>
+        /// Checks if target is a Critter that can safely be ignored
+        /// </summary>
+        /// <param name="u"></param>
+        /// WoWUnit to check
+        /// <returns>true: can ignore safely, false: treat as attackable enemy</returns>
+        public static bool IsIgnorableCritter(this WoWUnit u)
+        {
+            if (!u.IsCritter)
+                return false;
+
+            // good enemy if BotPoi
+            if (Styx.CommonBot.POI.BotPoi.Current.Guid == u.Guid && Styx.CommonBot.POI.BotPoi.Current.Type == Styx.CommonBot.POI.PoiType.Kill)
+                return false;
+
+            // good enemy if Targeting
+            if (Targeting.Instance.TargetList.Contains(u))
+                return false;
+
+            // good enemy if Threat towards us
+            if (u.ThreatInfo.ThreatValue != 0 && u.IsTargetingMyRaidMember)
+                return false;
+
+            // Nah, just a harmless critter
+            return true;
+        }
+
+        public static bool IsTrivial(this WoWUnit unit)
+        {
+            if (SingularRoutine.CurrentWoWContext != WoWContext.Normal)
+                return false;
+
+            if (unit == null)
+                return false;
+
+            if (unit.Elite)
+                return unit.Level <= TrivialElite;
+
+            return unit.Level <= TrivialLevel;
+        }
+
+        public static bool IsStressful(this WoWUnit unit)
+        {
+            if (SingularRoutine.CurrentWoWContext != WoWContext.Normal)
+                return true;
+
+            if (unit == null)
+                return false;
+
+            if (unit.IsPlayer)
+                return true;
+
+            uint maxh = unit.MaxHealth;
+            return maxh > StyxWoW.Me.MaxHealth * 2 || unit.Level > (StyxWoW.Me.Level + (unit.Elite ? -6 : 2));
+        }
+
+        public static bool IsStressfulFight(int minHealth, int minTimeToDeath, int minAttackers, int maxAttackRange)
+        {
+            if (!Unit.ValidUnit(StyxWoW.Me.CurrentTarget))
+                return false;
+
+            int mobCount = Unit.UnitsInCombatWithUsOrOurStuff(maxAttackRange).Count();
+            if (mobCount > 0)
+            {
+                if (mobCount >= minAttackers)
+                    return true;
+
+                if (StyxWoW.Me.HealthPercent <= minHealth)
+                {
+                    if (mobCount > 1)
+                        return true;
+                    if (StyxWoW.Me.CurrentTarget.TimeToDeath(-1) > minTimeToDeath)
+                        return true;
+                    if (StyxWoW.Me.CurrentTarget.IsPlayer)
+                        return true;
+                    if (StyxWoW.Me.CurrentTarget.MaxHealth > (StyxWoW.Me.MaxHealth * 2) && StyxWoW.Me.CurrentTarget.CurrentHealth > StyxWoW.Me.CurrentHealth)
+                        return true;
+                    if (StyxWoW.Me.HealthPercent < minHealth / 2)
+                        return true;
+                }
+            }
+
+            return false;
+        }
     }
 }
