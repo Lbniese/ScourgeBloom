@@ -64,6 +64,12 @@ namespace ScourgeBloom.Settings
         [Description("Auto Release Spirit while dead")]
         public bool AutoReleaseSpirit { get; set; }
 
+        [Setting, DefaultValue(false), Category("Pet")]
+        [Browsable(true)]
+        [ReadOnly(false)]
+        [Description("Auto Control Pet Taunt")]
+        public bool PetAutoControlTaunt { get; set; }
+
         [Setting, DefaultValue(true), Category("Behavior")]
         [Browsable(true)]
         [ReadOnly(false)]
