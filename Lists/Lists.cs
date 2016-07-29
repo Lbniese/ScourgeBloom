@@ -120,7 +120,8 @@ namespace ScourgeBloom.Lists
             AuraRime = 59057,
             AuraFreezingFog = 59052,
             AuraCrimsonScourge = 81136,
-            AuraDancingRuneWeapon = 49028,  //Is that one correct?
+            AuraDancingRuneWeapon = 49028,
+            //Is that one correct?
             AuraKillingMachine = 51124,
 
             // New Auras
@@ -132,7 +133,7 @@ namespace ScourgeBloom.Lists
             AuraNecrosis = 216974,
             AuraUnholyStrength = 53365,
             AuraSummonGargoyle = 61777,
-            AuraObliterationProc = 187893;
+            AuraObliterationProc = 187893,
             AuraObliterationTalent = 207256;
 
         #endregion Auras

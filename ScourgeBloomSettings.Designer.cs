@@ -1668,7 +1668,7 @@ namespace ScourgeBloom
         private TabControl TabControl1;
         private TabPage General;
         private PropertyGrid GeneralSGrid;
-        private TabPage Debug;
+        public TabPage Debug;
         private Button DumpSpellsButton;
         private Button SaveButton;
         private Button AFKPresetButton;

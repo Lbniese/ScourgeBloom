@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the ScourgeBloom Combat Routine.
  *
  * Copyright (C) 2016 Lbniese <Lbniese@lupra.org>

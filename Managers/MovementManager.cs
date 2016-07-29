@@ -39,7 +39,7 @@ namespace ScourgeBloom.Managers
                 return;
 
             var units =
-                Units.UnfriendlyUnits.Where(u => u.Aggro && u.Distance <= 30)
+                Units.NearbyUnfriendlyUnits.Where(u => u.Aggro && u.Distance <= 30)
                     .OrderBy(u => u.Distance)
                     .ThenBy(u => u.HealthPercent)
                     .ToList();

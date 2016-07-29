@@ -13,9 +13,10 @@ using System.Linq;
 using System.Windows.Media;
 using Bots.DungeonBuddy.Helpers;
 using ScourgeBloom.Managers;
+using ScourgeBloom.Utilities;
 using Styx;
-using Styx.Common;
 using Styx.CommonBot;
+using Styx.CommonBot.POI;
 using Styx.Helpers;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
@@ -26,20 +27,30 @@ namespace ScourgeBloom.Helpers
     {
         private static readonly LocalPlayer Me = StyxWoW.Me;
 
-        #region UnfriendlyUnits
+        public static int TrivialLevel { get; set; }
+        public static int TrivialElite { get; set; }
+        public static uint SeriousHealth { get; set; }
 
-        public static IEnumerable<WoWUnit> UnfriendlyUnits
+        public static IEnumerable<WoWUnit> NearbyUnitsInCombatWithMeOrMyStuff
         {
             get
             {
-                using (StyxWoW.Memory.AcquireFrame(true))
-                {
-                    return ObjectManager.GetObjectsOfTypeFast<WoWUnit>().Where(u => u.ValidAttackUnit()).ToList();
-                }
+                return
+                    NearbyUnfriendlyUnits.Where(
+                        p => p.Aggro || (p.Combat && (p.TaggedByMe || (p.GotTarget && p.IsTargetingMyStuff()))));
             }
         }
 
-        #endregion UnfriendlyUnits
+        public static IEnumerable<WoWUnit> NearbyUnitsInCombatWithUsOrOurStuff
+        {
+            get { return UnitsInCombatWithUsOrOurStuff(40); }
+        }
+
+        /// <summary>
+        ///     Gets the nearby unfriendly units within 40 yards.
+        /// </summary>
+        /// <value>The nearby unfriendly units.</value>
+        public static IEnumerable<WoWUnit> NearbyUnfriendlyUnits => UnfriendlyUnits(40);
 
         #region GroupMemberInfos
 
@@ -53,6 +64,95 @@ namespace ScourgeBloom.Helpers
         }
 
         #endregion GroupMemberInfos
+
+        /// <summary>
+        ///     checks if unit is targeting you, your minions, a group member, or group pets
+        /// </summary>
+        /// <param name="u">unit</param>
+        /// <returns>true if targeting your guys, false if not</returns>
+        public static bool IsTargetingMyStuff(this WoWUnit u)
+        {
+            return u.IsTargetingMeOrPet
+                   || u.IsTargetingAnyMinion
+                   || (u.GotTarget && u.CurrentTarget.IsCompanion());
+        }
+
+        public static bool IsCompanion(this WoWUnit u)
+        {
+            return u.CreatedByUnitGuid == StyxWoW.Me.Guid;
+        }
+
+        public static IEnumerable<WoWUnit> UnitsInCombatWithUsOrOurStuff(int maxSpellDist = -1)
+        {
+            return UnfriendlyUnits(maxSpellDist)
+                .Where(
+                    p => p.Aggro
+                         || (p.Combat
+                             && (p.TaggedByMe
+                                 || (p.GotTarget && p.IsTargetingUs())
+                                 ||
+                                 (p == EventHandlers.AttackingEnemyPlayer &&
+                                  EventHandlers.TimeSinceAttackedByEnemyPlayer.TotalSeconds < 15)
+                                 )
+                             )
+                );
+        }
+
+        /// <summary>
+        ///     checks if unit is targeting you, your minions, a group member, or group pets
+        /// </summary>
+        /// <param name="u">unit</param>
+        /// <returns>true if targeting your guys, false if not</returns>
+        public static bool IsTargetingUs(this WoWUnit u)
+        {
+            return u.IsTargetingMyStuff() || GroupMemberInfos.Any(m => m.Guid == u.CurrentTargetGuid);
+        }
+
+        #region UnfriendlyUnits
+
+        /// <summary>
+        ///     Gets the nearby unfriendly units within specified range.  if no range specified,
+        ///     includes all unfriendly units
+        /// </summary>
+        /// <value>The nearby unfriendly units.</value>
+        public static IEnumerable<WoWUnit> UnfriendlyUnits(int maxSpellDist = -1, WoWUnit origin = null)
+        {
+            if (origin == null)
+                origin = StyxWoW.Me;
+
+            // need to use TargetList for this if in Dungeon
+            var useTargeting = ScourgeBloom.IsDungeonBuddyActive ||
+                               (ScourgeBloom.IsQuestBotActive && StyxWoW.Me.IsInInstance);
+            if (useTargeting)
+            {
+                if (maxSpellDist == -1)
+                    return Targeting.Instance.TargetList.Where(u => u != null && ValidAttackUnit(u));
+                return
+                    Targeting.Instance.TargetList.Where(
+                        u => u != null && ValidAttackUnit(u) && origin.SpellDistance(u) < maxSpellDist);
+            }
+
+            var list = new List<WoWUnit>();
+            var objectList = ObjectManager.ObjectList;
+
+            for (var i = 0; i < objectList.Count; i++)
+            {
+                var type = objectList[i].GetType();
+                if (type == typeof (WoWUnit) || type == typeof (WoWPlayer))
+                {
+                    var t = objectList[i] as WoWUnit;
+                    if (t != null && ValidAttackUnit(t) &&
+                        (maxSpellDist == -1 || origin.SpellDistance(t) < maxSpellDist))
+                    {
+                        list.Add(t);
+                    }
+                }
+            }
+
+            return list;
+        }
+
+        #endregion UnfriendlyUnits
 
         // this one optimized for single applytype lookup
         public static bool HasAuraWithEffect(this WoWUnit unit, WoWApplyAuraType applyType)
@@ -283,25 +383,120 @@ namespace ScourgeBloom.Helpers
 
         #endregion DebuffCC
 
+        public static bool IsEvading(this WoWUnit u)
+        {
+            return (u.Flags & 0x10) != 0;
+        }
+
+        /// <summary>
+        ///     Checks if target is a Critter that can safely be ignored
+        /// </summary>
+        /// <param name="u"></param>
+        /// WoWUnit to check
+        /// <returns>true: can ignore safely, false: treat as attackable enemy</returns>
+        public static bool IsIgnorableCritter(this WoWUnit u)
+        {
+            if (!u.IsCritter)
+                return false;
+
+            // good enemy if BotPoi
+            if (BotPoi.Current.Guid == u.Guid && BotPoi.Current.Type == PoiType.Kill)
+                return false;
+
+            // good enemy if Targeting
+            if (Targeting.Instance.TargetList.Contains(u))
+                return false;
+
+            // good enemy if Threat towards us
+            if (u.ThreatInfo.ThreatValue != 0 && u.IsTargetingMyRaidMember)
+                return false;
+
+            // Nah, just a harmless critter
+            return true;
+        }
+
+        public static bool IsTrivial(this WoWUnit unit)
+        {
+            if (ScourgeBloom.CurrentWoWContext != WoWContext.Normal)
+                return false;
+
+            if (unit == null)
+                return false;
+
+            if (unit.Elite)
+                return unit.Level <= TrivialElite;
+
+            return unit.Level <= TrivialLevel;
+        }
+
+        public static bool IsStressful(this WoWUnit unit)
+        {
+            if (ScourgeBloom.CurrentWoWContext != WoWContext.Normal)
+                return true;
+
+            if (unit == null)
+                return false;
+
+            if (unit.IsPlayer)
+                return true;
+
+            var maxh = unit.MaxHealth;
+            return maxh > StyxWoW.Me.MaxHealth*2 || unit.Level > StyxWoW.Me.Level + (unit.Elite ? -6 : 2);
+        }
+
+        public static bool IsStressfulFight(int minHealth, int minTimeToDeath, int minAttackers, int maxAttackRange)
+        {
+            if (!ValidAttackUnit(StyxWoW.Me.CurrentTarget))
+                return false;
+
+            var mobCount = UnitsInCombatWithUsOrOurStuff(maxAttackRange).Count();
+            if (mobCount > 0)
+            {
+                if (mobCount >= minAttackers)
+                    return true;
+
+                if (StyxWoW.Me.HealthPercent <= minHealth)
+                {
+                    if (mobCount > 1)
+                        return true;
+                    if (StyxWoW.Me.CurrentTarget.IsPlayer)
+                        return true;
+                    if (StyxWoW.Me.CurrentTarget.MaxHealth > StyxWoW.Me.MaxHealth*2 &&
+                        StyxWoW.Me.CurrentTarget.CurrentHealth > StyxWoW.Me.CurrentHealth)
+                        return true;
+                    if (StyxWoW.Me.HealthPercent < minHealth/2)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
         #region Enemies
 
         #region EnemiesInRange
 
         public static int EnemiesInRange(int range)
         {
-            return UnfriendlyUnits.Count(u => u.Distance2DSqr <= range*range);
+            return NearbyUnfriendlyUnits.Count(u => u.Distance2DSqr <= range*range);
+
+            //return UnfriendlyUnits.Count(u => u.Distance2DSqr <= range*range);
         }
 
         #endregion EnemiesInRange
 
         public static int EnemiesAroundTarget(WoWUnit target, int range)
         {
-            return UnfriendlyUnits.Count(u => u.Location.Distance(target.Location) <= range);
+            return NearbyUnfriendlyUnits.Count(u => u.Location.Distance(target.Location) <= range);
+
+            //return UnfriendlyUnits.Count(u => u.Location.Distance(target.Location) <= range);
         }
 
         public static bool EnemyAdd
         {
-            get { return UnfriendlyUnits.Any(u => u.IsTargetingMeOrPet && StyxWoW.Me.CurrentTarget != u); }
+            get { return NearbyUnfriendlyUnits.Any(u => u.IsTargetingMeOrPet && StyxWoW.Me.CurrentTarget != u); }
+
+            //get { return UnfriendlyUnits.Any(u => u.IsTargetingMeOrPet && StyxWoW.Me.CurrentTarget != u); }
         }
 
         #region EnemyUnitsSub40
@@ -404,7 +599,7 @@ namespace ScourgeBloom.Helpers
         }
 
         /// <summary>
-        /// Checks the active aura by the name on unit.
+        ///     Checks the active aura by the name on unit.
         /// </summary>
         /// <param name="unit"> The unit to check the active auras for. </param>
         /// <param name="aura"> The name of the aura in English. </param>
@@ -468,7 +663,7 @@ namespace ScourgeBloom.Helpers
         }
 
         /// <summary>
-        ///  Returns the timeleft of an aura by TimeSpan. Return TimeSpan.Zero if the aura doesn't exist.
+        ///     Returns the timeleft of an aura by TimeSpan. Return TimeSpan.Zero if the aura doesn't exist.
         /// </summary>
         /// <param name="auraName"> The name of the aura in English. </param>
         /// <param name="onUnit"> The unit to check the aura for. </param>
@@ -479,13 +674,19 @@ namespace ScourgeBloom.Helpers
             if (onUnit == null)
                 return TimeSpan.Zero;
 
-            WoWAura wantedAura =
-                onUnit.GetAllAuras().Where(a => a != null && a.Name == auraName && a.TimeLeft > TimeSpan.Zero && (!fromMyAura || a.CreatorGuid == StyxWoW.Me.Guid)).FirstOrDefault();
+            var wantedAura =
+                onUnit.GetAllAuras()
+                    .Where(
+                        a =>
+                            a != null && a.Name == auraName && a.TimeLeft > TimeSpan.Zero &&
+                            (!fromMyAura || a.CreatorGuid == StyxWoW.Me.Guid))
+                    .FirstOrDefault();
 
             return wantedAura != null ? wantedAura.TimeLeft : TimeSpan.Zero;
         }
 
-        public static TimeSpan GetAuraStacksAndTimeLeft(this WoWUnit onUnit, string auraName, out uint stackCount, bool fromMyAura = true)
+        public static TimeSpan GetAuraStacksAndTimeLeft(this WoWUnit onUnit, string auraName, out uint stackCount,
+            bool fromMyAura = true)
         {
             if (onUnit == null)
             {
@@ -493,8 +694,13 @@ namespace ScourgeBloom.Helpers
                 return TimeSpan.Zero;
             }
 
-            WoWAura wantedAura =
-                onUnit.GetAllAuras().Where(a => a != null && a.Name == auraName && a.TimeLeft > TimeSpan.Zero && (!fromMyAura || a.CreatorGuid == StyxWoW.Me.Guid)).FirstOrDefault();
+            var wantedAura =
+                onUnit.GetAllAuras()
+                    .Where(
+                        a =>
+                            a != null && a.Name == auraName && a.TimeLeft > TimeSpan.Zero &&
+                            (!fromMyAura || a.CreatorGuid == StyxWoW.Me.Guid))
+                    .FirstOrDefault();
 
             if (wantedAura == null)
             {
@@ -502,7 +708,7 @@ namespace ScourgeBloom.Helpers
                 return TimeSpan.Zero;
             }
 
-            stackCount = Math.Max( 1, wantedAura.StackCount);
+            stackCount = Math.Max(1, wantedAura.StackCount);
             return wantedAura.TimeLeft;
         }
 
@@ -511,18 +717,23 @@ namespace ScourgeBloom.Helpers
             if (onUnit == null)
                 return TimeSpan.Zero;
 
-            WoWAura wantedAura = onUnit.GetAllAuras()
-                .Where(a => a.SpellId == auraID && a.TimeLeft > TimeSpan.Zero && (!fromMyAura || a.CreatorGuid == StyxWoW.Me.Guid)).FirstOrDefault();
+            var wantedAura = onUnit.GetAllAuras()
+                .Where(
+                    a =>
+                        a.SpellId == auraID && a.TimeLeft > TimeSpan.Zero &&
+                        (!fromMyAura || a.CreatorGuid == StyxWoW.Me.Guid)).FirstOrDefault();
 
             return wantedAura != null ? wantedAura.TimeLeft : TimeSpan.Zero;
         }
 
         public static uint GetAuraStacks(this WoWUnit onUnit, string auraName, bool fromMyAura = true)
         {
-	        WoWAura wantedAura =
-		        onUnit?.GetAllAuras()
-			        .FirstOrDefault(
-				        a => a.Name == auraName && a.TimeLeft > TimeSpan.Zero && (!fromMyAura || a.CreatorGuid == StyxWoW.Me.Guid));
+            var wantedAura =
+                onUnit?.GetAllAuras()
+                    .FirstOrDefault(
+                        a =>
+                            a.Name == auraName && a.TimeLeft > TimeSpan.Zero &&
+                            (!fromMyAura || a.CreatorGuid == StyxWoW.Me.Guid));
 
             if (wantedAura == null)
                 return 0;
@@ -535,8 +746,13 @@ namespace ScourgeBloom.Helpers
             if (onUnit == null)
                 return 0;
 
-            WoWAura wantedAura =
-                onUnit.GetAllAuras().Where(a => a.SpellId == spellId && a.TimeLeft > TimeSpan.Zero && (!fromMyAura || a.CreatorGuid == StyxWoW.Me.Guid)).FirstOrDefault();
+            var wantedAura =
+                onUnit.GetAllAuras()
+                    .Where(
+                        a =>
+                            a.SpellId == spellId && a.TimeLeft > TimeSpan.Zero &&
+                            (!fromMyAura || a.CreatorGuid == StyxWoW.Me.Guid))
+                    .FirstOrDefault();
 
             if (wantedAura == null)
                 return 0;
@@ -700,95 +916,5 @@ namespace ScourgeBloom.Helpers
         }
 
         #endregion Mechanic
-
-        public static bool IsEvading(this WoWUnit u)
-        {
-            return (u.Flags & 0x10) != 0;
-        }
-
-        /// <summary>
-        /// Checks if target is a Critter that can safely be ignored
-        /// </summary>
-        /// <param name="u"></param>
-        /// WoWUnit to check
-        /// <returns>true: can ignore safely, false: treat as attackable enemy</returns>
-        public static bool IsIgnorableCritter(this WoWUnit u)
-        {
-            if (!u.IsCritter)
-                return false;
-
-            // good enemy if BotPoi
-            if (Styx.CommonBot.POI.BotPoi.Current.Guid == u.Guid && Styx.CommonBot.POI.BotPoi.Current.Type == Styx.CommonBot.POI.PoiType.Kill)
-                return false;
-
-            // good enemy if Targeting
-            if (Targeting.Instance.TargetList.Contains(u))
-                return false;
-
-            // good enemy if Threat towards us
-            if (u.ThreatInfo.ThreatValue != 0 && u.IsTargetingMyRaidMember)
-                return false;
-
-            // Nah, just a harmless critter
-            return true;
-        }
-
-        public static bool IsTrivial(this WoWUnit unit)
-        {
-            if (SingularRoutine.CurrentWoWContext != WoWContext.Normal)
-                return false;
-
-            if (unit == null)
-                return false;
-
-            if (unit.Elite)
-                return unit.Level <= TrivialElite;
-
-            return unit.Level <= TrivialLevel;
-        }
-
-        public static bool IsStressful(this WoWUnit unit)
-        {
-            if (SingularRoutine.CurrentWoWContext != WoWContext.Normal)
-                return true;
-
-            if (unit == null)
-                return false;
-
-            if (unit.IsPlayer)
-                return true;
-
-            uint maxh = unit.MaxHealth;
-            return maxh > StyxWoW.Me.MaxHealth * 2 || unit.Level > (StyxWoW.Me.Level + (unit.Elite ? -6 : 2));
-        }
-
-        public static bool IsStressfulFight(int minHealth, int minTimeToDeath, int minAttackers, int maxAttackRange)
-        {
-            if (!Unit.ValidUnit(StyxWoW.Me.CurrentTarget))
-                return false;
-
-            int mobCount = Unit.UnitsInCombatWithUsOrOurStuff(maxAttackRange).Count();
-            if (mobCount > 0)
-            {
-                if (mobCount >= minAttackers)
-                    return true;
-
-                if (StyxWoW.Me.HealthPercent <= minHealth)
-                {
-                    if (mobCount > 1)
-                        return true;
-                    if (StyxWoW.Me.CurrentTarget.TimeToDeath(-1) > minTimeToDeath)
-                        return true;
-                    if (StyxWoW.Me.CurrentTarget.IsPlayer)
-                        return true;
-                    if (StyxWoW.Me.CurrentTarget.MaxHealth > (StyxWoW.Me.MaxHealth * 2) && StyxWoW.Me.CurrentTarget.CurrentHealth > StyxWoW.Me.CurrentHealth)
-                        return true;
-                    if (StyxWoW.Me.HealthPercent < minHealth / 2)
-                        return true;
-                }
-            }
-
-            return false;
-        }
     }
 }

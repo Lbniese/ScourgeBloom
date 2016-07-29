@@ -46,7 +46,7 @@ namespace ScourgeBloom.Helpers
         {
             get
             {
-                var cachedSourceGuid = SourceGuid.IsValid ? SourceGuid : Helpers.Spell.LastCastTarget.Guid;
+                var cachedSourceGuid = SourceGuid.IsValid ? SourceGuid : Helpers.Spell.LastSpellTarget;
                 return
                     ObjectManager.GetObjectsOfType<WoWUnit>(true, true).FirstOrDefault(
                         o => o.IsValid && (o.Guid == cachedSourceGuid || o.Guid == cachedSourceGuid));

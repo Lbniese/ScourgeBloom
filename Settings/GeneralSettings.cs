@@ -278,6 +278,28 @@ namespace ScourgeBloom.Settings
         [Browsable(true)]
         public bool ExtendedLogging { get; set; }
 
+        [Setting, DefaultValue(true), Category("Debugging")]
+        [Browsable(true)]
+        public bool Debug { get; set; }
+
+        [Setting, ReadOnly(false)]
+        [DefaultValue(0)]
+        [Category("General")]
+        [DisplayName("Disable Spells with Cooldown (secs)")]
+        [Description(
+            "Prevent the CR from casting any spell with this cooldown or greater; set to 0 to allow the CR to cast all spells"
+            )]
+        public int DisableSpellsWithCooldown { get; set; }
+
+        [Setting, ReadOnly(false)]
+        [DefaultValue(true)]
+        [Category("Movement")]
+        [DisplayName("Use Cast While Moving Buffs")]
+        [Description(
+            "True: attempting to use a non-instant while moving will first cast Spiritwalker's Grace, Ice Floes, Kil'Jaedan's Cunning, etc."
+            )]
+        public bool UseCastWhileMovingBuffs { get; set; }
+
         [Setting, DefaultValue(true)]
         [Category("Targeting")]
         [DisplayName(@"Target World PVP Regardless")]

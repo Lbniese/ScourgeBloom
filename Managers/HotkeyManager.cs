@@ -5,7 +5,7 @@
  *
  * Licensed under Microsoft Reference Source License (Ms-RSL)
  */
- 
+
 using System;
 using System.Windows.Forms;
 using ScourgeBloom.Helpers;

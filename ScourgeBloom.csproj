@@ -62,7 +62,6 @@
     <Content Include="Resources\700by250.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class\DeathKnight\Blood.cs" />
     <Compile Include="Class\DeathKnight\Frost.cs" />
     <Compile Include="Class\DeathKnight\Unholy.cs" />
     <Compile Include="Class\Defensives.cs" />
@@ -72,6 +71,7 @@
     <Compile Include="Class\Trinkets.cs" />
     <Compile Include="Context.cs" />
     <Compile Include="Helpers\BossMechs.cs" />
+    <Compile Include="Helpers\Clusters.cs" />
     <Compile Include="Helpers\CombatLog.cs" />
     <Compile Include="Helpers\DeadlyBossMods.cs" />
     <Compile Include="Helpers\Enumeration.cs" />
@@ -83,7 +83,6 @@
     <Compile Include="Helpers\KeyboardPolling.cs" />
     <Compile Include="Helpers\Log.cs" />
     <Compile Include="Managers\HotkeyManager.cs" />
-    <Compile Include="Managers\RuneManager.cs" />
     <Compile Include="Helpers\PvP.cs" />
     <Compile Include="Helpers\Spell.cs" />
     <Compile Include="Helpers\TimeToDeath.cs" />
@@ -106,6 +105,7 @@
     </Compile>
     <Compile Include="Settings\DeathKnight.cs" />
     <Compile Include="Settings\GeneralSettings.cs" />
+    <Compile Include="Utilities\EventHandlers.cs" />
     <Compile Include="Utilities\SpiritHandler.cs" />
     <Compile Include="Utilities\StatCounter.cs" />
   </ItemGroup>

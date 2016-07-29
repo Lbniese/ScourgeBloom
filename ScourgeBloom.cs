@@ -18,6 +18,7 @@ using ScourgeBloom.Settings;
 using ScourgeBloom.Utilities;
 using Styx;
 using Styx.Common;
+using Styx.Common.Helpers;
 using Styx.CommonBot;
 using Styx.CommonBot.POI;
 using Styx.CommonBot.Routines;
@@ -31,7 +32,7 @@ namespace ScourgeBloom
 {
     public class ScourgeBloom : CombatRoutine
     {
-        private static readonly WoWContext _lastContext = WoWContext.None;
+        private static readonly WoWContext LastContext = WoWContext.None;
 
         internal static WoWContext CachedContext = WoWContext.None;
 
@@ -53,15 +54,24 @@ namespace ScourgeBloom
 
         #endregion InstDiff
 
+        private static readonly WaitTimer WaitForLatencyCheck = new WaitTimer(TimeSpan.FromSeconds(5));
+
         protected static readonly LocalPlayer Me = StyxWoW.Me;
 
-        public static readonly Version Version = new Version(1, 4, 25);
+        public static readonly Version Version = new Version(1, 4, 26);
 
         private static bool _initialized;
+
+        private static int _pulsePhase;
+
+        private static readonly WaitTimer PollInterval = new WaitTimer(TimeSpan.FromSeconds(10));
+        private static uint _lastFps;
 
 #pragma warning disable 169
         private bool _contextEventSubscribed;
 #pragma warning restore 169
+
+        public static uint Latency { get; set; }
 
         internal static WoWContext ForcedContext { get; set; }
 
@@ -121,7 +131,7 @@ namespace ScourgeBloom
 
             if (ForcedContext != WoWContext.None)
             {
-                if (_lastContext != ForcedContext)
+                if (LastContext != ForcedContext)
                     Logging.Write(Colors.YellowGreen, "[ScourgeBloom] Context: forcing use of {0} behaviors",
                         ForcedContext);
 
@@ -132,7 +142,7 @@ namespace ScourgeBloom
 
             if (map.IsBattleground || map.IsArena)
             {
-                if (_lastContext != WoWContext.Battlegrounds)
+                if (LastContext != WoWContext.Battlegrounds)
                     Logging.Write(Colors.YellowGreen,
                         "[ScourgeBloom] Context: using {0} behaviors since in battleground/arena",
                         WoWContext.Battlegrounds);
@@ -144,7 +154,7 @@ namespace ScourgeBloom
             {
                 if (Me.IsInInstance)
                 {
-                    if (_lastContext != WoWContext.Instances)
+                    if (LastContext != WoWContext.Instances)
                         Logging.Write(Colors.YellowGreen,
                             "[ScourgeBloom] Context: using {0} behaviors since in group inside an Instance",
                             WoWContext.Instances);
@@ -156,7 +166,7 @@ namespace ScourgeBloom
                 const int zoneWintergrasp = 4197;
                 if (Me.ZoneId == zoneAshran || Me.ZoneId == zoneWintergrasp)
                 {
-                    if (_lastContext != WoWContext.Battlegrounds)
+                    if (LastContext != WoWContext.Battlegrounds)
                         Logging.Write(Colors.YellowGreen,
                             "[ScourgeBloom] Context: using {0} behaviors since in group in Zone: {1} #{2}",
                             WoWContext.Battlegrounds, Me.RealZoneText, Me.ZoneId);
@@ -169,7 +179,7 @@ namespace ScourgeBloom
                     WoWPartyMember.GroupRole.Healer | WoWPartyMember.GroupRole.Tank | WoWPartyMember.GroupRole.Damage;
                 if ((Me.Role & hasGroupRoleMask) != WoWPartyMember.GroupRole.None)
                 {
-                    if (_lastContext != WoWContext.Instances)
+                    if (LastContext != WoWContext.Instances)
                         Logging.Write(Colors.YellowGreen,
                             "[ScourgeBloom] Context: using {0} behaviors since in group as {1}",
                             WoWContext.Instances, Me.Role & hasGroupRoleMask);
@@ -177,14 +187,14 @@ namespace ScourgeBloom
                     return WoWContext.Instances;
                 }
 
-                if (_lastContext != WoWContext.Normal)
+                if (LastContext != WoWContext.Normal)
                     Logging.Write(Colors.YellowGreen,
                         "[ScourgeBloom] Context: no Role assigned (Tank/Healer/Damage), so using Normal (SOLO) behaviors");
 
                 return WoWContext.Normal;
             }
 
-            if (_lastContext != WoWContext.Normal)
+            if (LastContext != WoWContext.Normal)
                 Logging.Write(Colors.YellowGreen,
                     "[ScourgeBloom] Context: using Normal (SOLO) behaviors since not in group");
 
@@ -446,6 +456,20 @@ namespace ScourgeBloom
             {
                 if (Paused) return;
 
+                _pulsePhase++;
+
+                if (_pulsePhase == 1)
+                {
+                    if (WaitForLatencyCheck.IsFinished)
+                    {
+                        Latency = StyxWoW.WoWClient.Latency;
+                        WaitForLatencyCheck.Reset();
+                    }
+
+
+                    UpdateDiagnosticFps();
+                }
+
                 if (Me.IsDead && GeneralSettings.Instance.AutoReleaseSpirit)
                 {
                     SpiritHandler.ReleaseSpirit();
@@ -488,6 +512,38 @@ namespace ScourgeBloom
             BotEvents.OnBotStopped += OnBotStopEvent;
 
             Lua.Events.AttachEvent("PLAYER_REGEN_DISABLED", OnCombatStarted);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
+        private static uint GetFps()
+        {
+            try
+            {
+                return (uint) Lua.GetReturnVal<float>("return GetFramerate()", 0);
+            }
+            catch
+            {
+                // ignored
+            }
+
+            return 0;
+        }
+
+        private static void UpdateDiagnosticFps()
+        {
+            if (GeneralSettings.Instance.Debug && PollInterval.IsFinished && Me.Combat)
+            {
+                var currFps = GetFps();
+                if (currFps != _lastFps)
+                {
+                    _lastFps = currFps;
+                    Logging.WriteDiagnostic("CombatPerfMon: FPS:{0} Latency:{1}", currFps, Latency);
+                }
+
+                PollInterval.Reset();
+            }
         }
 
         private static void OnCombatStarted(object sender, LuaEventArgs e)
