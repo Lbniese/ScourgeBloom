@@ -1,31 +1,8 @@
-/*
- * This file is part of the ScourgeBloom Combat Routine.
- *
- * Copyright (C) 2016 Lbniese <Lbniese@lupra.org>
- *
- * Licensed under Microsoft Reference Source License (Ms-RSL)
- */
-
-using System;
 using System.Collections.Generic;
 using System.Dynamic;
-using ScourgeBloom.Helpers;
 
 namespace ScourgeBloom
 {
-    public class WoWContextEventArg : EventArgs
-    {
-        public readonly WoWContext CurrentContext;
-        public readonly WoWContext PreviousContext;
-
-        public WoWContextEventArg(WoWContext currentContext, WoWContext prevContext)
-        {
-            CurrentContext = currentContext;
-            PreviousContext = prevContext;
-        }
-    }
-
-
     /// <summary>
     ///     class to dynamically keep Sequence/Selector content info
     ///     .. without having to define a new class everywhere

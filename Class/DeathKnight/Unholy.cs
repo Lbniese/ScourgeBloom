@@ -180,12 +180,12 @@ namespace ScourgeBloom.Class.DeathKnight
 
             // dark_transformation
             if (await Spell.CoCast(S.DarkTransformation, onunit,
-                Me.GotAlivePet && !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation") && !Me.HasActiveAura("Dark Transformation")))
+                Capabilities.IsCooldownUsageAllowed && Me.GotAlivePet && !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation") && !Me.HasActiveAura("Dark Transformation")))
                 return true;
 
             // blighted_rune_weapon
             if (await Spell.CoCast(S.BlightedRuneWeapon, Me,
-                Me.GotTarget && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange)) return true;
+                Capabilities.IsCooldownUsageAllowed && Me.GotTarget && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange)) return true;
 
             // run_action_list,name=valkyr,if=talent.dark_arbiter.enabled&pet.valkyr_battlemaiden.active
             //if (await ValkyrActive(onunit,
@@ -244,9 +244,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 1)) return true;
 
             // clawing_shadows,if=debuff.soul_reaper.up&debuff.festering_wound.stack>=1
-            if (
-                await
-                    Spell.CoCast(S.ScourgeStrike, onunit,
+            if (await Spell.CoCast(S.ClawingShadows, onunit,
                         SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
                         SoulReaperSelected() && Me.CurrentTarget.HasMyAura(S.AuraSoulReaper) &&
                         Me.CurrentTarget.HasMyAura(S.AuraFesteringWound) &&
@@ -367,9 +365,6 @@ namespace ScourgeBloom.Class.DeathKnight
             //if (await Spell.CoCast(S.UnholyPresence, Me, !Me.HasAura(S.UnholyPresence)))
             //    return true;
 
-            if (await Spell.CoCast(S.HornofWinter, Me, !Me.HasPartyBuff(Units.Stat.AttackPower)))
-                return true;
-
             if (
                 await
                     Spell.CoCast(S.RaiseDead, Me,
@@ -436,10 +431,7 @@ namespace ScourgeBloom.Class.DeathKnight
             if (SpellManager.GlobalCooldown)
                 return false;
 
-            //if (await Spell.CoCast(S.UnholyPresence, Me, !Me.HasAura(S.UnholyPresence)))
-            //    return true;
-
-            if (await Spell.CoCast(S.RaiseDead, Me, !Me.GotAlivePet && Capabilities.IsPetSummonAllowed))
+            if (await Spell.CoCast(S.RaiseDead, Me, !Me.GotAlivePet && Capabilities.IsPetSummonAllowed && !Me.OnTaxi && !Me.Mounted))
                 return true;
 
             await CommonCoroutines.SleepForLagDuration();
@@ -504,13 +496,13 @@ namespace ScourgeBloom.Class.DeathKnight
 
             //Custom - SingularBased LowbieRotation
             if (await Spell.CoCast(S.SummonGargoyle, onunit,
-                Me.CurrentTarget.IsStressful() && DeathKnightSettings.Instance.SummonGargoyleOnCd)) return true;
+                Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.IsStressful() && DeathKnightSettings.Instance.SummonGargoyleOnCd)) return true;
 
             if (await Spell.CoCast(S.Outbreak, onunit,
                 Me.CurrentTarget.GetAuraTimeLeft(S.AuraVirulentPlague).TotalSeconds < 1.8)) return true;
 
             if (await Spell.CoCast(S.DarkTransformation, onunit,
-                Me.GotAlivePet && !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation")))
+                Capabilities.IsCooldownUsageAllowed && Me.GotAlivePet && !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation")))
                 return true;
 
             if (await Spell.CoCast(S.FesteringStrike, onunit,
@@ -538,6 +530,11 @@ namespace ScourgeBloom.Class.DeathKnight
         {
             if (!reqs) return false;
 
+            // dark_transformation
+            if (await Spell.CoCast(S.DarkTransformation, onunit,
+                Capabilities.IsCooldownUsageAllowed && Me.GotAlivePet && !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation") && !Me.HasActiveAura("Dark Transformation")))
+                return true;
+
             // death_and_decay,if=spell_targets.death_and_decay>=2
             if (await Spell.CastOnGround(S.DeathandDecay, Me,
                 Me.GotTarget && Me.CurrentTarget.IsWithinMeleeRange && !Me.CurrentTarget.IsMoving &&
@@ -547,7 +544,7 @@ namespace ScourgeBloom.Class.DeathKnight
             // epidemic,if=spell_targets.epidemic>4
             if (
                 await
-                    Spell.CoCast(S.Epidemic, onunit, Me.CurrentTarget.IsWithinMeleeRange && Units.EnemiesInRange(10) > 4))
+                    Spell.CoCast(S.Epidemic, onunit, Capabilities.IsCooldownUsageAllowed && Capabilities.IsAoeAllowed && Me.CurrentTarget.IsWithinMeleeRange && Units.EnemiesInRange(10) > 4))
                 return true;
 
             // scourge_strike,if=spell_targets.scourge_strike>=2&(dot.death_and_decay.ticking|dot.defile.ticking)
@@ -570,9 +567,24 @@ namespace ScourgeBloom.Class.DeathKnight
             if (
                 await
                     Spell.CoCast(S.Epidemic, onunit,
-                        EpidemicSelected() && Me.CurrentTarget.IsWithinMeleeRange && Units.EnemiesInRange(10) > 2))
+                        Capabilities.IsCooldownUsageAllowed && Capabilities.IsAoeAllowed && EpidemicSelected() && Me.CurrentTarget.IsWithinMeleeRange && Units.EnemiesInRange(10) > 2))
                 return true;
 
+            if (await Spell.CoCast(S.FesteringStrike, onunit,
+                Me.CurrentTarget.IsWithinMeleeRange)) return true;
+
+            if (await Spell.CoCast(S.DeathCoil, onunit,
+                            ShadowInfusionSelected() && DarkArbiterSelected() &&
+                            !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation") &&
+                            Spell.GetCooldownLeft(S.DarkArbiter).TotalSeconds > 15)) return true;
+
+            if (await Spell.CoCast(S.DeathCoil, onunit, Me.CurrentRunicPower > 60)) return true;
+
+            if (await Spell.CoCast(S.ClawingShadows, onunit,
+                Me.CurrentTarget.IsWithinMeleeRange)) return true;
+
+            if (await Spell.CoCast(S.ScourgeStrike, onunit,
+                Me.CurrentTarget.IsWithinMeleeRange)) return true;
 
             await CommonCoroutines.SleepForLagDuration();
 
