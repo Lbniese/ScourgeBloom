@@ -23,7 +23,6 @@ using Styx.TreeSharp;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 using S = ScourgeBloom.Lists.SpellLists;
-using TTD = ScourgeBloom.Helpers.TimeToDeath.TimeToDeathExtension;
 
 namespace ScourgeBloom.Class.DeathKnight
 {
@@ -70,13 +69,11 @@ namespace ScourgeBloom.Class.DeathKnight
             if (!Me.IsAlive)
                 return false;
 
-            if (await Spell.CoCast(S.FrostPresence, Me, !Me.HasAura(S.FrostPresence)))
-                return true;
+            //if (await Spell.CoCast(S.FrostPresence, Me, !Me.HasAura(S.FrostPresence)))
+            //    return true;
 
-            if (
-                await
-                    Spell.CoCast(S.HornofWinter, Me, HornofWinterSelected() && !Me.HasPartyBuff(Units.Stat.AttackPower)))
-                return true;
+            //if (await Spell.CoCast(S.HornofWinter, Me, HornofWinterSelected() && !Me.HasPartyBuff(Units.Stat.AttackPower)))
+            //    return true;
 
             if (GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.Attackable &&
                 Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight && Me.IsSafelyFacing(Me.CurrentTarget))
@@ -91,7 +88,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 //    return await Spell.CoCast(S.Outbreak, SpellManager.CanCast(S.Outbreak));
 
                 if (Me.GotTarget && Me.CurrentTarget.Attackable && Me.IsSafelyFacing(Me.CurrentTarget) &&
-                    Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight &&
+                    Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight &&
                     Spell.GetCooldownLeft(S.Outbreak).TotalSeconds > 1)
                     return await Spell.CoCast(S.HowlingBlast, SpellManager.CanCast(S.HowlingBlast));
             }
@@ -149,12 +146,10 @@ namespace ScourgeBloom.Class.DeathKnight
             if (SpellManager.GlobalCooldown)
                 return false;
 
-            if (await Spell.CoCast(S.FrostPresence, Me, !Me.HasAura(S.FrostPresence)))
-                return true;
+            //if (await Spell.CoCast(S.FrostPresence, Me, !Me.HasAura(S.FrostPresence)))
+            //    return true;
 
-            if (
-                await
-                    Spell.CoCast(S.HornofWinter, Me, HornofWinterSelected() && !Me.HasPartyBuff(Units.Stat.AttackPower)))
+            if (await Spell.CoCast(S.HornofWinter, Me, Capabilities.IsCooldownUsageAllowed && Me.GotTarget && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange && HornofWinterSelected()))
                 return true;
 
             await CommonCoroutines.SleepForLagDuration();
@@ -210,7 +205,6 @@ namespace ScourgeBloom.Class.DeathKnight
             if (Paused) return false;
 
             if (!reqs) return false;
-            if (await Spell.CoCast(S.ArmyoftheDead, Capabilities.IsCooldownUsageAllowed)) return true;
 
             await CommonCoroutines.SleepForLagDuration();
 
@@ -272,13 +266,19 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.CurrentTarget.CanInterruptCurrentSpellCast)
                 await Interrupts.StrangulateMethod();
 
-            if (await LowbieRotation(onunit, Me.Combat && Me.GotTarget && Me.Level < 100)) return true;
+            //if (await LowbieRotation(onunit, Me.Combat && Me.GotTarget && Me.Level < 100)) return true;
+
+            if (await LowbieRotation(onunit, Me.Combat && Me.GotTarget && Me.Level < 100))
+            {
+                return true;
+            }
 
             // Actual Routine
             // pillar_of_frost
             await Spell.CoCast(S.PillarofFrost,
                 Capabilities.IsCooldownUsageAllowed && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange &&
-                Me.CurrentTarget.Attackable && DeathKnightSettings.Instance.PillarofFrostOnCd);
+                Me.CurrentTarget.Attackable && DeathKnightSettings.Instance.PillarofFrostOnCd &&
+                !Me.HasActiveAura("Pillar of Frost"));
 
             // sindragosas_fury
             if (await Spell.CoCast(S.SindragosasFury, Me,
@@ -286,15 +286,13 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.CurrentTarget.Attackable)) return true;
 
             // obliteration
-            await
-                Spell.CoCast(S.Obliteration, Me,
+            await Spell.CoCast(S.Obliteration, Me,
                     Capabilities.IsCooldownUsageAllowed && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange &&
                     Me.CurrentTarget.Attackable);
 
             // breath_of_sindragosa,if=runic_power>=80
-            await
-                Spell.CoCast(S.BreathofSindragosa, onunit,
-                    Me.GotTarget && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentRunicPower >= 80);
+            await Spell.CoCast(S.BreathofSindragosa, onunit,
+                    Capabilities.IsCooldownUsageAllowed && Me.GotTarget && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentRunicPower >= 80);
 
             // run_action_list,name=bos,if=dot.breath_of_sindragosa.ticking
             if (await single_target_bos(onunit, Me.HasAura("Breath of Sindragosa")))
@@ -333,95 +331,81 @@ namespace ScourgeBloom.Class.DeathKnight
         {
             if (!reqs) return false;
             // howling_blast,target_if=!dot.frost_fever.ticking
-            if (
-                await
-                    Spell.CoCast(S.HowlingBlast, onunit,
-                        Me.CurrentTarget.Distance <= 30 && !Me.CurrentTarget.HasMyAura(S.AuraFrostFever))) return true;
+            if (await Spell.CoCast(S.HowlingBlast, onunit,
+                Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 && !Me.CurrentTarget.HasMyAura(S.AuraFrostFever))) return true;
 
             // howling_blast,if=buff.rime.react
-            if (await Spell.CoCast(S.HowlingBlast, onunit, Me.CurrentTarget.Distance <= 30 && Me.HasAura(S.AuraRime)))
+            if (await Spell.CoCast(S.HowlingBlast, onunit, Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 && Me.HasAura(S.AuraRime)))
                 return true;
 
             // frost_strike,if=runic_power>=80
-            if (
-                await
-                    Spell.CoCast(S.FrostStrike, onunit,
-                        Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentRunicPower >= 80)) return true;
+            if (await Spell.CoCast(S.FrostStrike, onunit,
+                Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentRunicPower >= 80)) return true;
 
             // glacial_advance
-            if (await Spell.CoCast(S.GlacialAdvance, Me, Me.CurrentTarget.IsWithinMeleeRange)) return true;
+            if (await Spell.CoCast(S.GlacialAdvance, Me, Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.IsWithinMeleeRange)) return true;
 
             // frostscythe,if=buff.killing_machine.react|spell_targets.frostscythe>=4
-            if (
-                await
-                    Spell.CoCast(S.Frostscythe, onunit,
-                        Me.CurrentTarget.Distance <= 8 &&
-                        (Me.HasAura(S.AuraKillingMachine) || Units.EnemiesInRange(8) >= 4))) return true;
+            if (await Spell.CoCast(S.Frostscythe, onunit,
+                Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.Distance <= 8 &&
+                (Me.HasAura(S.AuraKillingMachine) || Units.EnemiesInRange(8) >= 4))) return true;
 
             // obliterate,if=buff.killing_machine.react
-            if (
-                await
-                    Spell.CoCast(S.Obliterate, onunit,
-                        Me.CurrentTarget.IsWithinMeleeRange && Me.HasAura(S.AuraKillingMachine))) return true;
+            if (await Spell.CoCast(S.Obliterate, onunit,
+                Me.CurrentTarget.IsWithinMeleeRange && Me.HasAura(S.AuraKillingMachine))) return true;
 
             // remorseless_winter,if=spell_targets.remorseless_winter>=2
-            if (await Spell.CoCast(S.RemorselessWinter, Me, Units.EnemiesInRange(4) >= 2))
+            if (await Spell.CoCast(S.RemorselessWinter, Me, Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed && Units.EnemiesInRange(4) >= 2))
                 return true; // How wide is the range?
 
             // obliterate
             if (await Spell.CoCast(S.Obliterate, onunit, Me.CurrentTarget.IsWithinMeleeRange)) return true;
 
             // frostscythe,if=talent.frozen_pulse.enabled
-            if (await Spell.CoCast(S.Frostscythe, Me, Me.CurrentTarget.Distance <= 8 && FrozenPulseSelected()))
+            if (await Spell.CoCast(S.Frostscythe, Me, Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.Distance <= 8 && FrozenPulseSelected()))
                 return true;
 
             // howling_blast,if=talent.frozen_pulse.enabled
-            if (await Spell.CoCast(S.HowlingBlast, Me, Me.CurrentTarget.Distance <= 30 && FrozenPulseSelected()))
+            if (await Spell.CoCast(S.HowlingBlast, Me, Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 && FrozenPulseSelected()))
                 return true;
 
             // frost_strike,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
-            if (
-                await
-                    Spell.CoCast(S.FrostStrike, onunit,
-                        Me.CurrentTarget.IsWithinMeleeRange && BoSSelected() &&
-                        Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
+            if (await Spell.CoCast(S.FrostStrike, onunit,
+                Me.CurrentTarget.IsWithinMeleeRange && BoSSelected() &&
+                Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
 
             // frost_strike,if=!talent.breath_of_sindragosa.enabled
             if (await Spell.CoCast(S.FrostStrike, onunit, Me.CurrentTarget.IsWithinMeleeRange && !BoSSelected()))
                 return true;
 
             // horn_of_winter,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
-            if (
-                await
-                    Spell.CoCast(S.HornofWinter, Me,
-                        HornofWinterSelected() && BoSSelected() &&
-                        Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
+            if (await Spell.CoCast(S.HornofWinter, Me,
+                Capabilities.IsCooldownUsageAllowed && HornofWinterSelected() && BoSSelected() &&
+                Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
 
             // empower_rune_weapon,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
-            if (
-                await
-                    Spell.CoCast(S.EmpowerRuneWeapon, Me,
-                        BoSSelected() && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
+            if (await Spell.CoCast(S.EmpowerRuneWeapon, Me,
+                Capabilities.IsCooldownUsageAllowed && BoSSelected() && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15 &&
+                !Me.HasActiveAura("Empower Rune Weapon"))) return true;
 
             // hungering_rune_weapon,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
-            if (
-                await
-                    Spell.CoCast(S.HungeringRuneWeapon, Me,
-                        HungeringRuneWeaponSelected() && Me.GotTarget && Me.CurrentTarget.Distance <= 8 && BoSSelected() &&
-                        Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
+            if (await Spell.CoCast(S.HungeringRuneWeapon, Me,
+                Capabilities.IsCooldownUsageAllowed && HungeringRuneWeaponSelected() && Me.GotTarget && Me.CurrentTarget.Distance <= 8 && BoSSelected() &&
+                Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15 &&
+                !Me.HasActiveAura("Hungering Rune Weapon")))
+                return true;
 
             // horn_of_winter,if=!talent.breath_of_sindragosa.enabled
-            if (await Spell.CoCast(S.HornofWinter, Me, HornofWinterSelected() && !BoSSelected())) return true;
+            if (await Spell.CoCast(S.HornofWinter, Me, Capabilities.IsCooldownUsageAllowed && HornofWinterSelected() && !BoSSelected())) return true;
 
             // empower_rune_weapon,if=!talent.breath_of_sindragosa.enabled
-            if (await Spell.CoCast(S.EmpowerRuneWeapon, Me, !BoSSelected())) return true;
+            if (await Spell.CoCast(S.EmpowerRuneWeapon, Me, Capabilities.IsCooldownUsageAllowed && !BoSSelected() && !Me.HasActiveAura("Empower Rune Weapon")))
+                return true;
 
             // hungering_rune_weapon,if=!talent.breath_of_sindragosa.enabled
-            if (
-                await
-                    Spell.CoCast(S.HungeringRuneWeapon, Me,
-                        HungeringRuneWeaponSelected() && Me.GotTarget && Me.CurrentTarget.Distance <= 8 &&
-                        !BoSSelected())) return true;
+            if (await Spell.CoCast(S.HungeringRuneWeapon, Me,
+                Capabilities.IsCooldownUsageAllowed && HungeringRuneWeaponSelected() && Me.GotTarget && Me.CurrentTarget.Distance <= 8 &&
+                !BoSSelected() && !Me.HasActiveAura("Hungering Rune Weapon"))) return true;
 
             await CommonCoroutines.SleepForLagDuration();
 
@@ -432,56 +416,46 @@ namespace ScourgeBloom.Class.DeathKnight
         {
             if (!reqs) return false;
             // howling_blast,target_if=!dot.frost_fever.ticking
-            if (
-                await
-                    Spell.CoCast(S.HowlingBlast, onunit,
-                        Me.CurrentTarget.Distance <= 30 && !Me.CurrentTarget.HasMyAura(S.AuraFrostFever))) return true;
+            if ( await  Spell.CoCast(S.HowlingBlast, onunit,
+                        Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 && !Me.CurrentTarget.HasMyAura(S.AuraFrostFever))) return true;
 
             // howling_blast,if=buff.rime.react
-            if (await Spell.CoCast(S.HowlingBlast, onunit, Me.CurrentTarget.Distance <= 30 && Me.HasAura(S.AuraRime)))
+            if (await Spell.CoCast(S.HowlingBlast, onunit, Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 && Me.HasAura(S.AuraRime)))
                 return true;
 
             // frost_strike,if=runic_power>=80
-            if (
-                await
-                    Spell.CoCast(S.FrostStrike, onunit,
+            if (await Spell.CoCast(S.FrostStrike, onunit,
                         Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentRunicPower >= 80)) return true;
 
             // glacial_advance
-            if (await Spell.CoCast(S.GlacialAdvance, Me, Me.CurrentTarget.IsWithinMeleeRange)) return true;
+            if (await Spell.CoCast(S.GlacialAdvance, Me, Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.IsWithinMeleeRange)) return true;
 
             // frostscythe,if=buff.killing_machine.react|spell_targets.frostscythe>=4
-            if (
-                await
-                    Spell.CoCast(S.Frostscythe, onunit,
-                        Me.CurrentTarget.Distance <= 8 &&
+            if (await Spell.CoCast(S.Frostscythe, onunit,
+                        Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.Distance <= 8 &&
                         (Me.HasAura(S.AuraKillingMachine) || Units.EnemiesInRange(8) >= 4))) return true;
 
             // obliterate,if=buff.killing_machine.react
-            if (
-                await
-                    Spell.CoCast(S.Obliterate, onunit,
+            if (await Spell.CoCast(S.Obliterate, onunit,
                         Me.CurrentTarget.IsWithinMeleeRange && Me.HasAura(S.AuraKillingMachine))) return true;
 
             // remorseless_winter,if=spell_targets.remorseless_winter>=2
-            if (await Spell.CoCast(S.RemorselessWinter, Me, Units.EnemiesInRange(4) >= 2))
+            if (await Spell.CoCast(S.RemorselessWinter, Me, Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed && Units.EnemiesInRange(4) >= 2))
                 return true; // How wide is the range?
 
             // obliterate
             if (await Spell.CoCast(S.Obliterate, onunit, Me.CurrentTarget.IsWithinMeleeRange)) return true;
 
             // frostscythe,if=talent.frozen_pulse.enabled
-            if (await Spell.CoCast(S.Frostscythe, Me, Me.CurrentTarget.Distance <= 8 && FrozenPulseSelected()))
+            if (await Spell.CoCast(S.Frostscythe, Me, Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.Distance <= 8 && FrozenPulseSelected()))
                 return true;
 
             // howling_blast,if=talent.frozen_pulse.enabled
-            if (await Spell.CoCast(S.HowlingBlast, Me, Me.CurrentTarget.Distance <= 30 && FrozenPulseSelected()))
+            if (await Spell.CoCast(S.HowlingBlast, Me, Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 && FrozenPulseSelected()))
                 return true;
 
             // frost_strike,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
-            if (
-                await
-                    Spell.CoCast(S.FrostStrike, onunit,
+            if (await Spell.CoCast(S.FrostStrike, onunit,
                         Me.CurrentTarget.IsWithinMeleeRange && BoSSelected() &&
                         Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
 
@@ -490,37 +464,33 @@ namespace ScourgeBloom.Class.DeathKnight
                 return true;
 
             // horn_of_winter,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
-            if (
-                await
-                    Spell.CoCast(S.HornofWinter, Me,
-                        HornofWinterSelected() && BoSSelected() &&
-                        Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
+            if (await Spell.CoCast(S.HornofWinter, Me,
+                Capabilities.IsCooldownUsageAllowed && HornofWinterSelected() && BoSSelected() &&
+                Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
 
             // empower_rune_weapon,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
-            if (
-                await
-                    Spell.CoCast(S.EmpowerRuneWeapon, Me,
-                        BoSSelected() && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
+            if (await Spell.CoCast(S.EmpowerRuneWeapon, Me,
+                Capabilities.IsCooldownUsageAllowed && BoSSelected() && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15 &&
+                !Me.HasActiveAura("Empower Rune Weapon"))) return true;
 
             // hungering_rune_weapon,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
-            if (
-                await
-                    Spell.CoCast(S.HungeringRuneWeapon, Me,
-                        HungeringRuneWeaponSelected() && Me.GotTarget && Me.CurrentTarget.Distance <= 8 && BoSSelected() &&
-                        Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
+            if (await Spell.CoCast(S.HungeringRuneWeapon, Me,
+                Capabilities.IsCooldownUsageAllowed && HungeringRuneWeaponSelected() && Me.GotTarget && Me.CurrentTarget.Distance <= 8 && BoSSelected() &&
+                Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15 &&
+                !Me.HasActiveAura("Hungering Rune Weapon")))
+                return true;
 
             // horn_of_winter,if=!talent.breath_of_sindragosa.enabled
             if (await Spell.CoCast(S.HornofWinter, Me, HornofWinterSelected() && !BoSSelected())) return true;
 
             // empower_rune_weapon,if=!talent.breath_of_sindragosa.enabled
-            if (await Spell.CoCast(S.EmpowerRuneWeapon, Me, !BoSSelected())) return true;
+            if (await Spell.CoCast(S.EmpowerRuneWeapon, Me, Capabilities.IsCooldownUsageAllowed && !BoSSelected() && !Me.HasActiveAura("Empower Rune Weapon")))
+                return true;
 
             // hungering_rune_weapon,if=!talent.breath_of_sindragosa.enabled
-            if (
-                await
-                    Spell.CoCast(S.HungeringRuneWeapon, Me,
-                        HungeringRuneWeaponSelected() && Me.GotTarget && Me.CurrentTarget.Distance <= 8 &&
-                        !BoSSelected())) return true;
+            if (await Spell.CoCast(S.HungeringRuneWeapon, Me,
+                        Capabilities.IsCooldownUsageAllowed && HungeringRuneWeaponSelected() && Me.GotTarget && Me.CurrentTarget.Distance <= 8 &&
+                        !BoSSelected() && !Me.HasActiveAura("Hungering Rune Weapon"))) return true;
 
             await CommonCoroutines.SleepForLagDuration();
 
@@ -532,25 +502,19 @@ namespace ScourgeBloom.Class.DeathKnight
             if (!reqs) return false;
 
             //Custom - SingularBased LowbieRotation
-            if (
-                await
-                    Spell.CoCast(S.HowlingBlast, onunit,
-                        Me.CurrentTarget.GetAuraTimeLeft(S.AuraFrostFever).TotalSeconds < 1.8d)) return true;
+            if (await Spell.CoCast(S.HowlingBlast, onunit,
+                Capabilities.IsAoeAllowed && Me.CurrentTarget.GetAuraTimeLeft(S.AuraFrostFever).TotalSeconds < 1.8d)) return true;
 
-            if (
-                await
-                    Spell.CoCast(S.RemorselessWinter, Me,
-                        Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed &&
-                        Units.NearbyUnfriendlyUnits.Count(u => u.IsWithinMeleeRange) >= 2)) return true;
+            if (await Spell.CoCast(S.RemorselessWinter, Me,
+                Capabilities.IsAoeAllowed && Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed &&
+                Units.NearbyUnfriendlyUnits.Count(u => u.IsWithinMeleeRange) >= 2)) return true;
 
-            if (
-                await
-                    Spell.CoCast(S.Frostscythe, onunit,
-                        Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed &&
-                        Clusters.GetClusterCount(Me.CurrentTarget, Units.NearbyUnfriendlyUnits, ClusterType.Cone, 8) >=
-                        3)) return true;
+            if (await Spell.CoCast(S.Frostscythe, onunit,
+                Capabilities.IsAoeAllowed && Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed &&
+                Clusters.GetClusterCount(Me.CurrentTarget, Units.NearbyUnfriendlyUnits, ClusterType.Cone, 8) >=
+                3)) return true;
 
-            if (await Spell.CoCast(S.HowlingBlast, onunit, Me.HasActiveAura("Rime"))) return true;
+            if (await Spell.CoCast(S.HowlingBlast, onunit, Capabilities.IsAoeAllowed && Me.HasActiveAura("Rime"))) return true;
 
             if (await Spell.CoCast(S.Obliterate, onunit, Me.CurrentTarget.IsWithinMeleeRange && RunicPowerDeficit >= 10))
                 return true;
@@ -558,10 +522,8 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CoCast(S.FrostStrike, onunit, Me.CurrentTarget.IsWithinMeleeRange && RunicPowerDeficit < 35))
                 return true;
 
-            if (
-                await
-                    Spell.CoCast(S.HornofWinter, Me,
-                        HornofWinterSelected() && Me.CurrentRunes < 4 && RunicPowerDeficit >= 20)) return true;
+            if (await Spell.CoCast(S.HornofWinter, Me,
+                Capabilities.IsCooldownUsageAllowed && HornofWinterSelected() && Me.CurrentRunes < 4 && RunicPowerDeficit >= 20)) return true;
 
 
             await CommonCoroutines.SleepForLagDuration();
@@ -569,6 +531,7 @@ namespace ScourgeBloom.Class.DeathKnight
             return true;
         }
 
+        // ReSharper disable once InconsistentNaming
         private static async Task<bool> AOE(WoWUnit onunit, bool reqs)
         {
             if (!reqs) return false;
@@ -585,58 +548,52 @@ namespace ScourgeBloom.Class.DeathKnight
             if (!reqs) return false;
 
             // glacial_advance
-            if (await Spell.CoCast(S.GlacialAdvance, Me, Me.CurrentTarget.IsWithinMeleeRange)) return true;
+            if (await Spell.CoCast(S.GlacialAdvance, Me, Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.IsWithinMeleeRange)) return true;
 
             // frostscythe,if=buff.killing_machine.react|spell_targets.frostscythe>=4
-            if (
-                await
-                    Spell.CoCast(S.Frostscythe, onunit,
-                        Me.CurrentTarget.Distance <= 8 &&
-                        (Me.HasAura(S.AuraKillingMachine) || Units.EnemiesInRange(8) >= 4))) return true;
+            if (await Spell.CoCast(S.Frostscythe, onunit,
+                Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.Distance <= 8 &&
+                (Me.HasAura(S.AuraKillingMachine) || Units.EnemiesInRange(8) >= 4))) return true;
 
             // obliterate,if=buff.killing_machine.react
-            if (
-                await
-                    Spell.CoCast(S.Obliterate, onunit,
-                        Me.CurrentTarget.IsWithinMeleeRange && Me.HasAura(S.AuraKillingMachine))) return true;
+            if (await Spell.CoCast(S.Obliterate, onunit,
+                Me.CurrentTarget.IsWithinMeleeRange && Me.HasAura(S.AuraKillingMachine))) return true;
 
             // remorseless_winter,if=spell_targets.remorseless_winter>=2
-            if (await Spell.CoCast(S.RemorselessWinter, Me, Units.EnemiesInRange(4) >= 2))
+            if (await Spell.CoCast(S.RemorselessWinter, Me, Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed && Units.EnemiesInRange(4) >= 2))
                 return true; // How wide is the range?
 
             // obliterate
             if (await Spell.CoCast(S.Obliterate, onunit, Me.CurrentTarget.IsWithinMeleeRange)) return true;
 
             // frostscythe,if=talent.frozen_pulse.enabled
-            if (await Spell.CoCast(S.Frostscythe, Me, Me.CurrentTarget.Distance <= 8 && FrozenPulseSelected()))
+            if (await Spell.CoCast(S.Frostscythe, Me, Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.Distance <= 8 && FrozenPulseSelected()))
                 return true;
 
             // howling_blast,if=talent.frozen_pulse.enabled
-            if (await Spell.CoCast(S.HowlingBlast, Me, Me.CurrentTarget.Distance <= 30 && FrozenPulseSelected()))
+            if (await Spell.CoCast(S.HowlingBlast, Me, Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 && FrozenPulseSelected()))
                 return true;
 
             // howling_blast,target_if=!dot.frost_fever.ticking
-            if (
-                await
-                    Spell.CoCast(S.HowlingBlast, onunit,
-                        Me.CurrentTarget.Distance <= 30 && !Me.CurrentTarget.HasMyAura(S.AuraFrostFever))) return true;
+            if (await Spell.CoCast(S.HowlingBlast, onunit,
+                        Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 && !Me.CurrentTarget.HasMyAura(S.AuraFrostFever))) return true;
 
             // horn_of_winter
-            if (await Spell.CoCast(S.HornofWinter, Me, HornofWinterSelected() && Me.GotTarget)) return true;
+            if (await Spell.CoCast(S.HornofWinter, Me, Capabilities.IsCooldownUsageAllowed && HornofWinterSelected() && Me.GotTarget)) return true;
 
             // empower_rune_weapon
             if (await Spell.CoCast(S.EmpowerRuneWeapon,
-                Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.Attackable && Me.Combat && Me.GotTarget))
+                Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.Attackable && Me.Combat && Me.GotTarget &&
+                !Me.HasActiveAura("Empower Rune Weapon")))
                 return true;
 
             // hungering_rune_weapon
-            if (
-                await
-                    Spell.CoCast(S.HungeringRuneWeapon, Me,
-                        HungeringRuneWeaponSelected() && Me.GotTarget && Me.CurrentTarget.Distance <= 8)) return true;
+            if (await Spell.CoCast(S.HungeringRuneWeapon, Me,
+                Capabilities.IsCooldownUsageAllowed && HungeringRuneWeaponSelected() && Me.GotTarget && Me.CurrentTarget.Distance <= 8 &&
+                !Me.HasActiveAura("Hungering Rune Weapon"))) return true;
 
             // howling_blast,if=buff.rime.react
-            if (await Spell.CoCast(S.HowlingBlast, onunit, Me.CurrentTarget.Distance <= 30 && Me.HasAura(S.AuraRime)))
+            if (await Spell.CoCast(S.HowlingBlast, onunit, Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 && Me.HasAura(S.AuraRime)))
                 return true;
 
 

@@ -36,7 +36,7 @@ namespace ScourgeBloom.Class
                 return await UseTrinket1();
 
             if (GeneralSettings.Trinket1OnBurst &&
-                StyxWoW.Me.HasAura(SpellLists.BreathofSindragosa | SpellLists.PillarofFrost | SpellLists.UnholyBlight |
+                StyxWoW.Me.HasAura(SpellLists.BreathofSindragosa | SpellLists.PillarofFrost |
                                    SpellLists.SummonGargoyle))
                 return await UseTrinket1();
 
@@ -47,7 +47,7 @@ namespace ScourgeBloom.Class
             if (GeneralSettings.Trinket1MyHealthBelow && Globals.MyHp <= GeneralSettings.Trinket1MyHealth)
                 return await UseTrinket1();
 
-            if (GeneralSettings.Trinket1OnBoS && Me.HasAura("Breath of Sindragosa"))
+            if (GeneralSettings.Trinket1OnBoS && Me.HasActiveAura("Breath of Sindragosa"))
                 return await UseTrinket1();
 
             return false;
@@ -79,7 +79,7 @@ namespace ScourgeBloom.Class
 
             if (GeneralSettings.Trinket2OnBurst &&
                 StyxWoW.Me.HasAura(SpellLists.BreathofSindragosa | SpellLists.AuraBreathofSindragosa |
-                                   SpellLists.PillarofFrost | SpellLists.UnholyBlight |
+                                   SpellLists.PillarofFrost |
                                    SpellLists.SummonGargoyle))
                 return await UseTrinket2();
 
@@ -90,7 +90,7 @@ namespace ScourgeBloom.Class
             if (GeneralSettings.Trinket2MyHealthBelow && Globals.MyHp <= GeneralSettings.Trinket2MyHealth)
                 return await UseTrinket2();
 
-            if (GeneralSettings.Trinket2OnBoS && Me.HasAura("Breath of Sindragosa"))
+            if (GeneralSettings.Trinket2OnBoS && Me.HasActiveAura("Breath of Sindragosa"))
                 return await UseTrinket2();
 
             return false;

@@ -100,6 +100,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
             #endregion Healthstone
 
+            await CommonCoroutines.SleepForLagDuration();
+
             return false;
         }
 
@@ -164,7 +166,13 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.CurrentTarget.CanInterruptCurrentSpellCast)
                 await Interrupts.StrangulateMethod();
 
-            if (await LowbieRotation(onunit, Me.Combat && Me.GotTarget && Me.Level < 100)) return true;
+            //if (await LowbieRotation(onunit, Me.Combat && Me.GotTarget && Me.Level < 100)) return true;
+
+            if (await LowbieRotation(onunit, Me.Combat && Me.GotTarget && Me.Level < 100))
+            {
+                return true;
+            }
+
 
             // Actual Routine
             // outbreak,target_if=!dot.virulent_plague.ticking
@@ -172,29 +180,30 @@ namespace ScourgeBloom.Class.DeathKnight
 
             // dark_transformation
             if (await Spell.CoCast(S.DarkTransformation, onunit,
-                Me.GotAlivePet && !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation")))
+                Me.GotAlivePet && !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation") && !Me.HasActiveAura("Dark Transformation")))
                 return true;
 
             // blighted_rune_weapon
-            if (
-                await
-                    Spell.CoCast(S.BlightedRuneWeapon, Me,
-                        Me.GotTarget && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange)) return true;
+            if (await Spell.CoCast(S.BlightedRuneWeapon, Me,
+                Me.GotTarget && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange)) return true;
 
             // run_action_list,name=valkyr,if=talent.dark_arbiter.enabled&pet.valkyr_battlemaiden.active
-            if (
-                await
-                    ValkyrActive(onunit,
+            //if (await ValkyrActive(onunit,
+            //            Me.Combat && Me.GotTarget && Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.Attackable &&
+            //            DarkArbiterSelected() && Me.HasAura(S.AuraSummonGargoyle)))
+            //    return true;
+
+            if (await ValkyrActive(onunit,
                         Me.Combat && Me.GotTarget && Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.Attackable &&
                         DarkArbiterSelected() && Me.HasAura(S.AuraSummonGargoyle)))
+            {
                 return true;
+            }
 
             // dark_arbiter,if=runic_power>80
-            if (
-                await
-                    Spell.CoCast(S.DarkArbiter, Me,
-                        Me.CurrentTarget.Distance <= 8 && Me.GotTarget && Me.CurrentTarget.Attackable &&
-                        Me.CurrentRunicPower > 80)) return true;
+            if (await Spell.CoCast(S.DarkArbiter, Me,
+                Me.CurrentTarget.Distance <= 8 && Me.GotTarget && Me.CurrentTarget.Attackable &&
+                Me.CurrentRunicPower > 80)) return true;
 
             // summon_gargoyle
             if (await Spell.CoCast(S.SummonGargoyle, onunit,
@@ -206,43 +215,33 @@ namespace ScourgeBloom.Class.DeathKnight
                 return true;
 
             // death_coil,if=talent.dark_arbiter.enabled&buff.sudden_doom.react&cooldown.dark_arbiter.remains>5
-            if (
-                await
-                    Spell.CoCast(S.DeathCoil, onunit,
-                        Me.CurrentTarget.Distance <= 40 && DarkArbiterSelected() && Me.HasAura(S.AuraSuddenDoom) &&
-                        Spell.GetCooldownLeft(S.DarkArbiter).TotalSeconds > 5)) return true;
+            if (await Spell.CoCast(S.DeathCoil, onunit,
+                Me.CurrentTarget.Distance <= 40 && DarkArbiterSelected() && Me.HasAura(S.AuraSuddenDoom) &&
+                Spell.GetCooldownLeft(S.DarkArbiter).TotalSeconds > 5)) return true;
 
             // death_coil,if=!talent.dark_arbiter.enabled&buff.sudden_doom.react
-            if (
-                await
-                    Spell.CoCast(S.DeathCoil, onunit,
-                        Me.CurrentTarget.Distance <= 40 && !DarkArbiterSelected() && Me.HasAura(S.AuraSuddenDoom)))
+            if (await Spell.CoCast(S.DeathCoil, onunit,
+                Me.CurrentTarget.Distance <= 40 && !DarkArbiterSelected() && Me.HasAura(S.AuraSuddenDoom)))
                 return true;
 
             // soul_reaper,if=debuff.festering_wound.stack>=3
-            if (
-                await
-                    Spell.CoCast(S.SoulReaper, onunit,
-                        SoulReaperSelected() && Me.CurrentTarget.IsWithinMeleeRange &&
-                        Me.CurrentTarget.HasMyAura(S.AuraFesteringWound) &&
-                        Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 3)) return true;
+            if (await Spell.CoCast(S.SoulReaper, onunit,
+                SoulReaperSelected() && Me.CurrentTarget.IsWithinMeleeRange &&
+                Me.CurrentTarget.HasMyAura(S.AuraFesteringWound) &&
+                Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 3)) return true;
 
             // festering_strike,if=debuff.soul_reaper.up&!debuff.festering_wound.up
-            if (
-                await
-                    Spell.CoCast(S.FesteringStrike, onunit,
-                        Me.CurrentTarget.IsWithinMeleeRange && SoulReaperSelected() &&
-                        Me.CurrentTarget.HasMyAura(S.AuraSoulReaper) &&
-                        !Me.CurrentTarget.HasMyAura(S.AuraFesteringWound))) return true;
+            if (await Spell.CoCast(S.FesteringStrike, onunit,
+                Me.CurrentTarget.IsWithinMeleeRange && SoulReaperSelected() &&
+                Me.CurrentTarget.HasMyAura(S.AuraSoulReaper) &&
+                !Me.CurrentTarget.HasMyAura(S.AuraFesteringWound))) return true;
 
             // scourge_strike,if=debuff.soul_reaper.up&debuff.festering_wound.stack>=1
-            if (
-                await
-                    Spell.CoCast(S.ScourgeStrike, onunit,
-                        !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
-                        SoulReaperSelected() && Me.CurrentTarget.HasMyAura(S.AuraSoulReaper) &&
-                        Me.CurrentTarget.HasMyAura(S.AuraFesteringWound) &&
-                        Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 1)) return true;
+            if (await Spell.CoCast(S.ScourgeStrike, onunit,
+                !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
+                SoulReaperSelected() && Me.CurrentTarget.HasMyAura(S.AuraSoulReaper) &&
+                Me.CurrentTarget.HasMyAura(S.AuraFesteringWound) &&
+                Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 1)) return true;
 
             // clawing_shadows,if=debuff.soul_reaper.up&debuff.festering_wound.stack>=1
             if (
@@ -365,13 +364,16 @@ namespace ScourgeBloom.Class.DeathKnight
             if (!Me.IsAlive)
                 return true;
 
-            if (await Spell.CoCast(S.UnholyPresence, Me, !Me.HasAura(S.UnholyPresence)))
-                return true;
+            //if (await Spell.CoCast(S.UnholyPresence, Me, !Me.HasAura(S.UnholyPresence)))
+            //    return true;
 
             if (await Spell.CoCast(S.HornofWinter, Me, !Me.HasPartyBuff(Units.Stat.AttackPower)))
                 return true;
 
-            if (await Spell.CoCast(S.RaiseDead, Me, !Me.GotAlivePet && Capabilities.IsPetSummonAllowed))
+            if (
+                await
+                    Spell.CoCast(S.RaiseDead, Me,
+                        !Me.GotAlivePet && Capabilities.IsPetSummonAllowed && !Me.OnTaxi && !Me.Mounted))
                 return true;
 
             if (GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.Attackable &&
@@ -434,8 +436,8 @@ namespace ScourgeBloom.Class.DeathKnight
             if (SpellManager.GlobalCooldown)
                 return false;
 
-            if (await Spell.CoCast(S.UnholyPresence, Me, !Me.HasAura(S.UnholyPresence)))
-                return true;
+            //if (await Spell.CoCast(S.UnholyPresence, Me, !Me.HasAura(S.UnholyPresence)))
+            //    return true;
 
             if (await Spell.CoCast(S.RaiseDead, Me, !Me.GotAlivePet && Capabilities.IsPetSummonAllowed))
                 return true;
@@ -501,30 +503,22 @@ namespace ScourgeBloom.Class.DeathKnight
             if (!reqs) return false;
 
             //Custom - SingularBased LowbieRotation
-            if (
-                await
-                    Spell.CoCast(S.SummonGargoyle, onunit,
-                        Me.CurrentTarget.IsStressful() && DeathKnightSettings.Instance.SummonGargoyleOnCd)) return true;
+            if (await Spell.CoCast(S.SummonGargoyle, onunit,
+                Me.CurrentTarget.IsStressful() && DeathKnightSettings.Instance.SummonGargoyleOnCd)) return true;
 
-            if (
-                await
-                    Spell.CoCast(S.Outbreak, onunit,
-                        Me.CurrentTarget.GetAuraTimeLeft(S.AuraVirulentPlague).TotalSeconds < 1.8)) return true;
+            if (await Spell.CoCast(S.Outbreak, onunit,
+                Me.CurrentTarget.GetAuraTimeLeft(S.AuraVirulentPlague).TotalSeconds < 1.8)) return true;
 
             if (await Spell.CoCast(S.DarkTransformation, onunit,
                 Me.GotAlivePet && !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation")))
                 return true;
 
-            if (
-                await
-                    Spell.CoCast(S.FesteringStrike, onunit,
-                        Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) < 5))
+            if (await Spell.CoCast(S.FesteringStrike, onunit,
+                Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) < 5))
                 return true;
 
-            if (
-                await
-                    Spell.CoCast(S.ScourgeStrike, onunit,
-                        Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 1))
+            if (await Spell.CoCast(S.ScourgeStrike, onunit,
+                Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 1))
                 return true;
 
             if (await Spell.CoCast(S.DeathCoil, onunit, RunicPowerDeficit < 10)) return true;
@@ -539,6 +533,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
         #region AOE
 
+        // ReSharper disable once InconsistentNaming
         private static async Task<bool> AOE(WoWUnit onunit, bool reqs)
         {
             if (!reqs) return false;

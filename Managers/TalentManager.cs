@@ -12,10 +12,33 @@ namespace ScourgeBloom.Managers
 {
     internal static class TalentManager
     {
+        private static uint _spellCount;
+        private static uint _spellBookSignature;
+
+        private static readonly WaitTimer EventRebuildTimer = new WaitTimer(TimeSpan.FromSeconds(1));
+        private static readonly WaitTimer SpecChangeTestTimer = new WaitTimer(TimeSpan.FromSeconds(3));
+
+        private static bool _rebuild;
         //public const int TALENT_FLAG_ISEXTRASPEC = 0x10000;
 
         static TalentManager()
         {
+        }
+
+        public static WoWSpec CurrentSpec { get; private set; }
+
+        public static List<Talent> Talents { get; private set; }
+
+        private static int[] TalentId { get; set; }
+
+        private static bool RebuildNeeded
+        {
+            get { return _rebuild; }
+            set
+            {
+                _rebuild = value;
+                EventRebuildTimer.Reset();
+            }
         }
 
         public static void Init()
@@ -36,54 +59,23 @@ namespace ScourgeBloom.Managers
             }
         }
 
-        public static WoWSpec CurrentSpec
-        {
-            get;
-            private set;
-        }
-
-        public static List<Talent> Talents { get; private set; }
-
-        private static int[] TalentId { get; set; }
-
-        private static uint SpellCount = 0;
-        private static uint SpellBookSignature = 0;
-
-        private static WaitTimer EventRebuildTimer = new WaitTimer(TimeSpan.FromSeconds(1));
-        private static WaitTimer SpecChangeTestTimer = new WaitTimer(TimeSpan.FromSeconds(3));
-
-        private static bool _Rebuild = false;
-        private static bool RebuildNeeded
-        {
-            get
-            {
-                return _Rebuild;
-            }
-            set
-            {
-                _Rebuild = value;
-                EventRebuildTimer.Reset();
-            }
-        }
-
         /// <summary>
-        /// checks if a specific talent is selected for current character
+        ///     checks if a specific talent is selected for current character
         /// </summary>
         /// <param name="index">index (base 1) of index</param>
         /// <returns>true if selected, false if not</returns>
         public static bool IsSelected(int index)
         {
             // return Talents.FirstOrDefault(t => t.Index == index).Selected;
-            int tier = (index - 1) / 3;
+            var tier = (index - 1)/3;
             if (tier.Between(0, 6))
                 return TalentId[tier] == index;
             return false;
         }
 
         /// <summary>
-        /// gets talent selected for a specified tier (since mutually exclusive)
+        ///     gets talent selected for a specified tier (since mutually exclusive)
         /// </summary>
-        /// <param name="index">index (base 1) of index</param>
         /// <returns>true if selected, false if not</returns>
         public static int GetSelectedForTier(int tier)
         {
@@ -94,7 +86,7 @@ namespace ScourgeBloom.Managers
         }
 
         /// <summary>
-        /// event handler for messages which should cause behaviors to be rebuilt
+        ///     event handler for messages which should cause behaviors to be rebuilt
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="args"></param>
@@ -105,9 +97,9 @@ namespace ScourgeBloom.Managers
                 return;
 
             var oldSpec = CurrentSpec;
-            int[] oldTalent = TalentId;
-            uint oldSig = SpellBookSignature;
-            uint oldSpellCount = SpellCount;
+            var oldTalent = TalentId;
+            var oldSig = _spellBookSignature;
+            var oldSpellCount = _spellCount;
 
             Logging.WriteDiagnostic("{0} Event Fired!", args.EventName);
 
@@ -116,13 +108,16 @@ namespace ScourgeBloom.Managers
             if (args.EventName == "PLAYER_SPECIALIZATION_CHANGED")
             {
                 SpecChangeTestTimer.Reset();
-                Logging.WriteDiagnostic("TalentManager: receive a {0} event, currently {1} -- queueing check for new spec!", args.EventName, CurrentSpec);
+                Logging.WriteDiagnostic(
+                    "TalentManager: receive a {0} event, currently {1} -- queueing check for new spec!", args.EventName,
+                    CurrentSpec);
             }
 
             if (args.EventName == "PLAYER_LEVEL_UP")
             {
                 RebuildNeeded = true;
-                Logging.Write(Log.LogColor.Hilite, "TalentManager: Your character has leveled up! Now level {0}", args.Args[0]);
+                Logging.Write(Log.LogColor.Hilite, "TalentManager: Your character has leveled up! Now level {0}",
+                    args.Args[0]);
             }
 
             if (CurrentSpec != oldSpec)
@@ -142,7 +137,7 @@ namespace ScourgeBloom.Managers
                 }
             }
 
-            if (SpellBookSignature != oldSig || SpellCount != oldSpellCount)
+            if (_spellBookSignature != oldSig || _spellCount != oldSpellCount)
             {
                 RebuildNeeded = true;
                 Logging.Write(Log.LogColor.Hilite, "TalentManager: Your available Spells have changed.");
@@ -156,13 +151,13 @@ namespace ScourgeBloom.Managers
             uint sig = 0;
             foreach (var sp in SpellManager.Spells)
             {
-                sig ^= (uint)sp.Value.Id;
+                sig ^= (uint) sp.Value.Id;
             }
             return sig;
         }
 
         /// <summary>
-        /// loads WOW Talent and Spec info into cached list
+        ///     loads WOW Talent and Spec info into cached list
         /// </summary>
         public static void Update()
         {
@@ -175,13 +170,17 @@ namespace ScourgeBloom.Managers
                 TalentId = new int[7];
 
                 // Always 21 talents. 7 rows of 3 talents.
-                for (int row = 0; row < 7; row++)
+                for (var row = 0; row < 7; row++)
                 {
-                    for (int col = 0; col < 3; col++)
+                    for (var col = 0; col < 3; col++)
                     {
-                        var selected = Lua.GetReturnVal<bool>(string.Format("local t = select(4, GetTalentInfo({0}, {1}, GetActiveSpecGroup())) if t then return 1 end return nil", row + 1, col + 1), 0);
-                        int index = 1 + row * 3 + col;
-                        var t = new Talent { Index = index, Selected = selected };
+                        var selected =
+                            Lua.GetReturnVal<bool>(
+                                string.Format(
+                                    "local t = select(4, GetTalentInfo({0}, {1}, GetActiveSpecGroup())) if t then return 1 end return nil",
+                                    row + 1, col + 1), 0);
+                        var index = 1 + row*3 + col;
+                        var t = new Talent {Index = index, Selected = selected};
                         Talents.Add(t);
 
                         if (selected)
@@ -189,8 +188,8 @@ namespace ScourgeBloom.Managers
                     }
                 }
 
-                SpellCount = (uint)SpellManager.Spells.Count;
-                SpellBookSignature = CalcSpellBookSignature();
+                _spellCount = (uint) SpellManager.Spells.Count;
+                _spellBookSignature = CalcSpellBookSignature();
             }
         }
 
@@ -210,7 +209,7 @@ namespace ScourgeBloom.Managers
             {
                 RebuildNeeded = false;
                 Logging.Write(Log.LogColor.Hilite, "TalentManager: Rebuilding behaviors due to changes detected.");
-                Update();   // reload talents just in case
+                Update(); // reload talents just in case
                 ScourgeBloom.DescribeContext();
                 //ScourgeBloom.Instance.RebuildBehaviors();
                 return true;
@@ -218,7 +217,6 @@ namespace ScourgeBloom.Managers
 
             return false;
         }
-
 
         #region Nested type: Talent
 

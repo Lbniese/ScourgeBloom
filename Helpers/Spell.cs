@@ -37,21 +37,18 @@ namespace ScourgeBloom.Helpers
         {
             No = 0,
             Yes
-        };
+        }
 
         #region Fix HonorBuddys GCD Handling
 
 #if HONORBUDDY_GCD_IS_WORKING
 #else
 
-        private static WoWSpell _gcdCheck = null;
+        private static WoWSpell _gcdCheck;
 
         public static string FixGlobalCooldownCheckSpell
         {
-            get
-            {
-                return _gcdCheck == null ? null : _gcdCheck.Name;
-            }
+            get { return _gcdCheck == null ? null : _gcdCheck.Name; }
             set
             {
                 SpellFindResults sfr;
@@ -99,12 +96,14 @@ namespace ScourgeBloom.Helpers
                 }
                 catch (AccessViolationException)
                 {
-                    Logging.WriteToFile(LogLevel.Normal, "GcdTimeLeft: handled access exception, reinitializing gcd spell");
+                    Logging.WriteToFile(LogLevel.Normal,
+                        "GcdTimeLeft: handled access exception, reinitializing gcd spell");
                     GcdInitialize();
                 }
                 catch (InvalidObjectPointerException)
                 {
-                    Logging.WriteToFile(LogLevel.Normal, "GcdTimeLeft: handled invobj exception, reinitializing gcd spell");
+                    Logging.WriteToFile(LogLevel.Normal,
+                        "GcdTimeLeft: handled invobj exception, reinitializing gcd spell");
                     GcdInitialize();
                 }
 
@@ -141,7 +140,7 @@ namespace ScourgeBloom.Helpers
 
         #endregion
 
-        private static Dictionary<string, long> UndefinedSpells { get; set; }
+        private static Dictionary<string, long> UndefinedSpells { get; [UsedImplicitly] set; }
 
         public static bool CastPrimative(string spellName)
         {
@@ -269,13 +268,13 @@ namespace ScourgeBloom.Helpers
                 if (!SpellManager.Cast(spell, unit))
                     return false;
 
-                if (!await Coroutine.Wait(GetSpellCastTime(sname), () => cancel) &&
-                    GetSpellCastTime(sname).TotalSeconds > 0)
-                {
-                    SpellManager.StopCasting();
-                    Log.WriteLog("[ScourgeBloom] Canceling " + sname + ".");
-                    return false;
-                }
+                // if (!await Coroutine.Wait(GetSpellCastTime(sname), () => cancel) &&
+                // GetSpellCastTime(sname).TotalSeconds > 0)
+                // {
+                // SpellManager.StopCasting();
+                // Log.WriteLog("[ScourgeBloom] Canceling " + sname + ".");
+                // return false;
+                // }
 
                 Log.WriteLog(LogLevel.Diagnostic, $"Casting {sname}", Colors.DarkGreen);
                 await CommonCoroutines.SleepForLagDuration();
@@ -383,7 +382,7 @@ namespace ScourgeBloom.Helpers
 
         public static bool CanCastHack(string castName)
         {
-            return CanCastHack(castName, Me.CurrentTarget, false);
+            return CanCastHack(castName, Me.CurrentTarget);
         }
 
         /// <summary>
@@ -391,8 +390,8 @@ namespace ScourgeBloom.Helpers
         ///     "Doom"
         /// </summary>
         /// <param name="castName"></param>
-        /// <param name="onUnit"></param>
-        /// <param name="requirements"></param>
+        /// <param name="unit"></param>
+        /// <param name="skipWowCheck"></param>
         /// <returns></returns>
         public static bool CanCastHack(string castName, WoWUnit unit, bool skipWowCheck = false)
         {
@@ -411,9 +410,6 @@ namespace ScourgeBloom.Helpers
         ///     CastHack following done because CanCast() wants spell as "Metamorphosis: Doom" while Cast() and aura name are
         ///     "Doom"
         /// </summary>
-        /// <param name="castName"></param>
-        /// <param name="onUnit"></param>
-        /// <param name="requirements"></param>
         /// <returns>true: if spell can be cast, false: if a condition prevents it</returns>
         public static bool CanCastHack(SpellFindResults sfr, WoWUnit unit, bool skipWowCheck = false)
         {
@@ -779,39 +775,39 @@ namespace ScourgeBloom.Helpers
 
             var expir = DateTime.UtcNow + TimeSpan.FromMilliseconds(milliSecs);
             var key = DoubleCastKey(unit.Guid, spellName);
-            if (_DoubleCastPreventionDict.ContainsKey(key))
-                _DoubleCastPreventionDict[key] = expir;
+            if (DoubleCastPreventionDict.ContainsKey(key))
+                DoubleCastPreventionDict[key] = expir;
             else
-                _DoubleCastPreventionDict.Add(key, expir);
+                DoubleCastPreventionDict.Add(key, expir);
         }
 
 
         public static void MaintainDoubleCast()
         {
-            _DoubleCastPreventionDict.RemoveAll(t => DateTime.UtcNow > t);
+            DoubleCastPreventionDict.RemoveAll(t => DateTime.UtcNow > t);
         }
 
 
         public static bool DoubleCastContains(WoWUnit unit, string spellName)
         {
-            return _DoubleCastPreventionDict.ContainsKey(DoubleCastKey(unit, spellName));
+            return DoubleCastPreventionDict.ContainsKey(DoubleCastKey(unit, spellName));
         }
 
         public static bool DoubleCastContainsAny(WoWUnit unit, params string[] spellNames)
         {
-            return spellNames.Any(s => _DoubleCastPreventionDict.ContainsKey(DoubleCastKey(unit, s)));
+            return spellNames.Any(s => DoubleCastPreventionDict.ContainsKey(DoubleCastKey(unit, s)));
         }
 
         public static bool DoubleCastContainsAll(WoWUnit unit, params string[] spellNames)
         {
-            return spellNames.All(s => _DoubleCastPreventionDict.ContainsKey(DoubleCastKey(unit, s)));
+            return spellNames.All(s => DoubleCastPreventionDict.ContainsKey(DoubleCastKey(unit, s)));
         }
 
         public static void DumpDoubleCast()
         {
-            var count = _DoubleCastPreventionDict.Count();
+            var count = DoubleCastPreventionDict.Count();
             Logger.WriteDebug("DumpDoubleCast: === {0} @ {1:HH:mm:ss.fff}", count, DateTime.UtcNow);
-            foreach (var entry in _DoubleCastPreventionDict)
+            foreach (var entry in DoubleCastPreventionDict)
             {
                 var expires = entry.Value;
                 var index = entry.Key.IndexOf('-');
@@ -837,7 +833,7 @@ namespace ScourgeBloom.Helpers
             return DoubleCastKey(unit.Guid, spell);
         }
 
-        private static readonly Dictionary<string, DateTime> _DoubleCastPreventionDict =
+        private static readonly Dictionary<string, DateTime> DoubleCastPreventionDict =
             new Dictionary<string, DateTime>();
 
         #endregion

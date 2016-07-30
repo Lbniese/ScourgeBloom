@@ -27,6 +27,7 @@ namespace ScourgeBloom.Helpers
     {
         private static readonly LocalPlayer Me = StyxWoW.Me;
 
+
         public static int TrivialLevel { get; set; }
         public static int TrivialElite { get; set; }
         public static uint SeriousHealth { get; set; }
@@ -635,7 +636,6 @@ namespace ScourgeBloom.Helpers
         /// <summary>
         ///     Check the aura count thats created by yourself by the name on specified unit
         /// </summary>
-        /// <param name="aura"> The name of the aura in English. </param>
         /// <param name="unit"> The unit to check auras for. </param>
         /// <param name="id"></param>
         /// <param name="stacks"> The stack count of the aura to return true. </param>
@@ -712,7 +712,7 @@ namespace ScourgeBloom.Helpers
             return wantedAura.TimeLeft;
         }
 
-        public static TimeSpan GetAuraTimeLeft(this WoWUnit onUnit, int auraID, bool fromMyAura = true)
+        public static TimeSpan GetAuraTimeLeft(this WoWUnit onUnit, int auraId, bool fromMyAura = true)
         {
             if (onUnit == null)
                 return TimeSpan.Zero;
@@ -720,7 +720,7 @@ namespace ScourgeBloom.Helpers
             var wantedAura = onUnit.GetAllAuras()
                 .Where(
                     a =>
-                        a.SpellId == auraID && a.TimeLeft > TimeSpan.Zero &&
+                        a.SpellId == auraId && a.TimeLeft > TimeSpan.Zero &&
                         (!fromMyAura || a.CreatorGuid == StyxWoW.Me.Guid)).FirstOrDefault();
 
             return wantedAura != null ? wantedAura.TimeLeft : TimeSpan.Zero;

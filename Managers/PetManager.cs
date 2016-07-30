@@ -34,8 +34,8 @@ namespace ScourgeBloom.Managers
 
         private static bool _wasMounted;
 
-        private static WoWGuid lastPetAttack = WoWGuid.Empty;
-        private static readonly WaitTimer waitNextPetAttack = new WaitTimer(TimeSpan.FromSeconds(3));
+        private static WoWGuid _lastPetAttack = WoWGuid.Empty;
+        private static readonly WaitTimer WaitNextPetAttack = new WaitTimer(TimeSpan.FromSeconds(3));
 
         static PetManager()
         {
@@ -53,7 +53,7 @@ namespace ScourgeBloom.Managers
 
             // force us to check initially upon load
             NeedToCheckPetTauntAutoCast = true;
-                // defaulting to scalar since this is a static ctor (and we dont want to reference settings here)
+            // defaulting to scalar since this is a static ctor (and we dont want to reference settings here)
 
             // Lets hook this event so we can disable growl
             ScourgeBloom.OnWoWContextChanged += PetManager_OnWoWContextChanged;
@@ -122,7 +122,7 @@ namespace ScourgeBloom.Managers
                         foreach (var sp in PetSpells)
                         {
                             if (sp.Spell == null)
-                                Logging.WriteDiagnostic("   {0} spell={1}  Action={0}", sp.ActionBarIndex, sp, sp.Action);
+                                Logging.WriteDiagnostic("   {0} spell={1}  Action={0}", sp.ActionBarIndex, sp);
                             else
                                 Logging.WriteDiagnostic("   {0} spell={1} #{2}", sp.ActionBarIndex, sp, sp.Spell.Id);
                         }
@@ -145,13 +145,13 @@ namespace ScourgeBloom.Managers
                 return false;
 
             if (StyxWoW.Me.Pet.CurrentTargetGuid != unit.Guid &&
-                (lastPetAttack != unit.Guid || waitNextPetAttack.IsFinished))
+                (_lastPetAttack != unit.Guid || WaitNextPetAttack.IsFinished))
             {
-                lastPetAttack = unit.Guid;
+                _lastPetAttack = unit.Guid;
                 if (GeneralSettings.Instance.Debug)
                     Logging.WriteDiagnostic("PetAttack: on {0} @ {1:F1} yds", unit.SafeName(), unit.SpellDistance());
                 CastPetAction("Attack", unit);
-                waitNextPetAttack.Reset();
+                WaitNextPetAttack.Reset();
                 return true;
             }
 
@@ -160,8 +160,9 @@ namespace ScourgeBloom.Managers
 
         public static bool Passive()
         {
-            if (lastPetAttack != WoWGuid.Empty)
-                lastPetAttack = WoWGuid.Empty;
+            // ReSharper disable once RedundantCheckBeforeAssignment
+            if (_lastPetAttack != WoWGuid.Empty)
+                _lastPetAttack = WoWGuid.Empty;
 
             if (StyxWoW.Me.Pet == null || StyxWoW.Me.Pet.CurrentTargetGuid == WoWGuid.Empty)
                 return false;
@@ -332,13 +333,11 @@ namespace ScourgeBloom.Managers
 
         // flag used to indicate need to check; set anywhere but handled within Pulse()
         private static bool NeedToCheckPetTauntAutoCast { get; set; }
-        private static bool PetSpellsAvailableAfterNeedToCheck { get; set; }
 
         // set needtocheck flag anytime context changes
         private static void PetManager_OnWoWContextChanged(object sender, WoWContextEventArg e)
         {
             NeedToCheckPetTauntAutoCast = GeneralSettings.Instance.PetAutoControlTaunt;
-            PetSpellsAvailableAfterNeedToCheck = false;
         }
 
         public static void HandleAutoCast()
@@ -390,14 +389,14 @@ namespace ScourgeBloom.Managers
                 return false;
 
             bool allowed;
-            var active = IsAutoCast(ps, out allowed);
+            IsAutoCast(ps, out allowed);
             if (!allowed)
                 return false;
 
             return true;
         }
 
-        private static bool HandleAutoCastForSpell(string spellName)
+        public static bool HandleAutoCastForSpell(string spellName)
         {
             var ps = StyxWoW.Me.PetSpells.FirstOrDefault(s => s.ToString() == spellName);
 

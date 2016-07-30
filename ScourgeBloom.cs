@@ -32,7 +32,7 @@ namespace ScourgeBloom
 {
     public class ScourgeBloom : CombatRoutine
     {
-        private static readonly WoWContext LastContext = WoWContext.None;
+        private const WoWContext LastContext = WoWContext.None;
 
         internal static WoWContext CachedContext = WoWContext.None;
 
@@ -58,7 +58,7 @@ namespace ScourgeBloom
 
         protected static readonly LocalPlayer Me = StyxWoW.Me;
 
-        public static readonly Version Version = new Version(1, 4, 27);
+        public static readonly Version Version = new Version(1, 4, 33);
 
         private static bool _initialized;
 
