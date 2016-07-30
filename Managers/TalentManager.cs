@@ -1,116 +1,187 @@
-/*
- * This file is part of the ScourgeBloom Combat Routine.
- *
- * Copyright (C) 2016 Lbniese <Lbniese@lupra.org>
- *
- * Licensed under Microsoft Reference Source License (Ms-RSL)
- */
-
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using ScourgeBloom.Helpers;
 using Styx;
 using Styx.Common;
 using Styx.Common.Helpers;
 using Styx.CommonBot;
-using Styx.CommonBot.CharacterManagement;
+using Styx.CommonBot.Routines;
 using Styx.WoWInternals;
 
 namespace ScourgeBloom.Managers
 {
-    internal class TalentManager
+    internal static class TalentManager
     {
-        private static bool _rebuild;
-        private static uint _spellCount;
-        private static uint _spellBookSignature;
-        private static readonly WaitTimer EventRebuildTimer = new WaitTimer(TimeSpan.FromSeconds(1));
-        private static readonly WaitTimer SpecChangeTestTimer = new WaitTimer(TimeSpan.FromSeconds(3));
+        //public const int TALENT_FLAG_ISEXTRASPEC = 0x10000;
 
         static TalentManager()
         {
         }
 
-        private static bool RebuildNeeded
-        {
-            get { return _rebuild; }
-            set
-            {
-                _rebuild = value;
-                EventRebuildTimer.Reset();
-            }
-        }
-
-        public static List<Talent> Talents { get; private set; }
-        private static int[] TalentId { get; set; }
-        public static HashSet<string> Glyphs { get; private set; }
-        private static int[] GlyphId { get; set; }
-
-        public static WoWSpec CurrentSpec { get; private set; }
-
         public static void Init()
         {
             Talents = new List<Talent>();
             TalentId = new int[6];
-            Glyphs = new HashSet<string>();
-            GlyphId = new int[6];
 
-            //Lua.Events.AttachEvent("PLAYER_LEVEL_UP", UpdateTalentManager);
-            Lua.Events.AttachEvent("CHARACTER_POINTS_CHANGED", UpdateTalentManager);
-            Lua.Events.AttachEvent("GLYPH_UPDATED", UpdateTalentManager);
-            Lua.Events.AttachEvent("ACTIVE_TALENT_GROUP_CHANGED", UpdateTalentManager);
-            Lua.Events.AttachEvent("PLAYER_SPECIALIZATION_CHANGED", UpdateTalentManager);
-            Lua.Events.AttachEvent("LEARNED_SPELL_IN_TAB", UpdateTalentManager);
+            using (StyxWoW.Memory.AcquireFrame())
+            {
+                Update();
 
-            Update();
+                Lua.Events.AttachEvent("PLAYER_LEVEL_UP", UpdateTalentManager);
+                Lua.Events.AttachEvent("CHARACTER_POINTS_CHANGED", UpdateTalentManager);
+                Lua.Events.AttachEvent("GLYPH_UPDATED", UpdateTalentManager);
+                Lua.Events.AttachEvent("ACTIVE_TALENT_GROUP_CHANGED", UpdateTalentManager);
+                Lua.Events.AttachEvent("PLAYER_SPECIALIZATION_CHANGED", UpdateTalentManager);
+                Lua.Events.AttachEvent("LEARNED_SPELL_IN_TAB", UpdateTalentManager);
+            }
         }
 
-        public static bool IsSelected(int index)
+        public static WoWSpec CurrentSpec
         {
-            // return Talents.FirstOrDefault(t => t.Index == index).Selected;
-            var tier = (index - 1)/3;
-            if (!tier.IsBetween(0, 5)) return false;
-            Log.WritetoFile(LogLevel.Diagnostic, string.Format("Talent id {0} is selected", index));
-            return TalentId[tier] == index;
+            get;
+            private set;
+        }
+
+        public static List<Talent> Talents { get; private set; }
+
+        private static int[] TalentId { get; set; }
+
+        private static uint SpellCount = 0;
+        private static uint SpellBookSignature = 0;
+
+        private static WaitTimer EventRebuildTimer = new WaitTimer(TimeSpan.FromSeconds(1));
+        private static WaitTimer SpecChangeTestTimer = new WaitTimer(TimeSpan.FromSeconds(3));
+
+        private static bool _Rebuild = false;
+        private static bool RebuildNeeded
+        {
+            get
+            {
+                return _Rebuild;
+            }
+            set
+            {
+                _Rebuild = value;
+                EventRebuildTimer.Reset();
+            }
         }
 
         /// <summary>
-        ///     Checks if we have a glyph or not
+        /// checks if a specific talent is selected for current character
         /// </summary>
-        /// <param name="glyphName">Name of the glyph without "Glyph of". i.e. HasGlyph("Aquatic Form")</param>
-        /// <returns></returns>
-        public static bool HasGlyph(string glyphName)
+        /// <param name="index">index (base 1) of index</param>
+        /// <returns>true if selected, false if not</returns>
+        public static bool IsSelected(int index)
         {
-            return Glyphs.Any() && Glyphs.Contains(glyphName);
+            // return Talents.FirstOrDefault(t => t.Index == index).Selected;
+            int tier = (index - 1) / 3;
+            if (tier.Between(0, 6))
+                return TalentId[tier] == index;
+            return false;
         }
 
+        /// <summary>
+        /// gets talent selected for a specified tier (since mutually exclusive)
+        /// </summary>
+        /// <param name="index">index (base 1) of index</param>
+        /// <returns>true if selected, false if not</returns>
+        public static int GetSelectedForTier(int tier)
+        {
+            tier--;
+            if (tier.Between(0, 6))
+                return TalentId[tier];
+            return -1;
+        }
+
+        /// <summary>
+        /// event handler for messages which should cause behaviors to be rebuilt
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private static void UpdateTalentManager(object sender, LuaEventArgs args)
+        {
+            // Since we hooked this in ctor, make sure we are the selected CC
+            if (RoutineManager.Current.Name != ScourgeBloom.GetScourgeBloomRoutineName())
+                return;
+
+            var oldSpec = CurrentSpec;
+            int[] oldTalent = TalentId;
+            uint oldSig = SpellBookSignature;
+            uint oldSpellCount = SpellCount;
+
+            Logging.WriteDiagnostic("{0} Event Fired!", args.EventName);
+
+            Update();
+
+            if (args.EventName == "PLAYER_SPECIALIZATION_CHANGED")
+            {
+                SpecChangeTestTimer.Reset();
+                Logging.WriteDiagnostic("TalentManager: receive a {0} event, currently {1} -- queueing check for new spec!", args.EventName, CurrentSpec);
+            }
+
+            if (args.EventName == "PLAYER_LEVEL_UP")
+            {
+                RebuildNeeded = true;
+                Logging.Write(Log.LogColor.Hilite, "TalentManager: Your character has leveled up! Now level {0}", args.Args[0]);
+            }
+
+            if (CurrentSpec != oldSpec)
+            {
+                RebuildNeeded = true;
+                Logging.Write(Log.LogColor.Hilite, "TalentManager: Your spec has been changed.");
+            }
+
+            int i;
+            for (i = 0; i < 6; i++)
+            {
+                if (oldTalent[i] != TalentId[i])
+                {
+                    RebuildNeeded = true;
+                    Logging.Write(Log.LogColor.Hilite, "TalentManager: Your talents have changed.");
+                    break;
+                }
+            }
+
+            if (SpellBookSignature != oldSig || SpellCount != oldSpellCount)
+            {
+                RebuildNeeded = true;
+                Logging.Write(Log.LogColor.Hilite, "TalentManager: Your available Spells have changed.");
+            }
+
+            Logging.WriteDiagnostic(Log.LogColor.Hilite, "TalentManager: RebuildNeeded={0}", RebuildNeeded);
+        }
+
+        private static uint CalcSpellBookSignature()
+        {
+            uint sig = 0;
+            foreach (var sp in SpellManager.Spells)
+            {
+                sig ^= (uint)sp.Value.Id;
+            }
+            return sig;
+        }
+
+        /// <summary>
+        /// loads WOW Talent and Spec info into cached list
+        /// </summary>
         public static void Update()
         {
-            // Keep the frame stuck so we can do a bunch of injecting at once.
             using (StyxWoW.Memory.AcquireFrame())
             {
-                CurrentSpec = StyxWoW.Me.Specialization;
-
-                var globalClassProfile =
-                    CharacterManager.ClassProfiles.FirstOrDefault(prf => prf.GetSpec() == CurrentSpec);
-                if (globalClassProfile != null)
-                    CharacterManager.SetClassProfile(globalClassProfile);
+                // With Legion, Low levels are an auto selected spec now. We want to keep using Lowbie behaviors pre level 10
+                CurrentSpec = StyxWoW.Me.Level < 10 ? WoWSpec.None : StyxWoW.Me.Specialization;
 
                 Talents.Clear();
                 TalentId = new int[7];
 
                 // Always 21 talents. 7 rows of 3 talents.
-                for (var row = 0; row < 7; row++)
+                for (int row = 0; row < 7; row++)
                 {
-                    for (var col = 0; col < 3; col++)
+                    for (int col = 0; col < 3; col++)
                     {
-                        var selected =
-                            Lua.GetReturnVal<bool>(
-                                string.Format(
-                                    "local t = select(4, GetTalentInfo({0}, {1}, GetActiveSpecGroup())) if t then return 1 end return nil",
-                                    row + 1, col + 1), 0);
-                        var index = 1 + row*3 + col;
-                        var t = new Talent {Index = index, Selected = selected};
+                        var selected = Lua.GetReturnVal<bool>(string.Format("local t = select(4, GetTalentInfo({0}, {1}, GetActiveSpecGroup())) if t then return 1 end return nil", row + 1, col + 1), 0);
+                        int index = 1 + row * 3 + col;
+                        var t = new Talent { Index = index, Selected = selected };
                         Talents.Add(t);
 
                         if (selected)
@@ -118,99 +189,45 @@ namespace ScourgeBloom.Managers
                     }
                 }
 
-                Glyphs.Clear();
-                GlyphId = new int[7];
+                SpellCount = (uint)SpellManager.Spells.Count;
+                SpellBookSignature = CalcSpellBookSignature();
+            }
+        }
 
-                // 6 glyphs all the time. Plain and simple!
-                for (var i = 1; i <= 6; i++)
+        public static bool Pulse()
+        {
+            if (SpecChangeTestTimer.IsFinished)
+            {
+                if (StyxWoW.Me.Level >= 10 && StyxWoW.Me.Specialization != CurrentSpec)
                 {
-                    var glyphInfo = Lua.GetReturnValues(string.Format("return GetGlyphSocketInfo({0})", i));
-
-                    // add check for 4 members before access because empty sockets weren't returning 'nil' as documented
-                    if (glyphInfo == null || glyphInfo.Count < 4 || glyphInfo[3] == "nil" ||
-                        string.IsNullOrEmpty(glyphInfo[3])) continue;
-                    GlyphId[i - 1] = int.Parse(glyphInfo[3]);
-                    Glyphs.Add(WoWSpell.FromId(GlyphId[i - 1]).Name.Replace("Glyph of ", ""));
+                    CurrentSpec = StyxWoW.Me.Specialization;
+                    RebuildNeeded = true;
+                    Logging.Write(Log.LogColor.Hilite, "TalentManager: spec is now to {0}", ScourgeBloom.SpecName());
                 }
-
-                _spellCount = (uint) SpellManager.Spells.Count;
-                _spellBookSignature = CalcSpellBookSignature();
             }
+
+            if (RebuildNeeded && EventRebuildTimer.IsFinished)
+            {
+                RebuildNeeded = false;
+                Logging.Write(Log.LogColor.Hilite, "TalentManager: Rebuilding behaviors due to changes detected.");
+                Update();   // reload talents just in case
+                ScourgeBloom.DescribeContext();
+                //ScourgeBloom.Instance.RebuildBehaviors();
+                return true;
+            }
+
+            return false;
         }
 
-        /// <summary>
-        ///     event handler for messages which should cause behaviors to be rebuilt
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
-        private static void UpdateTalentManager(object sender, LuaEventArgs args)
-        {
-            var oldSpec = CurrentSpec;
-            var oldTalent = TalentId;
-            var oldGlyph = GlyphId;
-            var oldSig = _spellBookSignature;
-            var oldSpellCount = _spellCount;
 
-            Log.WritetoFile(LogLevel.Diagnostic, string.Format("{0} Event Fired!", args.EventName));
-
-            Update();
-
-            if (args.EventName == "PLAYER_SPECIALIZATION_CHANGED")
-            {
-                SpecChangeTestTimer.Reset();
-                Log.WritetoFile(LogLevel.Diagnostic,
-                    string.Format("TalentManager: receive a {0} event, currently {1} -- queueing check for new spec!",
-                        args.EventName, CurrentSpec));
-            }
-
-            if (args.EventName == "PLAYER_LEVEL_UP")
-            {
-                RebuildNeeded = true;
-                Log.WriteLog(string.Format("TalentManager: Your character has leveled up! Now level {0}", args.Args[0]));
-            }
-
-            if (CurrentSpec != oldSpec)
-            {
-                RebuildNeeded = true;
-                Log.WriteLog("TalentManager: Your spec has been changed.");
-            }
-
-            int i;
-            for (i = 0; i < 6; i++)
-            {
-                if (oldTalent[i] == TalentId[i]) continue;
-                RebuildNeeded = true;
-                Log.WriteLog("TalentManager: Your talents have changed.");
-                break;
-            }
-
-            for (i = 0; i < 6; i++)
-            {
-                if (oldGlyph[i] == GlyphId[i]) continue;
-                RebuildNeeded = true;
-                Log.WriteLog("TalentManager: Your glyphs have changed.");
-                break;
-            }
-
-            if (_spellBookSignature != oldSig || _spellCount != oldSpellCount)
-            {
-                RebuildNeeded = true;
-                Log.WriteLog("TalentManager: Your available Spells have changed.");
-            }
-
-            Log.WriteLog(string.Format("TalentManager: RebuildNeeded={0}", RebuildNeeded));
-        }
-
-        private static uint CalcSpellBookSignature()
-        {
-            return SpellManager.Spells.Aggregate<KeyValuePair<string, WoWSpell>, uint>(0,
-                (current, sp) => current ^ (uint) sp.Value.Id);
-        }
+        #region Nested type: Talent
 
         public struct Talent
         {
             public bool Selected;
             public int Index;
         }
+
+        #endregion
     }
 }

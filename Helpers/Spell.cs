@@ -33,6 +33,114 @@ namespace ScourgeBloom.Helpers
         public static string LastSpellCast { get; set; }
         public static WoWGuid LastSpellTarget { get; set; }
 
+        public enum LagTolerance
+        {
+            No = 0,
+            Yes
+        };
+
+        #region Fix HonorBuddys GCD Handling
+
+#if HONORBUDDY_GCD_IS_WORKING
+#else
+
+        private static WoWSpell _gcdCheck = null;
+
+        public static string FixGlobalCooldownCheckSpell
+        {
+            get
+            {
+                return _gcdCheck == null ? null : _gcdCheck.Name;
+            }
+            set
+            {
+                SpellFindResults sfr;
+                if (!SpellManager.FindSpell(value, out sfr))
+                {
+                    _gcdCheck = null;
+                    Logger.Write("GCD check fix spell {0} not known", value);
+                }
+                else
+                {
+                    _gcdCheck = sfr.Original;
+                    Logger.Write("GCD check fix spell set to: {0}", value);
+                }
+            }
+        }
+
+#endif
+
+        public static bool GcdActive
+        {
+            get
+            {
+#if HONORBUDDY_GCD_IS_WORKING
+                return SpellManager.GlobalCooldown;
+#else
+                if (_gcdCheck == null)
+                    return SpellManager.GlobalCooldown;
+
+                return _gcdCheck.Cooldown;
+#endif
+            }
+        }
+
+        public static TimeSpan GcdTimeLeft
+        {
+            get
+            {
+#if HONORBUDDY_GCD_IS_WORKING
+                return SpellManager.GlobalCooldownLeft;
+#else
+                try
+                {
+                    if (_gcdCheck != null)
+                        return _gcdCheck.CooldownTimeLeft;
+                }
+                catch (AccessViolationException)
+                {
+                    Logging.WriteToFile(LogLevel.Normal, "GcdTimeLeft: handled access exception, reinitializing gcd spell");
+                    GcdInitialize();
+                }
+                catch (InvalidObjectPointerException)
+                {
+                    Logging.WriteToFile(LogLevel.Normal, "GcdTimeLeft: handled invobj exception, reinitializing gcd spell");
+                    GcdInitialize();
+                }
+
+                // use default value here (reinit should fix _gcdCheck for next call)
+                return SpellManager.GlobalCooldownLeft;
+#endif
+            }
+        }
+
+        public static void GcdInitialize()
+        {
+#if HONORBUDDY_GCD_IS_WORKING
+            Logger.WriteDebug("GcdInitialize: using HonorBuddy GCD");
+#else
+            Logger.WriteDebug("GcdInitialize: using ScourgeBloom GCD");
+            switch (StyxWoW.Me.Class)
+            {
+                case WoWClass.DeathKnight:
+                    FixGlobalCooldownCheckSpell = "Frost Presence";
+                    break;
+            }
+
+            if (FixGlobalCooldownCheckSpell != null)
+                return;
+
+            switch (StyxWoW.Me.Class)
+            {
+                case WoWClass.DeathKnight:
+                    // FixGlobalCooldownCheckSpell = "";
+                    break;
+            }
+#endif
+        }
+
+        #endregion
+
         private static Dictionary<string, long> UndefinedSpells { get; set; }
 
         public static bool CastPrimative(string spellName)

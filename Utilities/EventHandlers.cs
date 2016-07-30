@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
+using JetBrains.Annotations;
 using ScourgeBloom.Helpers;
 using ScourgeBloom.Settings;
 using Styx;
@@ -22,11 +23,6 @@ namespace ScourgeBloom.Utilities
 {
     public static class EventHandlers
     {
-        private static bool _combatLogAttached;
-
-        private static string _localizedUnitNotInfrontFailure;
-        private static string _localizedNoPathAvailableFailure;
-
         public static Dictionary<WoWGuid, int> MobsThatEvaded = new Dictionary<WoWGuid, int>();
         public static Queue<Damage> DamageHistory { get; set; }
         public static bool TrackDamage { get; set; }
@@ -50,7 +46,7 @@ namespace ScourgeBloom.Utilities
 
         public static WoWUnit AttackingEnemyPlayer { get; set; }
         public static WoWSpellSchool AttackedWithSpellSchool { get; set; }
-        private static DateTime TimeLastAttackedByEnemyPlayer { get; set; }
+        private static DateTime TimeLastAttackedByEnemyPlayer { get; [UsedImplicitly] set; }
         public static TimeSpan TimeSinceAttackedByEnemyPlayer => DateTime.UtcNow - TimeLastAttackedByEnemyPlayer;
 
         public static DateTime LastRedErrorMessage { get; set; }
@@ -98,8 +94,8 @@ namespace ScourgeBloom.Utilities
         {
             // get localized copies of spell failure error messages
             GetSymbolicLocalizeValue("SPELL_FAILED_LINE_OF_SIGHT");
-            _localizedUnitNotInfrontFailure = GetSymbolicLocalizeValue("SPELL_FAILED_UNIT_NOT_INFRONT");
-            _localizedNoPathAvailableFailure = GetSymbolicLocalizeValue("SPELL_FAILED_NOPATH");
+            GetSymbolicLocalizeValue("SPELL_FAILED_UNIT_NOT_INFRONT");
+            GetSymbolicLocalizeValue("SPELL_FAILED_NOPATH");
         }
 
         internal static void HandleContextChanged(object sender, WoWContextEventArg e)
@@ -169,8 +165,6 @@ namespace ScourgeBloom.Utilities
                     g =>
                         g.ToPlayer() != null &&
                         string.Equals(g.ToPlayer().Name, args.Args[0].ToString(), StringComparison.InvariantCulture));
-            var name = "(null)";
-            var status = "(unknown)";
 
             if (pm == null)
             {
@@ -179,8 +173,8 @@ namespace ScourgeBloom.Utilities
             else
             {
                 var o = ObjectManager.GetObjectByGuid<WoWUnit>(pm.Guid);
-                name = o.Name;
-                status = "Alive";
+                var name = o.Name;
+                var status = "Alive";
                 Logging.WriteDiagnostic("Group Member {0}: {1} {2}", pm.RaidRank, name, status);
             }
         }
@@ -197,7 +191,6 @@ namespace ScourgeBloom.Utilities
                     g =>
                         g.ToPlayer() != null &&
                         string.Equals(g.ToPlayer().Name, args.Args[0].ToString(), StringComparison.InvariantCulture));
-            var name = "(null)";
             var status = "(unknown)";
 
             if (pm == null)
@@ -207,7 +200,7 @@ namespace ScourgeBloom.Utilities
             else
             {
                 var o = ObjectManager.GetObjectByGuid<WoWUnit>(pm.Guid);
-                name = o.Name;
+                var name = o.Name;
                 if (!o.IsAlive)
                     status = "Died!";
                 else if (!pm.IsOnline)
@@ -224,15 +217,6 @@ namespace ScourgeBloom.Utilities
             return localString;
         }
 
-        private static void AddSymbolicLocalizeValue(this Dictionary<string, string> dict, string symbolicName)
-        {
-            var localString = GetSymbolicLocalizeValue(symbolicName);
-            if (!string.IsNullOrEmpty(localString) && !dict.ContainsKey(localString))
-            {
-                dict.Add(localString, symbolicName);
-            }
-        }
-
         private static void HandleEndBoundTradeable(object sender, LuaEventArgs args)
         {
             // Since we hooked this in ctor, make sure we are the selected CC
@@ -241,7 +225,7 @@ namespace ScourgeBloom.Utilities
 
             var argval = args.Args[0].ToString();
             Logging.Write(Colors.LightGreen, "EndBoundTradeable: confirming '{0}'", argval);
-            var cmd = string.Format("EndBoundTradeable('{0}')", argval);
+            var cmd = $"EndBoundTradeable('{argval}')";
             Logging.WriteDiagnostic("END_BOUND_TRADEABLE: confirm with \"{0}\"", cmd);
             Lua.DoString(cmd);
         }
@@ -264,19 +248,11 @@ namespace ScourgeBloom.Utilities
                 DamageHistory.Dequeue();
             }
 
-            long sum = 0;
-            foreach (var q in DamageHistory)
+            foreach (var q in DamageHistory.Where(q => GeneralSettings.Instance.Debug).Where(q => q.Time < since))
             {
-                if (GeneralSettings.Instance.Debug)
-                {
-                    if (q.Time < since)
-                    {
-                        Logging.WriteDiagnostic(
-                            "GetRecentDamage: Program Error: entry {0} {1:HH:mm:ss.FFFF} older than {2:HH:mm:ss.FFFF}",
-                            q.Amount, q.Time, since);
-                    }
-                }
-                sum += q.Amount;
+                Logging.WriteDiagnostic(
+                    "GetRecentDamage: Program Error: entry {0} {1:HH:mm:ss.FFFF} older than {2:HH:mm:ss.FFFF}",
+                    q.Amount, q.Time, since);
             }
             return DamageHistory.Sum(v => v.Amount);
         }

@@ -225,8 +225,6 @@ namespace ScourgeBloom.Class.DeathKnight
         {
             if (Paused) return false;
 
-            var radius = TalentManager.HasGlyph("Blood Boil") ? 15 : 10;
-
             if (Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting ||
                 Me.IsChanneling) return true;
 

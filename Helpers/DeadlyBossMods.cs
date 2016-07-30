@@ -18,10 +18,7 @@ namespace ScourgeBloom.Helpers
     {
         private static readonly Dictionary<string, TimerBar> BarCache = new Dictionary<string, TimerBar>();
 
-        public static int NumBars
-        {
-            get { return Lua.GetReturnVal<int>("return DBM.Bars.numBars", 0); }
-        }
+        public static int NumBars => Lua.GetReturnVal<int>("return DBM.Bars.numBars", 0);
 
         private static IEnumerable<string> BarIds
         {
@@ -49,11 +46,6 @@ namespace ScourgeBloom.Helpers
                         .Select(barId => new TimerBar(barId));
             }
         }
-
-        //foreach (string barId in barIds.Split(new[] {"@!@"}, StringSplitOptions.RemoveEmptyEntries))
-        //        {
-        //            yield return new TimerBar(barId);
-        //        }
 
         public static TimerBar FindBarByPartialId(string id)
         {
@@ -84,9 +76,7 @@ namespace ScourgeBloom.Helpers
 
         private static string FindBarAndExecute(string id, string doStuff)
         {
-            return string.Format("for bar in pairs(DBM.Bars.bars) do if '{0}' == bar.id then {1} end end",
-                id,
-                doStuff);
+            return $"for bar in pairs(DBM.Bars.bars) do if '{id}' == bar.id then {doStuff} end end";
         }
 
         internal class TimerBar
@@ -100,55 +90,25 @@ namespace ScourgeBloom.Helpers
 
             public string Id { get; }
 
-            public bool Dead
-            {
-                get { return Lua.GetReturnVal<bool>(FindBarAndExecute(Id, "return bar.dead"), 0); }
-            }
+            public bool Dead => Lua.GetReturnVal<bool>(FindBarAndExecute(Id, "return bar.dead"), 0);
 
-            public bool Dummy
-            {
-                get { return Lua.GetReturnVal<bool>(FindBarAndExecute(Id, "return bar.dummy"), 0); }
-            }
+            public bool Dummy => Lua.GetReturnVal<bool>(FindBarAndExecute(Id, "return bar.dummy"), 0);
 
-            public bool Flashing
-            {
-                get { return Lua.GetReturnVal<bool>(FindBarAndExecute(Id, "return bar.flashing"), 0); }
-            }
+            public bool Flashing => Lua.GetReturnVal<bool>(FindBarAndExecute(Id, "return bar.flashing"), 0);
 
-            public bool Enlarged
-            {
-                get { return Lua.GetReturnVal<bool>(FindBarAndExecute(Id, "return bar.enlarged"), 0); }
-            }
+            public bool Enlarged => Lua.GetReturnVal<bool>(FindBarAndExecute(Id, "return bar.enlarged"), 0);
 
-            public bool FadingIn
-            {
-                get { return Lua.GetReturnVal<bool>(FindBarAndExecute(Id, "return bar.fadingIn"), 0); }
-            }
+            public bool FadingIn => Lua.GetReturnVal<bool>(FindBarAndExecute(Id, "return bar.fadingIn"), 0);
 
-            public float LuaTimeLeft
-            {
-                get { return Lua.GetReturnVal<float>(FindBarAndExecute(Id, "return bar.timer"), 0); }
-            }
+            public float LuaTimeLeft => Lua.GetReturnVal<float>(FindBarAndExecute(Id, "return bar.timer"), 0);
 
-            public float LuaTotalTime
-            {
-                get { return Lua.GetReturnVal<float>(FindBarAndExecute(Id, "return bar.totalTime"), 0); }
-            }
+            public float LuaTotalTime => Lua.GetReturnVal<float>(FindBarAndExecute(Id, "return bar.totalTime"), 0);
 
-            public TimeSpan TotalTime
-            {
-                get { return TimeSpan.FromSeconds(LuaTotalTime); }
-            }
+            public TimeSpan TotalTime => TimeSpan.FromSeconds(LuaTotalTime);
 
-            public TimeSpan TimeLeft
-            {
-                get { return TimeSpan.FromSeconds(LuaTimeLeft); }
-            }
+            public TimeSpan TimeLeft => TimeSpan.FromSeconds(LuaTimeLeft);
 
-            public WaitTimer Timer
-            {
-                get { return _timer ?? (_timer = new WaitTimer(TimeLeft)); }
-            }
+            public WaitTimer Timer => _timer ?? (_timer = new WaitTimer(TimeLeft));
 
             public void Cancel()
             {
@@ -157,7 +117,7 @@ namespace ScourgeBloom.Helpers
 
             public override string ToString()
             {
-                return string.Format("Id: {0}, TotalTime: {1}, TimeLeft: {2}", Id, TotalTime, TimeLeft);
+                return $"Id: {Id}, TotalTime: {TotalTime}, TimeLeft: {TimeLeft}";
             }
         }
     }
