@@ -121,12 +121,6 @@ namespace ScourgeBloom
             this.label20 = new System.Windows.Forms.Label();
             this.Advanced = new System.Windows.Forms.TabPage();
             this.groupBox19 = new System.Windows.Forms.GroupBox();
-            this.numStrangulatemax = new System.Windows.Forms.NumericUpDown();
-            this.numStrangulatemin = new System.Windows.Forms.NumericUpDown();
-            this.label18 = new System.Windows.Forms.Label();
-            this.label19 = new System.Windows.Forms.Label();
-            this.DelayStrangulateCheckBox = new System.Windows.Forms.CheckBox();
-            this.StrangulateCheckBox = new System.Windows.Forms.CheckBox();
             this.numMFmax = new System.Windows.Forms.NumericUpDown();
             this.numMFmin = new System.Windows.Forms.NumericUpDown();
             this.label17 = new System.Windows.Forms.Label();
@@ -192,8 +186,6 @@ namespace ScourgeBloom
             this.groupBox35.SuspendLayout();
             this.Advanced.SuspendLayout();
             this.groupBox19.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numStrangulatemax)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numStrangulatemin)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMFmax)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMFmin)).BeginInit();
             this.groupBox18.SuspendLayout();
@@ -1145,12 +1137,6 @@ namespace ScourgeBloom
             // 
             // groupBox19
             // 
-            this.groupBox19.Controls.Add(this.numStrangulatemax);
-            this.groupBox19.Controls.Add(this.numStrangulatemin);
-            this.groupBox19.Controls.Add(this.label18);
-            this.groupBox19.Controls.Add(this.label19);
-            this.groupBox19.Controls.Add(this.DelayStrangulateCheckBox);
-            this.groupBox19.Controls.Add(this.StrangulateCheckBox);
             this.groupBox19.Controls.Add(this.numMFmax);
             this.groupBox19.Controls.Add(this.numMFmin);
             this.groupBox19.Controls.Add(this.label17);
@@ -1159,66 +1145,10 @@ namespace ScourgeBloom
             this.groupBox19.Controls.Add(this.UseMFcheckBox);
             this.groupBox19.Location = new System.Drawing.Point(10, 130);
             this.groupBox19.Name = "groupBox19";
-            this.groupBox19.Size = new System.Drawing.Size(274, 220);
+            this.groupBox19.Size = new System.Drawing.Size(274, 152);
             this.groupBox19.TabIndex = 3;
             this.groupBox19.TabStop = false;
             this.groupBox19.Text = "Interrupts";
-            // 
-            // numStrangulatemax
-            // 
-            this.numStrangulatemax.Location = new System.Drawing.Point(67, 189);
-            this.numStrangulatemax.Name = "numStrangulatemax";
-            this.numStrangulatemax.Size = new System.Drawing.Size(46, 20);
-            this.numStrangulatemax.TabIndex = 18;
-            this.numStrangulatemax.ValueChanged += new System.EventHandler(this.numStrangulatemax_ValueChanged);
-            // 
-            // numStrangulatemin
-            // 
-            this.numStrangulatemin.Location = new System.Drawing.Point(67, 163);
-            this.numStrangulatemin.Name = "numStrangulatemin";
-            this.numStrangulatemin.Size = new System.Drawing.Size(46, 20);
-            this.numStrangulatemin.TabIndex = 17;
-            this.numStrangulatemin.ValueChanged += new System.EventHandler(this.numStrangulatemin_ValueChanged);
-            // 
-            // label18
-            // 
-            this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(6, 191);
-            this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(38, 13);
-            this.label18.TabIndex = 16;
-            this.label18.Text = "Max %";
-            // 
-            // label19
-            // 
-            this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(6, 167);
-            this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(59, 13);
-            this.label19.TabIndex = 15;
-            this.label19.Text = "Minimum %";
-            // 
-            // DelayStrangulateCheckBox
-            // 
-            this.DelayStrangulateCheckBox.AutoSize = true;
-            this.DelayStrangulateCheckBox.Location = new System.Drawing.Point(6, 140);
-            this.DelayStrangulateCheckBox.Name = "DelayStrangulateCheckBox";
-            this.DelayStrangulateCheckBox.Size = new System.Drawing.Size(110, 17);
-            this.DelayStrangulateCheckBox.TabIndex = 14;
-            this.DelayStrangulateCheckBox.Text = "Delay Strangulate";
-            this.DelayStrangulateCheckBox.UseVisualStyleBackColor = true;
-            this.DelayStrangulateCheckBox.CheckedChanged += new System.EventHandler(this.DelayStrangulateCheckBox_CheckedChanged);
-            // 
-            // StrangulateCheckBox
-            // 
-            this.StrangulateCheckBox.AutoSize = true;
-            this.StrangulateCheckBox.Location = new System.Drawing.Point(6, 117);
-            this.StrangulateCheckBox.Name = "StrangulateCheckBox";
-            this.StrangulateCheckBox.Size = new System.Drawing.Size(102, 17);
-            this.StrangulateCheckBox.TabIndex = 13;
-            this.StrangulateCheckBox.Text = "Use Strangulate";
-            this.StrangulateCheckBox.UseVisualStyleBackColor = true;
-            this.StrangulateCheckBox.CheckedChanged += new System.EventHandler(this.StrangulateCheckBox_CheckedChanged);
             // 
             // numMFmax
             // 
@@ -1643,8 +1573,6 @@ namespace ScourgeBloom
             this.Advanced.ResumeLayout(false);
             this.groupBox19.ResumeLayout(false);
             this.groupBox19.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numStrangulatemax)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numStrangulatemin)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMFmax)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMFmin)).EndInit();
             this.groupBox18.ResumeLayout(false);
@@ -1770,12 +1698,6 @@ namespace ScourgeBloom
         private Label label16;
         private CheckBox DelayMFcheckBox;
         private CheckBox UseMFcheckBox;
-        private NumericUpDown numStrangulatemax;
-        private NumericUpDown numStrangulatemin;
-        private Label label18;
-        private Label label19;
-        private CheckBox DelayStrangulateCheckBox;
-        private CheckBox StrangulateCheckBox;
         private CheckBox UseTrinket2OnBoS;
         private CheckBox UseTrinket1OnBoS;
         private CheckBox AutoAmsCheckbox;

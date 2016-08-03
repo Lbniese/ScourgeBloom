@@ -14,10 +14,7 @@ namespace ScourgeBloom
             = new Dictionary<string, object>();
 
         // number of properties defined in instance
-        public int Count
-        {
-            get { return _dictionary.Count; }
-        }
+        public int Count => _dictionary.Count;
 
         // If you try to get a value of a property
         // not defined in the class, this method is called.

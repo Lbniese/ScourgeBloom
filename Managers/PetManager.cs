@@ -61,10 +61,7 @@ namespace ScourgeBloom.Managers
 
         public static bool NeedsPetSupport { get; set; }
 
-        public static bool HavePet
-        {
-            get { return StyxWoW.Me.GotAlivePet; }
-        }
+        public static bool HavePet => StyxWoW.Me.GotAlivePet;
 
         public static string WantedPet { get; set; }
 
@@ -86,6 +83,9 @@ namespace ScourgeBloom.Managers
         internal static void Pulse()
         {
             if (!NeedsPetSupport)
+                return;
+
+            if (!Capabilities.IsPetSummonAllowed || !Capabilities.IsPetUsageAllowed)
                 return;
 
             if (StyxWoW.Me.Mounted)

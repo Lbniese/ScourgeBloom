@@ -79,63 +79,6 @@ namespace ScourgeBloom.Class
             return true;
         }
 
-        public static async Task<bool> StrangulateMethod()
-        {
-            if (!Capabilities.IsInterruptingAllowed)
-                return false;
-
-            if (WoWSpell.FromId(S.Strangulate).Cooldown)
-                return false;
-
-            if (!StyxWoW.Me.GotTarget)
-                return false;
-
-            if (Globals.CurrentTarget.IsPet)
-                return false;
-
-            if (!Globals.CurrentTarget.IsCasting)
-                return false;
-
-            if (!Globals.CurrentTarget.CanInterruptCurrentSpellCast)
-                return false;
-
-            // Get the spell ID our target is casting
-            var spell = Globals.CurrentTarget.CastingSpell;
-
-            if (spell == null)
-                return false;
-
-            var castTime = Globals.CurrentTarget.CastingSpell.CastTime;
-            var timeLeft = Globals.CurrentTarget.CurrentCastTimeLeft.TotalMilliseconds;
-
-            var percentage = 100 - timeLeft*100/castTime;
-
-            if (DeathKnightSettings.Instance.StrangulateRandomTimerUse)
-            {
-                if (percentage > DeathKnightSettings.Instance.StrangulateRandomTimerMax)
-                    return false;
-
-                if (percentage < DeathKnightSettings.Instance.StrangulateRandomTimerMin)
-                    return false;
-
-
-                if (!await Spell.CoCast(S.Strangulate))
-                    return false;
-
-                Logging.Write(Colors.YellowGreen, "[ScourgeBloom] Interrupting {0} with Strangulate!",
-                    Globals.CurrentTarget.SafeName);
-
-                return true;
-            }
-
-            if (!await Spell.CoCast(S.Strangulate))
-                return false;
-
-            Logging.Write(Colors.YellowGreen, "[ScourgeBloom] Interrupting {0} with Strangulate!",
-                Globals.CurrentTarget.SafeName);
-
-            return true;
-        }
 
         private static bool InterruptCheck(WoWUnit unit, double millisecondsleft, bool includeUninterruptable = true)
         {
