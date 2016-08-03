@@ -14,6 +14,7 @@ using System.Windows.Media;
 using Bots.DungeonBuddy.Helpers;
 using Buddy.Coroutines;
 using JetBrains.Annotations;
+using ScourgeBloom.Lists;
 using ScourgeBloom.Settings;
 using Styx;
 using Styx.Common;
@@ -221,6 +222,9 @@ namespace ScourgeBloom.Helpers
                 var sp = WoWSpell.FromId(spell);
                 var sname = sp != null ? sp.Name : "#" + spell;
 
+                if (!Capabilities.IsSpecialAttacksUsageAllowed)
+                    return false;
+
                 //Log.WriteLog(LogLevel.Normal, $"Casting {sname}");
 
                 if (!reqs || !SpellManager.CanCast(spell) || unit == null)
@@ -260,6 +264,9 @@ namespace ScourgeBloom.Helpers
                 var sp = WoWSpell.FromId(spell);
                 var sname = sp != null ? sp.Name : "#" + spell;
 
+                if (!Capabilities.IsSpecialAttacksUsageAllowed)
+                    return false;
+
                 //Log.WriteLog(LogLevel.Normal, $"Casting {sname}");
 
                 if (unit == null || !reqs || !SpellManager.CanCast(spell, unit, true))
@@ -293,6 +300,7 @@ namespace ScourgeBloom.Helpers
 
         public static CanCastResult CanCast(string strspell, WoWUnit unit, bool ignoregcd)
         {
+
             if (!Me.IsAlive || Me.IsDead || Me.IsGhost || Me.CurrentHealth == 0)
                 return CanCastResult.Dead;
 
@@ -396,6 +404,10 @@ namespace ScourgeBloom.Helpers
         public static bool CanCastHack(string castName, WoWUnit unit, bool skipWowCheck = false)
         {
             SpellFindResults sfr;
+
+            if (!Capabilities.IsSpecialAttacksUsageAllowed)
+                return false;
+
             if (!SpellManager.FindSpell(castName, out sfr))
             {
                 // Logger.WriteDebug("CanCast: spell [{0}] not known", castName);

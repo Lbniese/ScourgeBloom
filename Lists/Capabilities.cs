@@ -15,6 +15,27 @@ namespace ScourgeBloom.Lists
 {
     internal static class Capabilities
     {
+        public static bool IsNoneAllowed
+            => !RoutineManager.IsAnyDisallowed(CapabilityFlags.None);
+
+        public static bool IsMoveBehindAllowed
+            => !RoutineManager.IsAnyDisallowed(CapabilityFlags.MoveBehind);
+
+        public static bool IsKitingAllowed
+            => !RoutineManager.IsAnyDisallowed(CapabilityFlags.Kiting);
+
+        public static bool IsDispellingAllowed
+            => !RoutineManager.IsAnyDisallowed(CapabilityFlags.OffensiveDispel | CapabilityFlags.DefensiveDispel);
+
+        public static bool IsMultiMobPullAllowed
+            => !RoutineManager.IsAnyDisallowed(CapabilityFlags.MultiMobPull);
+
+        public static bool IsAllAllowed
+            => !RoutineManager.IsAnyDisallowed(CapabilityFlags.All);
+
+        public static bool IsSpecialAttacksUsageAllowed
+            => !RoutineManager.IsAnyDisallowed(CapabilityFlags.SpecialAttacks);
+
         public static bool IsPetUsageAllowed
             => GeneralSettings.Instance.PetUsage && !RoutineManager.IsAnyDisallowed(CapabilityFlags.PetUse);
 

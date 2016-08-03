@@ -83,10 +83,6 @@ namespace ScourgeBloom.Class.DeathKnight
                     DeathKnightSettings.Instance.DeathGrip)
                     return await Spell.CoCast(S.DeathGrip, SpellManager.CanCast(S.DeathGrip));
 
-                //if (Me.GotTarget && Me.CurrentTarget.Attackable && Me.IsSafelyFacing(Me.CurrentTarget) &&
-                //    Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight)
-                //    return await Spell.CoCast(S.Outbreak, SpellManager.CanCast(S.Outbreak));
-
                 if (Me.GotTarget && Me.CurrentTarget.Attackable && Me.IsSafelyFacing(Me.CurrentTarget) &&
                     Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight &&
                     Spell.GetCooldownLeft(S.Outbreak).TotalSeconds > 1)
