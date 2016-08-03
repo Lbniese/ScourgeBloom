@@ -60,8 +60,6 @@ namespace ScourgeBloom
 
         public static readonly Version Version = new Version(1, 4, 36);
 
-
-
         private static bool _initialized;
 
         private static int _pulsePhase;
@@ -454,8 +452,6 @@ namespace ScourgeBloom
         {
             try
             {
-                if (Paused) return;
-
                 _pulsePhase++;
 
                 if (_pulsePhase == 1)
@@ -470,32 +466,43 @@ namespace ScourgeBloom
                     UpdateDiagnosticFps();
                 }
 
-                if (Me.IsDead && GeneralSettings.Instance.AutoReleaseSpirit)
+                if (Paused) return;
+
+                else if (_pulsePhase == 2)
                 {
-                    SpiritHandler.ReleaseSpirit();
+                    if (Me.IsDead && GeneralSettings.Instance.AutoReleaseSpirit)
+                    {
+                        SpiritHandler.ReleaseSpirit();
+                    }
                 }
 
-                if (Capabilities.IsTargetingAllowed && Me.GotTarget && !Me.CurrentTarget.CanLoot &&
-                    !Me.CurrentTarget.Lootable && Me.CurrentTarget.IsDead &&
-                    BotPoi.Current.Type != PoiType.Loot && BotPoi.Current.Type != PoiType.Skin &&
-                    !ObjectManager.GetObjectsOfType<WoWUnit>()
-                        .Any(
-                            u =>
-                                u.IsDead &&
-                                ((CharacterSettings.Instance.LootMobs && u.CanLoot && u.Lootable) ||
-                                 (CharacterSettings.Instance.SkinMobs && u.Skinnable && u.CanSkin)) &&
-                                u.Distance < CharacterSettings.Instance.LootRadius))
+                else if (_pulsePhase == 3)
                 {
-                    Log.WriteLog("[ScourgeBloom] Clearing target, since it is dead and not lootable!");
-                    Me.ClearTarget();
+                    if (Capabilities.IsTargetingAllowed && Me.GotTarget && !Me.CurrentTarget.CanLoot &&
+                        !Me.CurrentTarget.Lootable && Me.CurrentTarget.IsDead &&
+                        BotPoi.Current.Type != PoiType.Loot && BotPoi.Current.Type != PoiType.Skin &&
+                        !ObjectManager.GetObjectsOfType<WoWUnit>()
+                            .Any(
+                                u =>
+                                    u.IsDead &&
+                                    ((CharacterSettings.Instance.LootMobs && u.CanLoot && u.Lootable) ||
+                                     (CharacterSettings.Instance.SkinMobs && u.Skinnable && u.CanSkin)) &&
+                                    u.Distance < CharacterSettings.Instance.LootRadius))
+                    {
+                        Log.WriteLog("[ScourgeBloom] Clearing target, since it is dead and not lootable!");
+                        Me.ClearTarget();
+                    }
+                }
+                else if (_pulsePhase == 4)
+                {
+                  _pulsePhase = 0;
+                    if (Capabilities.IsPetUsageAllowed && Capabilities.IsPetSummonAllowed && Me.Specialization == WoWSpec.DeathKnightUnholy)
+                    {
+                        PetManager.Pulse();
+                    }
                 }
 
-                if (Capabilities.IsPetUsageAllowed && Me.Specialization == WoWSpec.DeathKnightUnholy)
-                {
-                    PetManager.Pulse();
-                }
-
-                base.Pulse();
+                //base.Pulse();
             }
             catch (Exception e)
             {
