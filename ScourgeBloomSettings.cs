@@ -78,18 +78,6 @@ namespace ScourgeBloom
                                DeathKnightSettings.Instance.MindFreezeRandomTimerUse;
             numMFmin.Enabled = DeathKnightSettings.Instance.MindFreezeUse &&
                                DeathKnightSettings.Instance.MindFreezeRandomTimerUse;
-
-            //Strangulate
-            StrangulateCheckBox.Checked = DeathKnightSettings.Instance.StrangulateUse;
-            DelayStrangulateCheckBox.Checked = DeathKnightSettings.Instance.StrangulateRandomTimerUse;
-            numStrangulatemax.Value = (decimal) DeathKnightSettings.Instance.StrangulateRandomTimerMax;
-            numStrangulatemin.Value = (decimal) DeathKnightSettings.Instance.StrangulateRandomTimerMin;
-
-            DelayStrangulateCheckBox.Enabled = DeathKnightSettings.Instance.StrangulateUse;
-            numStrangulatemax.Enabled = DeathKnightSettings.Instance.StrangulateUse &&
-                                        DeathKnightSettings.Instance.StrangulateRandomTimerUse;
-            numStrangulatemin.Enabled = DeathKnightSettings.Instance.StrangulateUse &&
-                                        DeathKnightSettings.Instance.StrangulateRandomTimerUse;
         }
 
         private void RacialsLoad()
@@ -648,35 +636,6 @@ namespace ScourgeBloom
         private void numMFmax_ValueChanged(object sender, EventArgs e)
         {
             DeathKnightSettings.Instance.MindFreezeRandomTimerMax = (int) numMFmax.Value;
-        }
-
-        private void StrangulateCheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            DeathKnightSettings.Instance.StrangulateUse = StrangulateCheckBox.Checked;
-            DelayStrangulateCheckBox.Enabled = DeathKnightSettings.Instance.StrangulateUse;
-            numStrangulatemax.Enabled = DeathKnightSettings.Instance.StrangulateUse &&
-                                        DeathKnightSettings.Instance.StrangulateRandomTimerUse;
-            numStrangulatemin.Enabled = DeathKnightSettings.Instance.StrangulateUse &&
-                                        DeathKnightSettings.Instance.StrangulateRandomTimerUse;
-        }
-
-        private void DelayStrangulateCheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            DeathKnightSettings.Instance.StrangulateRandomTimerUse = DelayStrangulateCheckBox.Checked;
-            numStrangulatemax.Enabled = DeathKnightSettings.Instance.StrangulateUse &&
-                                        DeathKnightSettings.Instance.StrangulateRandomTimerUse;
-            numStrangulatemin.Enabled = DeathKnightSettings.Instance.StrangulateUse &&
-                                        DeathKnightSettings.Instance.StrangulateRandomTimerUse;
-        }
-
-        private void numStrangulatemin_ValueChanged(object sender, EventArgs e)
-        {
-            DeathKnightSettings.Instance.StrangulateRandomTimerMin = (int) numStrangulatemin.Value;
-        }
-
-        private void numStrangulatemax_ValueChanged(object sender, EventArgs e)
-        {
-            DeathKnightSettings.Instance.StrangulateRandomTimerMax = (int) numStrangulatemax.Value;
         }
 
         private void UseTrinket1OnBoS_CheckedChanged(object sender, EventArgs e)

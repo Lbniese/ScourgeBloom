@@ -58,7 +58,7 @@ namespace ScourgeBloom
 
         protected static readonly LocalPlayer Me = StyxWoW.Me;
 
-        public static readonly Version Version = new Version(1, 4, 36);
+        public static readonly Version Version = new Version(1, 4, 38);
 
         private static bool _initialized;
 
@@ -468,7 +468,7 @@ namespace ScourgeBloom
 
                 if (Paused) return;
 
-                else if (_pulsePhase == 2)
+                if (_pulsePhase == 2)
                 {
                     if (Me.IsDead && GeneralSettings.Instance.AutoReleaseSpirit)
                     {
@@ -495,8 +495,9 @@ namespace ScourgeBloom
                 }
                 else if (_pulsePhase == 4)
                 {
-                  _pulsePhase = 0;
-                    if (Capabilities.IsPetUsageAllowed && Capabilities.IsPetSummonAllowed && Me.Specialization == WoWSpec.DeathKnightUnholy)
+                    _pulsePhase = 0;
+                    if (Capabilities.IsPetUsageAllowed && Capabilities.IsPetSummonAllowed &&
+                        Me.Specialization == WoWSpec.DeathKnightUnholy)
                     {
                         PetManager.Pulse();
                     }

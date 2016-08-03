@@ -92,6 +92,7 @@ namespace ScourgeBloom.Lists
         #region Class Auras
 
         public const int
+            AuraFrostFever = 55095,
             AuraBreathofSindragosa = 155166,
             AuraSuddenDoom = 81340,
             AuraBloodCharge = 114851,

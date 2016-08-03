@@ -161,11 +161,6 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.CurrentTarget.CanInterruptCurrentSpellCast)
                 await Interrupts.MindFreezeMethod();
 
-            if (Capabilities.IsInterruptingAllowed && Me.CurrentTarget.InLineOfSight && Me.CurrentTarget.Distance <= 30 &&
-                Me.CurrentTarget.IsCasting &&
-                Me.CurrentTarget.CanInterruptCurrentSpellCast)
-                await Interrupts.StrangulateMethod();
-
             //if (await LowbieRotation(onunit, Me.Combat && Me.GotTarget && Me.Level < 100)) return true;
 
             if (await LowbieRotation(onunit, Me.Combat && Me.GotTarget && Me.Level < 100))
