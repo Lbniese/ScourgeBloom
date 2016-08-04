@@ -443,7 +443,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
         #endregion CombatBuffs
 
-        #region Coroutine Valkyr
+        #region Routine Valkyr
 
         private static async Task<bool> ValkyrActive(WoWUnit onunit, bool reqs)
         {
@@ -488,7 +488,7 @@ namespace ScourgeBloom.Class.DeathKnight
             return false;
         }
 
-        #endregion Coroutine Valkyr
+        #endregion Routine Valkyr
 
         #region LowbieRotation
 

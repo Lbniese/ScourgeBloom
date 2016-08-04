@@ -58,7 +58,7 @@ namespace ScourgeBloom
 
         protected static readonly LocalPlayer Me = StyxWoW.Me;
 
-        public static readonly Version Version = new Version(1, 4, 39);
+        public static readonly Version Version = new Version(1, 4, 40);
 
         private static bool _initialized;
 
@@ -307,7 +307,7 @@ namespace ScourgeBloom
 
             if (Targeting.PullDistance < 25)
                 Logging.Write(Colors.YellowGreen,
-                    "[ScourgeBloom]: Your Pull Distance is {0:F0} yds which is low for any class!",
+                    "[ScourgeBloom]: Your Pull Distance is {0:F0} yards, which is low for any class!",
                     Targeting.PullDistance);
         }
 
@@ -503,7 +503,7 @@ namespace ScourgeBloom
                     }
                 }
 
-                //base.Pulse();
+                base.Pulse();
             }
             catch (Exception e)
             {
@@ -577,6 +577,7 @@ namespace ScourgeBloom
         {
             HotkeyManager.RemoveHotkeys();
             EventLog.DetachCombatLogEvent();
+            _initialized = false;
         }
 
         private static void InitializeOnce()

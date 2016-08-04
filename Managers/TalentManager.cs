@@ -176,9 +176,7 @@ namespace ScourgeBloom.Managers
                     {
                         var selected =
                             Lua.GetReturnVal<bool>(
-                                string.Format(
-                                    "local t = select(4, GetTalentInfo({0}, {1}, GetActiveSpecGroup())) if t then return 1 end return nil",
-                                    row + 1, col + 1), 0);
+                                $"local t = select(4, GetTalentInfo({row + 1}, {col + 1}, GetActiveSpecGroup())) if t then return 1 end return nil", 0);
                         var index = 1 + row*3 + col;
                         var t = new Talent {Index = index, Selected = selected};
                         Talents.Add(t);

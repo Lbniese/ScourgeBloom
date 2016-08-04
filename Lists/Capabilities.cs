@@ -13,7 +13,7 @@ using Styx.CommonBot.Routines;
 
 namespace ScourgeBloom.Lists
 {
-    internal static class Capabilities
+    public static class Capabilities
     {
         public static bool IsNoneAllowed
             => !RoutineManager.IsAnyDisallowed(CapabilityFlags.None);
