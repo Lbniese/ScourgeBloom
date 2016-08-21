@@ -58,7 +58,7 @@ namespace ScourgeBloom
 
         protected static readonly LocalPlayer Me = StyxWoW.Me;
 
-        public static readonly Version Version = new Version(1, 4, 40);
+        public static readonly Version Version = new Version(1, 4, 43);
 
         private static bool _initialized;
 
@@ -67,7 +67,9 @@ namespace ScourgeBloom
         private static readonly WaitTimer PollInterval = new WaitTimer(TimeSpan.FromSeconds(10));
         private static uint _lastFps;
 
+#pragma warning disable 169
         private bool _contextEventSubscribed;
+#pragma warning restore 169
 
         public static uint Latency { get; set; }
 
@@ -97,6 +99,11 @@ namespace ScourgeBloom
         public override bool WantButton => true;
 
         public override CapabilityFlags SupportedCapabilities => CapabilityFlags.All;
+
+        /*public static bool IsAllowed(CapabilityFlags flags)
+        {
+            return RoutineManager.GetCapabilityState(flags) == CapabilityState.DontCare;
+        }*/
 
         public override Composite CombatBehavior => CreateCombat();
 
@@ -582,7 +589,7 @@ namespace ScourgeBloom
 
         private static void InitializeOnce()
         {
-            if (_initialized)
+            if (_initialized == true)
                 return;
 
             ScourgeBloomSettings.ClassSettings.Initialize();

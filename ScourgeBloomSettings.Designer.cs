@@ -41,8 +41,8 @@ namespace ScourgeBloom
         {
             this.TabControl1 = new System.Windows.Forms.TabControl();
             this.Changelog = new System.Windows.Forms.TabPage();
-            this.textBox1 = new System.Windows.Forms.TextBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.textBox1 = new System.Windows.Forms.TextBox();
             this.General = new System.Windows.Forms.TabPage();
             this.GeneralSGrid = new System.Windows.Forms.PropertyGrid();
             this.Cooldowns = new System.Windows.Forms.TabPage();
@@ -217,14 +217,24 @@ namespace ScourgeBloom
             // 
             // Changelog
             // 
-            this.Changelog.Controls.Add(this.textBox1);
             this.Changelog.Controls.Add(this.pictureBox1);
+            this.Changelog.Controls.Add(this.textBox1);
             this.Changelog.Location = new System.Drawing.Point(4, 22);
             this.Changelog.Name = "Changelog";
             this.Changelog.Size = new System.Drawing.Size(575, 504);
             this.Changelog.TabIndex = 4;
             this.Changelog.Text = "Changelog";
             this.Changelog.UseVisualStyleBackColor = true;
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = global::ScourgeBloom.Properties.Resources.HIGHQUALITY1;
+            this.pictureBox1.Location = new System.Drawing.Point(0, 0);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(575, 384);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pictureBox1.TabIndex = 2;
+            this.pictureBox1.TabStop = false;
             // 
             // textBox1
             // 
@@ -236,17 +246,6 @@ namespace ScourgeBloom
             this.textBox1.Size = new System.Drawing.Size(575, 114);
             this.textBox1.TabIndex = 1;
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Image = global::ScourgeBloom.Properties.Resources._700by250;
-            this.pictureBox1.Location = new System.Drawing.Point(0, 0);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(574, 366);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
             // 
             // General
             // 
@@ -1603,7 +1602,6 @@ namespace ScourgeBloom
         private Button RotationOnlyPresetButton;
         private Button DungeonBuddyPresetButton;
         private TabPage Changelog;
-        private PictureBox pictureBox1;
         private TextBox textBox1;
         private TabPage Racials;
         private GroupBox groupBox6;
@@ -1708,5 +1706,6 @@ namespace ScourgeBloom
         private Label label20;
         private ComboBox PauseCrModcomboBox;
         private ComboBox PauseCrKeycomboBox;
+        private PictureBox pictureBox1;
     }
 }

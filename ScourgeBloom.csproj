@@ -51,7 +51,7 @@
   <ItemGroup>
     <Content Include=".gitattributes" />
     <Content Include=".gitignore" />
-    <Content Include="Resources\700by250.jpg" />
+    <None Include="Resources\HIGHQUALITY1.jpg" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Class\DeathKnight\Frost.cs" />
@@ -63,6 +63,11 @@
     <Compile Include="Class\Interrupts.cs" />
     <Compile Include="Class\Racials.cs" />
     <Compile Include="Class\Trinkets.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="WoWContextEventArg.cs" />
     <Compile Include="DynamicContext.cs" />
     <Compile Include="Helpers\BehaviorType.cs" />
@@ -96,7 +101,6 @@
     <Compile Include="Managers\PetManager.cs" />
     <Compile Include="Managers\TalentManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources.cs" />
     <Compile Include="ScourgeBloom.cs" />
     <Compile Include="ScourgeBloomSettings.cs">
       <SubType>Form</SubType>
@@ -116,7 +120,11 @@
     <None Include="ScourgeBloom.csproj.DotSettings" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="ScourgeBloomSettings.resx">
       <DependentUpon>ScourgeBloomSettings.cs</DependentUpon>
     </EmbeddedResource>

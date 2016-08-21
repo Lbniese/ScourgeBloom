@@ -14,6 +14,7 @@ using ScourgeBloom.Settings;
 using Styx;
 using Styx.Common;
 using Styx.CommonBot.Coroutines;
+using Styx.CommonBot.Frames;
 using Styx.WoWInternals.DB;
 using Styx.WoWInternals.WoWObjects;
 
@@ -65,8 +66,8 @@ namespace ScourgeBloom.Helpers
                 return false;
 
             // Check if we can even use the item
-            if (item.Effects.Any(u => u.TriggerType != ItemEffectTriggerType.OnUse))
-                return false;
+            //if (item.Effects.Any(u => u.TriggerType != ItemEffectTriggerType.OnUse))
+            //    return false;
 
             //var itemSpell = Lua.GetReturnVal<string>("return GetItemSpell(" + item.Entry + ")", 0);
             //
@@ -74,7 +75,7 @@ namespace ScourgeBloom.Helpers
             //    return false;
             //
 
-            return item.Usable && item.Cooldown <= 0;
+            return item.Usable && item.Cooldown <= 0 && !MerchantFrame.Instance.IsVisible;
         }
 
         public static async Task<bool> Healthstone()

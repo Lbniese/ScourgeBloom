@@ -65,7 +65,7 @@ namespace ScourgeBloom.Helpers
         /// <returns></returns>
         public static bool Exist(params WoWTotem[] wt)
         {
-            return wt.Any(t => Exist(t));
+            return wt.Any(Exist);
         }
 
         /// <summary>

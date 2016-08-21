@@ -55,7 +55,8 @@ namespace ScourgeBloom.Lists
 
         public static bool IsCooldownUsageAllowed
             =>
-                !RoutineManager.IsAnyDisallowed(CapabilityFlags.OffensiveCooldowns | CapabilityFlags.DefensiveCooldowns) &&
+                !RoutineManager.IsAnyDisallowed(CapabilityFlags.OffensiveCooldowns | CapabilityFlags.DefensiveCooldowns)
+                    /* && ScourgeBloom.IsAllowed(CapabilityFlags.OffensiveCooldowns | CapabilityFlags.DefensiveCooldowns)*/&&
                 GeneralSettings.Instance.Cooldowns;
 
         public static bool IsInterruptingAllowed

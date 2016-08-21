@@ -8,6 +8,7 @@
 
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using Styx;
 using Styx.WoWInternals.WoWObjects;
 
@@ -15,6 +16,16 @@ namespace ScourgeBloom.Helpers
 {
     public static class Extensions
     {
+        public static string AddSpaces(this string data)
+        {
+
+
+            var r = new Regex(@"(?!^)(?=[A-Z])");
+
+            return r.Replace(data, " ");
+
+        }
+
         public static bool Between(this double distance, double min, double max)
         {
             return distance >= min && distance <= max;

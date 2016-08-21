@@ -165,7 +165,7 @@ namespace ScourgeBloom.Class.DeathKnight
         {
             if (Paused) return false;
 
-            if (!Me.Combat || Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting ||
+            if (/*!Me.Combat || */Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting ||
                 Me.IsChanneling) return false;
 
             if (Capabilities.IsMovingAllowed)
@@ -296,12 +296,12 @@ namespace ScourgeBloom.Class.DeathKnight
                 return true;
             }
 
-            if (await single_target_2h(onunit, /*Units.EnemiesInRange(10) < 4 && */!IsDualWielding))
+            if (await single_target_2h(onunit, !IsDualWielding))
             {
                 return true;
             }
 
-            if (await single_target_1h(onunit, /*Units.EnemiesInRange(10) < 3 && */IsDualWielding))
+            if (await single_target_1h(onunit, IsDualWielding))
             {
                 return true;
             }
