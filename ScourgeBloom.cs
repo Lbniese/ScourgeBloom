@@ -525,6 +525,7 @@ namespace ScourgeBloom
             GeneralSettings.Instance.Load();
             BotEvents.OnBotStarted += OnBotStartEvent;
             BotEvents.OnBotStopped += OnBotStopEvent;
+            TalentManager.InitTalents();
 
             Lua.Events.AttachEvent("PLAYER_REGEN_DISABLED", OnCombatStarted);
         }
@@ -722,7 +723,7 @@ namespace ScourgeBloom
                     break;
             }
 
-            TalentManager.Init();
+            //TalentManager.InitTalents();
             GeneralSettings.Instance.Save();
 
             _initialized = true;

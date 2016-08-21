@@ -720,27 +720,27 @@ namespace ScourgeBloom.Class.DeathKnight
 
         public static bool FrozenPulseSelected()
         {
-            return TalentManager.IsSelected(5);
+            return TalentManager.FrostFrozenPulse;
         }
 
         public static bool HornofWinterSelected()
         {
-            return TalentManager.IsSelected(6);
+            return TalentManager.FrostHornOfWinter;
         }
 
         public static bool HungeringRuneWeaponSelected()
         {
-            return TalentManager.IsSelected(8);
+            return TalentManager.FrostHungeringRuneWeapon;
         }
 
         public static bool BoSSelected()
         {
-            return TalentManager.IsSelected(20);
+            return TalentManager.FrostBreathOfSindragosa;
         }
 
         public static bool GlacialAdvanceSelected()
         {
-            return TalentManager.IsSelected(21);
+            return TalentManager.FrostGlacialAdvance;
         }
 
         #endregion TalentSelected

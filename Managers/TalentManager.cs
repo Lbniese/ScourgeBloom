@@ -1,229 +1,474 @@
 using System;
-using System.Collections.Generic;
 using ScourgeBloom.Helpers;
 using Styx;
 using Styx.Common;
-using Styx.Common.Helpers;
-using Styx.CommonBot;
-using Styx.CommonBot.Routines;
 using Styx.WoWInternals;
+using Styx.WoWInternals.WoWObjects;
 
 namespace ScourgeBloom.Managers
 {
-    internal static class TalentManager
+    public class TalentManager
     {
-        private static uint _spellCount;
-        private static uint _spellBookSignature;
+        public static bool
 
-        private static readonly WaitTimer EventRebuildTimer = new WaitTimer(TimeSpan.FromSeconds(1));
-        private static readonly WaitTimer SpecChangeTestTimer = new WaitTimer(TimeSpan.FromSeconds(3));
+            #region 56 level
 
-        private static bool _rebuild;
-        //public const int TALENT_FLAG_ISEXTRASPEC = 0x10000;
+            UnholyAllWillServe,
+            UnholyBurstingSores,
+            UnholyEbonFever,
+            FrostShatteringStrikes,
+            FrostIcyTalons,
+            FrostMurderousEfficiency,
 
-        static TalentManager()
-        {
-        }
+            #endregion
+
+            #region 57 level
+
+            UnholyEpidemic,
+            UnholyPestilentPustules,
+            UnholyBlightedRuneWeapon,
+            FrostFreezingFog,
+            FrostFrozenPulse,
+            FrostHornOfWinter,
+
+            #endregion
+
+            #region 58 level
+
+            UnholyUnholyFrenzy,
+            UnholyCastigator,
+            UnholyClawingShadows,
+            FrostIcecap,
+            FrostHungeringRuneWeapon,
+            FrostAvalanche,
+
+            #endregion
+
+            #region 60 level
+
+            UnholySludgeBelcher,
+            UnholyAsphyxiate,
+            UnholyDebilitatingInfestation,
+            FrostAbominationsMight,
+            FrostBlindingSleet,
+            FrostWinterIsComing,
+
+            #endregion
+
+            #region 75 level
+
+            UnholySpellEater,
+            UnholyCorpseShield,
+            UnholyLingeringApparition,
+            FrostVolatileShielding,
+            FrostPermafrost,
+            FrostWhiteWalker,
+
+            #endregion
+
+            #region 90 level
+
+            UnholyShadowInfusion,
+            UnholyNecrosis,
+            UnholyInfectedClaws,
+            FrostFrostscythe,
+            FrostRunicAttenuation,
+            FrostGatheringStorm,
+
+            #endregion
+
+            #region 100 level
+
+            UnholyDarkArbiter,
+            UnholyDefile,
+            UnholySoulReaper,
+            FrostObliteration,
+            FrostBreathOfSindragosa,
+            FrostGlacialAdvance;
+
+        #endregion
+
+
+        #region 110 level
+
+            //not implemented yet
+
+        #endregion
+
+        private static LocalPlayer Me => StyxWoW.Me;
 
         public static WoWSpec CurrentSpec { get; private set; }
 
-        public static List<Talent> Talents { get; private set; }
+        public static event EventHandler SpecChanged;
 
-        private static int[] TalentId { get; set; }
-
-        private static bool RebuildNeeded
+        private static void OnSpecChanged(EventArgs args)
         {
-            get { return _rebuild; }
-            set
+            var handler = SpecChanged;
+            if (handler != null)
             {
-                _rebuild = value;
-                EventRebuildTimer.Reset();
+                handler(null, args);
             }
         }
 
-        public static void Init()
+        private static bool GetTalent(int tier, int index)
         {
-            Talents = new List<Talent>();
-            TalentId = new int[6];
+            // these are 0-based, and we are sending in actual tiers and index numbers.
+            tier--;
+            index--;
+            return Me.GetLearnedTalent(tier).Index == index;
+        }
 
+        public static void InitTalents()
+        {
+            SetTalEvents();
+
+            // don't allow any talents if < 56 level
+            if (Me.Level < 56)
+            {
+                return;
+            }
+
+            if (Me.Specialization == WoWSpec.DeathKnightUnholy)
+            {
+                if (Me.Level >= 56)
+                {
+                    UnholyAllWillServe = GetTalent(1, 1);
+                    UnholyBurstingSores = GetTalent(1, 2);
+                    UnholyEbonFever = GetTalent(1, 3);
+                }
+                if (Me.Level >= 57)
+                {
+                    UnholyEpidemic = GetTalent(2, 1);
+                    UnholyPestilentPustules = GetTalent(2, 2);
+                    UnholyBlightedRuneWeapon = GetTalent(2, 3);
+                }
+                if (Me.Level >= 58)
+                {
+                    UnholyUnholyFrenzy = GetTalent(3, 1);
+                    UnholyCastigator = GetTalent(3, 2);
+                    UnholyClawingShadows = GetTalent(3, 3);
+                }
+                if (Me.Level >= 60)
+                {
+                    UnholySludgeBelcher = GetTalent(4, 1);
+                    UnholyAsphyxiate = GetTalent(4, 2);
+                    UnholyDebilitatingInfestation = GetTalent(4, 3);
+                }
+                if (Me.Level >= 75)
+                {
+                    UnholySpellEater = GetTalent(5, 1);
+                    UnholyCorpseShield = GetTalent(5, 2);
+                    UnholyLingeringApparition = GetTalent(5, 3);
+                }
+                if (Me.Level >= 90)
+                {
+                    UnholyShadowInfusion = GetTalent(6, 1);
+                    UnholyNecrosis = GetTalent(6, 2);
+                    UnholyInfectedClaws = GetTalent(6, 3);
+                }
+                if (Me.Level >= 100)
+                {
+                    UnholyDarkArbiter = GetTalent(7, 1);
+                    UnholyDefile = GetTalent(7, 2);
+                    UnholySoulReaper = GetTalent(7, 3);
+                }
+            }
+            if (Me.Specialization == WoWSpec.DeathKnightFrost)
+            {
+                if (Me.Level >= 56)
+                {
+                    FrostShatteringStrikes = GetTalent(1, 1);
+                    FrostIcyTalons = GetTalent(1, 2);
+                    FrostMurderousEfficiency = GetTalent(1, 3);
+                }
+                if (Me.Level >= 57)
+                {
+                    FrostFreezingFog = GetTalent(2, 1);
+                    FrostFrozenPulse = GetTalent(2, 2);
+                    FrostHornOfWinter = GetTalent(2, 3);
+                }
+                if (Me.Level >= 58)
+                {
+                    FrostIcecap = GetTalent(3, 1);
+                    FrostHungeringRuneWeapon = GetTalent(3, 2);
+                    FrostAvalanche = GetTalent(3, 3);
+                }
+                if (Me.Level >= 60)
+                {
+                    FrostAbominationsMight = GetTalent(4, 1);
+                    FrostBlindingSleet = GetTalent(4, 2);
+                    FrostWinterIsComing = GetTalent(4, 3);
+                }
+                if (Me.Level >= 75)
+                {
+                    FrostVolatileShielding = GetTalent(5, 1);
+                    FrostPermafrost = GetTalent(5, 2);
+                    FrostWhiteWalker = GetTalent(5, 3);
+                }
+                if (Me.Level >= 90)
+                {
+                    FrostFrostscythe = GetTalent(6, 1);
+                    FrostRunicAttenuation = GetTalent(6, 2);
+                    FrostGatheringStorm = GetTalent(6, 3);
+                }
+                if (Me.Level >= 100)
+                {
+                    FrostObliteration = GetTalent(7, 1);
+                    FrostBreathOfSindragosa = GetTalent(7, 2);
+                    FrostGlacialAdvance = GetTalent(7, 3);
+                }
+            }
+
+            PrintTalents();
+        }
+
+        public static void SetTalEvents()
+        {
             using (StyxWoW.Memory.AcquireFrame())
             {
-                Update();
-
-                Lua.Events.AttachEvent("PLAYER_LEVEL_UP", UpdateTalentManager);
-                Lua.Events.AttachEvent("CHARACTER_POINTS_CHANGED", UpdateTalentManager);
-                Lua.Events.AttachEvent("GLYPH_UPDATED", UpdateTalentManager);
-                Lua.Events.AttachEvent("ACTIVE_TALENT_GROUP_CHANGED", UpdateTalentManager);
-                Lua.Events.AttachEvent("PLAYER_SPECIALIZATION_CHANGED", UpdateTalentManager);
-                Lua.Events.AttachEvent("LEARNED_SPELL_IN_TAB", UpdateTalentManager);
+                Lua.Events.AttachEvent("PLAYER_LEVEL_UP", PlayerLeveledUp);
+                Lua.Events.AttachEvent("CHARACTER_POINTS_CHANGED", InitializeTalents);
+                Lua.Events.AttachEvent("ACTIVE_TALENT_GROUP_CHANGED", InitializeTalents);
+                Lua.Events.AttachEvent("PLAYER_SPECIALIZATION_CHANGED", TalentSpecChanged);
+                Lua.Events.AttachEvent("LEARNED_SPELL_IN_TAB", InitializeTalents);
             }
         }
 
-        /// <summary>
-        ///     checks if a specific talent is selected for current character
-        /// </summary>
-        /// <param name="index">index (base 1) of index</param>
-        /// <returns>true if selected, false if not</returns>
-        public static bool IsSelected(int index)
+        private static void TalentSpecChanged(object sender, LuaEventArgs args)
         {
-            // return Talents.FirstOrDefault(t => t.Index == index).Selected;
-            var tier = (index - 1)/3;
-            if (tier.Between(0, 6))
-                return TalentId[tier] == index;
-            return false;
+            //TODO: Remove after all 3 Spec supported
+            Logging.Write("Spec changed to {0}.", Me.Specialization);
+            InitTalents();
+            //onSpecChanged(args);
         }
 
-        /// <summary>
-        ///     gets talent selected for a specified tier (since mutually exclusive)
-        /// </summary>
-        /// <returns>true if selected, false if not</returns>
-        public static int GetSelectedForTier(int tier)
+        private static void InitializeTalents(object sender, LuaEventArgs args)
         {
-            tier--;
-            if (tier.Between(0, 6))
-                return TalentId[tier];
-            return -1;
+            InitTalents();
         }
 
-        /// <summary>
-        ///     event handler for messages which should cause behaviors to be rebuilt
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
+        private static void PlayerLeveledUp(object sender, LuaEventArgs args)
+        {
+            Logging.Write(string.Format($"Player leveled up!  Now level {args.Args[0]}"));
+            InitTalents();
+        }
+
+        private static void PrintTalents()
+        {
+            Logging.Write("Selected talents for {0}", Me.Specialization.ToString().AddSpaces());
+            if (Me.Specialization == WoWSpec.DeathKnightUnholy)
+            {
+                // tier 1
+                if (UnholyAllWillServe)
+                {
+                    PrintTalent("All Will Serve", 1);
+                }
+                else if (UnholyBurstingSores)
+                {
+                    PrintTalent("Bursting Sores", 1);
+                }
+                else if (UnholyEbonFever)
+                {
+                    PrintTalent("Ebon Fever", 1);
+                }
+
+                // tier 2
+                if (UnholyEpidemic)
+                {
+                    PrintTalent("Epidemic", 2);
+                }
+                else if (UnholyPestilentPustules)
+                {
+                    PrintTalent("Pestilent Pustules", 2);
+                }
+                else if (UnholyBlightedRuneWeapon)
+                {
+                    PrintTalent("Blighted Rune Weapon", 2);
+                }
+
+                // tier 3
+                if (UnholyUnholyFrenzy)
+                {
+                    PrintTalent("Unholy Frenzy", 3);
+                }
+                else if (UnholyCastigator)
+                {
+                    PrintTalent("Castigator", 3);
+                }
+                else if (UnholyClawingShadows)
+                {
+                    PrintTalent("Clawing Shadows", 3);
+                }
+
+                // tier 4
+                if (UnholySludgeBelcher)
+                {
+                    PrintTalent("Sludge Belcher", 4);
+                }
+                else if (UnholyAsphyxiate)
+                {
+                    PrintTalent("Asphyxiate", 4);
+                }
+                else if (UnholyDebilitatingInfestation)
+                {
+                    PrintTalent("Debilitating Infestation", 4);
+                }
+
+                // tier 5
+                if (UnholySpellEater)
+                {
+                    PrintTalent("Spell Eater", 5);
+                }
+                else if (UnholyCorpseShield)
+                {
+                    PrintTalent("Corpse Shield", 5);
+                }
+                else if (UnholyLingeringApparition)
+                {
+                    PrintTalent("Lingering Apparition", 5);
+                }
+
+                // tier 6
+                if (UnholyShadowInfusion)
+                {
+                    PrintTalent("Shadow Infusion", 6);
+                }
+                else if (UnholyNecrosis)
+                {
+                    PrintTalent("Necrosis", 6);
+                }
+                else if (UnholyInfectedClaws)
+                {
+                    PrintTalent("Infected Claws", 6);
+                }
+
+                // tier 7
+                if (UnholyDarkArbiter)
+                {
+                    PrintTalent("Dark Arbiter", 7);
+                }
+                else if (UnholyDefile)
+                {
+                    PrintTalent("Defile", 7);
+                }
+                else if (UnholySoulReaper)
+                {
+                    PrintTalent("Soul Reaper", 7);
+                }
+            }
+
+            if (Me.Specialization == WoWSpec.DeathKnightFrost)
+            {
+                // tier 1
+                if (FrostShatteringStrikes)
+                {
+                    PrintTalent("Shattering Strikes", 1);
+                }
+                else if (FrostIcyTalons)
+                {
+                    PrintTalent("Icy Talons", 1);
+                }
+                else if (FrostMurderousEfficiency)
+                {
+                    PrintTalent("Murderous Efficiency", 1);
+                }
+
+                // tier 2
+                if (FrostFreezingFog)
+                {
+                    PrintTalent("Freezing Fog", 2);
+                }
+                else if (FrostFrozenPulse)
+                {
+                    PrintTalent("Frozen Pulse", 2);
+                }
+                else if (FrostHornOfWinter)
+                {
+                    PrintTalent("Horn of Winter", 2);
+                }
+
+                // tier 3
+                if (FrostIcecap)
+                {
+                    PrintTalent("Icecap", 3);
+                }
+                else if (FrostHungeringRuneWeapon)
+                {
+                    PrintTalent("Hungering Rune Weapon", 3);
+                }
+                else if (FrostAvalanche)
+                {
+                    PrintTalent("Avalanche", 3);
+                }
+
+                // tier 4
+                if (FrostAbominationsMight)
+                {
+                    PrintTalent("Abomination's Might", 4);
+                }
+                else if (FrostBlindingSleet)
+                {
+                    PrintTalent("Blinding Sleet", 4);
+                }
+                else if (FrostWinterIsComing)
+                {
+                    PrintTalent("Winter is Coming", 4);
+                }
+
+                // tier 5
+                if (FrostVolatileShielding)
+                {
+                    PrintTalent("Volatile Shielding", 5);
+                }
+                else if (FrostPermafrost)
+                {
+                    PrintTalent("Permafrost", 5);
+                }
+                else if (FrostWhiteWalker)
+                {
+                    PrintTalent("White Walker", 5);
+                }
+
+                // tier 6
+                if (FrostFrostscythe)
+                {
+                    PrintTalent("Frostscythe", 6);
+                }
+                else if (FrostRunicAttenuation)
+                {
+                    PrintTalent("Runic Attenuation", 6);
+                }
+                else if (FrostGatheringStorm)
+                {
+                    PrintTalent("Gathering Storm", 6);
+                }
+
+                // tier7
+                if (FrostObliteration)
+                {
+                    PrintTalent("Obliteration", 7);
+                }
+                else if (FrostBreathOfSindragosa)
+                {
+                    PrintTalent("Breath of Sindragosa)", 7);
+                }
+                else if (FrostGlacialAdvance)
+                {
+                    PrintTalent("Glacial Advance", 7);
+                }
+            }
+        }
+
+        private static void PrintTalent(string name, int tier)
+        {
+            Logging.Write("Tier {0}: {1}", tier, name);
+        }
+
         private static void UpdateTalentManager(object sender, LuaEventArgs args)
         {
-            // Since we hooked this in ctor, make sure we are the selected CC
-            if (RoutineManager.Current.Name != ScourgeBloom.GetScourgeBloomRoutineName())
-                return;
-
-            var oldSpec = CurrentSpec;
-            var oldTalent = TalentId;
-            var oldSig = _spellBookSignature;
-            var oldSpellCount = _spellCount;
-
-            Logging.WriteDiagnostic("{0} Event Fired!", args.EventName);
-
-            Update();
-
-            if (args.EventName == "PLAYER_SPECIALIZATION_CHANGED")
-            {
-                SpecChangeTestTimer.Reset();
-                Logging.WriteDiagnostic(
-                    "TalentManager: receive a {0} event, currently {1} -- queueing check for new spec!", args.EventName,
-                    CurrentSpec);
-            }
-
-            if (args.EventName == "PLAYER_LEVEL_UP")
-            {
-                RebuildNeeded = true;
-                Logging.Write(Log.LogColor.Hilite, "TalentManager: Your character has leveled up! Now level {0}",
-                    args.Args[0]);
-            }
-
-            if (CurrentSpec != oldSpec)
-            {
-                RebuildNeeded = true;
-                Logging.Write(Log.LogColor.Hilite, "TalentManager: Your spec has been changed.");
-            }
-
-            int i;
-            for (i = 0; i < 6; i++)
-            {
-                if (oldTalent[i] != TalentId[i])
-                {
-                    RebuildNeeded = true;
-                    Logging.Write(Log.LogColor.Hilite, "TalentManager: Your talents have changed.");
-                    break;
-                }
-            }
-
-            if (_spellBookSignature != oldSig || _spellCount != oldSpellCount)
-            {
-                RebuildNeeded = true;
-                Logging.Write(Log.LogColor.Hilite, "TalentManager: Your available Spells have changed.");
-            }
-
-            Logging.WriteDiagnostic(Log.LogColor.Hilite, "TalentManager: RebuildNeeded={0}", RebuildNeeded);
+            Logging.Write("------------------");
+            Logging.Write("Talents changed...");
+            InitTalents();
         }
-
-        private static uint CalcSpellBookSignature()
-        {
-            uint sig = 0;
-            foreach (var sp in SpellManager.Spells)
-            {
-                sig ^= (uint) sp.Value.Id;
-            }
-            return sig;
-        }
-
-        /// <summary>
-        ///     loads WOW Talent and Spec info into cached list
-        /// </summary>
-        public static void Update()
-        {
-            using (StyxWoW.Memory.AcquireFrame())
-            {
-                // With Legion, Low levels are an auto selected spec now. We want to keep using Lowbie behaviors pre level 10
-                CurrentSpec = StyxWoW.Me.Level < 10 ? WoWSpec.None : StyxWoW.Me.Specialization;
-
-                Talents.Clear();
-                TalentId = new int[7];
-
-                // Always 21 talents. 7 rows of 3 talents.
-                for (var row = 0; row < 7; row++)
-                {
-                    for (var col = 0; col < 3; col++)
-                    {
-                        var selected =
-                            Lua.GetReturnVal<bool>(
-                                $"local t = select(4, GetTalentInfo({row + 1}, {col + 1}, GetActiveSpecGroup())) if t then return 1 end return nil", 0);
-                        var index = 1 + row*3 + col;
-                        var t = new Talent {Index = index, Selected = selected};
-                        Talents.Add(t);
-
-                        if (selected)
-                            TalentId[row] = index;
-                    }
-                }
-
-                _spellCount = (uint) SpellManager.Spells.Count;
-                _spellBookSignature = CalcSpellBookSignature();
-            }
-        }
-
-        public static bool Pulse()
-        {
-            if (SpecChangeTestTimer.IsFinished)
-            {
-                if (StyxWoW.Me.Level >= 10 && StyxWoW.Me.Specialization != CurrentSpec)
-                {
-                    CurrentSpec = StyxWoW.Me.Specialization;
-                    RebuildNeeded = true;
-                    Logging.Write(Log.LogColor.Hilite, "TalentManager: spec is now to {0}", ScourgeBloom.SpecName());
-                }
-            }
-
-            if (RebuildNeeded && EventRebuildTimer.IsFinished)
-            {
-                RebuildNeeded = false;
-                Logging.Write(Log.LogColor.Hilite, "TalentManager: Rebuilding behaviors due to changes detected.");
-                Update(); // reload talents just in case
-                ScourgeBloom.DescribeContext();
-                //ScourgeBloom.Instance.RebuildBehaviors();
-                return true;
-            }
-
-            return false;
-        }
-
-        #region Nested type: Talent
-
-        public struct Talent
-        {
-            public bool Selected;
-            public int Index;
-        }
-
-        #endregion
     }
 }

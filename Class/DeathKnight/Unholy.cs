@@ -651,32 +651,32 @@ namespace ScourgeBloom.Class.DeathKnight
 
         public static bool EpidemicSelected()
         {
-            return TalentManager.IsSelected(4);
+            return TalentManager.UnholyEpidemic;
         }
 
         public static bool PestilentPustulesSelected()
         {
-            return TalentManager.IsSelected(5);
+            return TalentManager.UnholyPestilentPustules;
         }
 
         public static bool ShadowInfusionSelected()
         {
-            return TalentManager.IsSelected(16);
+            return TalentManager.UnholyShadowInfusion;
         }
 
         public static bool DarkArbiterSelected()
         {
-            return TalentManager.IsSelected(19);
+            return TalentManager.UnholyDarkArbiter;
         }
 
         public static bool DefileSelected()
         {
-            return TalentManager.IsSelected(20);
+            return TalentManager.UnholyDefile;
         }
 
         public static bool SoulReaperSelected()
         {
-            return TalentManager.IsSelected(21);
+            return TalentManager.UnholySoulReaper;
         }
 
         #endregion TalentSelected

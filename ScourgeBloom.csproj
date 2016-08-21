@@ -57,8 +57,6 @@
     <Compile Include="Class\DeathKnight\Frost.cs" />
     <Compile Include="Class\DeathKnight\Unholy.cs" />
     <Compile Include="Class\Defensives.cs" />
-    <Compile Include="Class\DemonHunter\Havoc.cs" />
-    <Compile Include="Class\DemonHunter\Vengeance.cs" />
     <Compile Include="Class\Hotkeys.cs" />
     <Compile Include="Class\Interrupts.cs" />
     <Compile Include="Class\Racials.cs" />
