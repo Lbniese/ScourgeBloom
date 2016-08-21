@@ -18,12 +18,9 @@ namespace ScourgeBloom.Helpers
     {
         public static string AddSpaces(this string data)
         {
-
-
             var r = new Regex(@"(?!^)(?=[A-Z])");
 
             return r.Replace(data, " ");
-
         }
 
         public static bool Between(this double distance, double min, double max)

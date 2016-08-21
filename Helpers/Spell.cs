@@ -300,7 +300,6 @@ namespace ScourgeBloom.Helpers
 
         public static CanCastResult CanCast(string strspell, WoWUnit unit, bool ignoregcd)
         {
-
             if (!Me.IsAlive || Me.IsDead || Me.IsGhost || Me.CurrentHealth == 0)
                 return CanCastResult.Dead;
 

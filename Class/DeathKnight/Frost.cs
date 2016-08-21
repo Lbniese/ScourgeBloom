@@ -69,15 +69,15 @@ namespace ScourgeBloom.Class.DeathKnight
             if (!Me.IsAlive)
                 return false;
 
-            if (GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.Attackable &&
+            if (GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.CanWeAttack() &&
                 Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight && Me.IsSafelyFacing(Me.CurrentTarget))
             {
-                if (Me.GotTarget && Me.CurrentTarget.Attackable && Me.IsSafelyFacing(Me.CurrentTarget) &&
+                if (Me.GotTarget && Me.CurrentTarget.CanWeAttack() && Me.IsSafelyFacing(Me.CurrentTarget) &&
                     Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.Distance > 7 && Me.CurrentTarget.InLineOfSight &&
                     DeathKnightSettings.Instance.DeathGrip)
                     return await Spell.CoCast(S.DeathGrip, SpellManager.CanCast(S.DeathGrip));
 
-                if (Me.GotTarget && Me.CurrentTarget.Attackable && Me.IsSafelyFacing(Me.CurrentTarget) &&
+                if (Me.GotTarget && Me.CurrentTarget.CanWeAttack() && Me.IsSafelyFacing(Me.CurrentTarget) &&
                     Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight &&
                     Spell.GetCooldownLeft(S.Outbreak).TotalSeconds > 1)
                     return await Spell.CoCast(S.HowlingBlast, SpellManager.CanCast(S.HowlingBlast));
@@ -253,18 +253,18 @@ namespace ScourgeBloom.Class.DeathKnight
             // pillar_of_frost
             await Spell.CoCast(S.PillarofFrost,
                 Capabilities.IsCooldownUsageAllowed && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange &&
-                Me.CurrentTarget.Attackable && DeathKnightSettings.Instance.PillarofFrostOnCd &&
+                Me.CurrentTarget.CanWeAttack() && DeathKnightSettings.Instance.PillarofFrostOnCd &&
                 !Me.HasActiveAura("Pillar of Frost"));
 
             // sindragosas_fury
             if (await Spell.CoCast(S.SindragosasFury, Me,
                 Capabilities.IsCooldownUsageAllowed && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange &&
-                Me.CurrentTarget.Attackable)) return true;
+                Me.CurrentTarget.CanWeAttack())) return true;
 
             // obliteration
             await Spell.CoCast(S.Obliteration, Me,
                 Capabilities.IsCooldownUsageAllowed && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange &&
-                Me.CurrentTarget.Attackable);
+                Me.CurrentTarget.CanWeAttack());
 
             // breath_of_sindragosa,if=runic_power>=80
             await Spell.CoCast(S.BreathofSindragosa, onunit,
@@ -638,7 +638,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
             // empower_rune_weapon
             if (await Spell.CoCast(S.EmpowerRuneWeapon,
-                Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.Attackable && Me.Combat && Me.GotTarget &&
+                Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.CanWeAttack() && Me.Combat && Me.GotTarget &&
                 !Me.HasActiveAura("Empower Rune Weapon")))
                 return true;
 

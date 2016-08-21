@@ -58,7 +58,7 @@ namespace ScourgeBloom
 
         protected static readonly LocalPlayer Me = StyxWoW.Me;
 
-        public static readonly Version Version = new Version(1, 4, 46);
+        public static readonly Version Version = new Version(1, 4, 47);
 
         private static bool _initialized;
 
@@ -590,7 +590,7 @@ namespace ScourgeBloom
 
         private static void InitializeOnce()
         {
-            if (_initialized == true)
+            if (_initialized)
                 return;
 
             ScourgeBloomSettings.ClassSettings.Initialize();

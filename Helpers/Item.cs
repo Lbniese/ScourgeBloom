@@ -15,7 +15,6 @@ using Styx;
 using Styx.Common;
 using Styx.CommonBot.Coroutines;
 using Styx.CommonBot.Frames;
-using Styx.WoWInternals.DB;
 using Styx.WoWInternals.WoWObjects;
 
 namespace ScourgeBloom.Helpers

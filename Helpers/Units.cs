@@ -32,6 +32,46 @@ namespace ScourgeBloom.Helpers
         public static int TrivialElite { get; set; }
         public static uint SeriousHealth { get; set; }
 
+        /// <summary>
+        /// Calls the UnitCanAttack LUA to check if current target is attackable. This is
+        /// necessary because the WoWUnit.Attackable property returns 'true' when targeting
+        /// any enemy player including in Sanctuary, not PVP flagged, etc where a player
+        /// is not attackable
+        /// </summary>
+        public static bool CanWeAttack(this WoWUnit unit, bool restoreFocus = true)
+        {
+            if (unit == null)
+                return false;
+
+            var canAttack = false;
+
+            if (unit.Guid == StyxWoW.Me.CurrentTargetGuid)
+                canAttack = Lua.GetReturnVal<bool>("return UnitCanAttack(\"player\",\"target\")", 0);
+            else
+            {
+                // do not perform test in PVP or Instance contexts
+                if (ScourgeBloom.CurrentWoWContext != WoWContext.Normal)
+                    return true;
+
+                // skip test if not a player 
+                if (!unit.IsPlayer)
+                    return true;
+
+                var focusSave = StyxWoW.Me.FocusedUnit;
+                StyxWoW.Me.SetFocus(unit);
+                canAttack = Lua.GetReturnVal<bool>("return UnitCanAttack(\"player\",\"focus\")", 0);
+                if (restoreFocus)
+                {
+                    if (focusSave == null || !focusSave.IsValid)
+                        StyxWoW.Me.SetFocus(WoWGuid.Empty);
+                    else
+                        StyxWoW.Me.SetFocus(focusSave);
+                }
+            }
+
+            return canAttack;
+        }
+
         public static IEnumerable<WoWUnit> NearbyUnitsInCombatWithMeOrMyStuff
         {
             get
@@ -42,10 +82,7 @@ namespace ScourgeBloom.Helpers
             }
         }
 
-        public static IEnumerable<WoWUnit> NearbyUnitsInCombatWithUsOrOurStuff
-        {
-            get { return UnitsInCombatWithUsOrOurStuff(40); }
-        }
+        public static IEnumerable<WoWUnit> NearbyUnitsInCombatWithUsOrOurStuff => UnitsInCombatWithUsOrOurStuff(40);
 
         /// <summary>
         ///     Gets the nearby unfriendly units within 40 yards.
@@ -465,6 +502,7 @@ namespace ScourgeBloom.Helpers
                     if (StyxWoW.Me.CurrentTarget.MaxHealth > StyxWoW.Me.MaxHealth*2 &&
                         StyxWoW.Me.CurrentTarget.CurrentHealth > StyxWoW.Me.CurrentHealth)
                         return true;
+                    // ReSharper disable once PossibleLossOfFraction
                     if (StyxWoW.Me.HealthPercent < minHealth/2)
                         return true;
                 }

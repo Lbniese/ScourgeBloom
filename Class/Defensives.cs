@@ -31,7 +31,7 @@ namespace ScourgeBloom.Class
                 DeathKnightSettings.Instance.UseIceBoundFortitude && Capabilities.IsCooldownUsageAllowed);
 
             if (await Spell.CoCast(SpellLists.DeathStrike,
-                Me.GotTarget && Me.CurrentTarget.Attackable && Me.CurrentTarget.IsWithinMeleeRange &&
+                Me.GotTarget && Me.CurrentTarget.CanWeAttack() && Me.CurrentTarget.IsWithinMeleeRange &&
                 Me.HealthPercent < DeathKnightSettings.Instance.UseDeathStrikeHp &&
                 DeathKnightSettings.Instance.UseDeathStrike))
                 return true;

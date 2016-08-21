@@ -45,7 +45,7 @@ namespace ScourgeBloom.Class.DeathKnight
             if (Capabilities.IsTargetingAllowed)
                 MovementManager.AutoTarget();
 
-            if (!StyxWoW.Me.GotTarget || !Me.CurrentTarget.Attackable)
+            if (!StyxWoW.Me.GotTarget || !Me.CurrentTarget.CanWeAttack())
                 return false;
 
             // Attack if not attacking
@@ -186,12 +186,12 @@ namespace ScourgeBloom.Class.DeathKnight
 
             // run_action_list,name=valkyr,if=talent.dark_arbiter.enabled&pet.valkyr_battlemaiden.active
             //if (await ValkyrActive(onunit,
-            //            Me.Combat && Me.GotTarget && Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.Attackable &&
+            //            Me.Combat && Me.GotTarget && Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.CanWeAttack() &&
             //            DarkArbiterSelected() && Me.HasAura(S.AuraSummonGargoyle)))
             //    return true;
 
             if (await ValkyrActive(onunit,
-                Me.Combat && Me.GotTarget && Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.Attackable &&
+                Me.Combat && Me.GotTarget && Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.CanWeAttack() &&
                 DarkArbiterSelected() && Me.HasAura(S.AuraSummonGargoyle)))
             {
                 return true;
@@ -199,7 +199,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
             // dark_arbiter,if=runic_power>80
             if (await Spell.CoCast(S.DarkArbiter, onunit,
-                Me.CurrentTarget.Distance <= 8 && Me.GotTarget && Me.CurrentTarget.Attackable &&
+                Me.CurrentTarget.Distance <= 8 && Me.GotTarget && Me.CurrentTarget.CanWeAttack() &&
                 Me.CurrentRunicPower > 80)) return true;
 
             // summon_gargoyle
@@ -249,7 +249,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
             // defile
             if (await Spell.CastOnGround(S.Defile, Me,
-                Me.GotTarget && Me.CurrentTarget.Attackable && Me.CurrentTarget.IsWithinMeleeRange &&
+                Me.GotTarget && Me.CurrentTarget.CanWeAttack() && Me.CurrentTarget.IsWithinMeleeRange &&
                 !Me.CurrentTarget.IsMoving
                 && Capabilities.IsAoeAllowed)) return true;
 
@@ -277,7 +277,8 @@ namespace ScourgeBloom.Class.DeathKnight
             if (
                 await
                     Spell.CoCast(S.ClawingShadows, onunit,
-                        SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentRunes >= 1 && Me.CurrentTarget.IsWithinMeleeRange &&
+                        SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentRunes >= 1 &&
+                        Me.CurrentTarget.IsWithinMeleeRange &&
                         Me.HasAura(S.AuraNecrosis))) return true;
 
             // scourge_strike,if=buff.unholy_strength.react
@@ -291,7 +292,8 @@ namespace ScourgeBloom.Class.DeathKnight
             if (
                 await
                     Spell.CoCast(S.ClawingShadows, onunit,
-                        SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentRunes >= 1 && Me.CurrentTarget.IsWithinMeleeRange &&
+                        SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentRunes >= 1 &&
+                        Me.CurrentTarget.IsWithinMeleeRange &&
                         Me.HasAura(S.AuraUnholyStrength))) return true;
 
             // scourge_strike,if=rune>=3
@@ -305,7 +307,8 @@ namespace ScourgeBloom.Class.DeathKnight
             if (
                 await
                     Spell.CoCast(S.ClawingShadows, onunit,
-                        SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentRunes >= 1 && Me.CurrentTarget.IsWithinMeleeRange &&
+                        SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentRunes >= 1 &&
+                        Me.CurrentTarget.IsWithinMeleeRange &&
                         Me.CurrentRunes >= 3)) return true;
 
             if (Me.CurrentTarget.Distance <= 40)
@@ -369,7 +372,7 @@ namespace ScourgeBloom.Class.DeathKnight
                         !Me.OnTaxi && !Me.Mounted))
                 return true;
 
-            if (GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.Attackable &&
+            if (GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.CanWeAttack() &&
                 Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight && Me.IsSafelyFacing(Me.CurrentTarget))
             {
                 if (Me.CurrentTarget.Distance > 7 && DeathKnightSettings.Instance.DeathGrip)
@@ -479,7 +482,8 @@ namespace ScourgeBloom.Class.DeathKnight
             if (
                 await
                     Spell.CoCast(S.ClawingShadows, onunit,
-                        Me.CurrentTarget.IsWithinMeleeRange && SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentRunes >= 1 &&
+                        Me.CurrentTarget.IsWithinMeleeRange && SpellManager.HasSpell(S.ClawingShadows) &&
+                        Me.CurrentRunes >= 1 &&
                         Me.CurrentTarget.HasMyAura(S.AuraFesteringWound))) return true;
 
 
@@ -570,7 +574,8 @@ namespace ScourgeBloom.Class.DeathKnight
             if (
                 await
                     Spell.CoCast(S.ClawingShadows, onunit,
-                        SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentRunes >= 1 && Me.CurrentTarget.IsWithinMeleeRange &&
+                        SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentRunes >= 1 &&
+                        Me.CurrentTarget.IsWithinMeleeRange &&
                         Units.EnemiesInRange(5) >= 2 && (Me.HasAura(S.AuraDeathandDecay) || Me.HasAura(S.AuraDefile))))
                 return true; //Recheck logic
 
@@ -593,7 +598,8 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CoCast(S.DeathCoil, onunit, Me.CurrentRunicPower > 60)) return true;
 
             if (await Spell.CoCast(S.ClawingShadows, onunit,
-                Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentRunes >= 1 && SpellManager.HasSpell(S.ClawingShadows))) return true;
+                Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentRunes >= 1 && SpellManager.HasSpell(S.ClawingShadows)))
+                return true;
 
             if (await Spell.CoCast(S.ScourgeStrike, onunit,
                 Me.CurrentTarget.IsWithinMeleeRange && !SpellManager.HasSpell(S.ClawingShadows))) return true;
@@ -689,7 +695,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> PetAttack()
         {
-            if (Me.GotAlivePet && Me.GotTarget && Me.CurrentTarget.Attackable)
+            if (Me.GotAlivePet && Me.GotTarget && Me.CurrentTarget.CanWeAttack())
             {
                 Lua.DoString("PetAttack();");
             }
