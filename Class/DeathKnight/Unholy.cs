@@ -497,6 +497,10 @@ namespace ScourgeBloom.Class.DeathKnight
             if (!reqs) return false;
 
             //Custom - SingularBased LowbieRotation
+            if (await Spell.CoCast(S.DeathStrike, onunit,
+                (Me.HasActiveAura("Dark Succor") && Me.HealthPercent < 80) || Me.HealthPercent <= 40))
+                return true;
+
             if (await Spell.CoCast(S.SummonGargoyle, onunit,
                 Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.IsStressful() &&
                 DeathKnightSettings.Instance.SummonGargoyleOnCd)) return true;

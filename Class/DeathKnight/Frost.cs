@@ -69,12 +69,6 @@ namespace ScourgeBloom.Class.DeathKnight
             if (!Me.IsAlive)
                 return false;
 
-            //if (await Spell.CoCast(S.FrostPresence, Me, !Me.HasAura(S.FrostPresence)))
-            //    return true;
-
-            //if (await Spell.CoCast(S.HornofWinter, Me, HornofWinterSelected() && !Me.HasPartyBuff(Units.Stat.AttackPower)))
-            //    return true;
-
             if (GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.Attackable &&
                 Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight && Me.IsSafelyFacing(Me.CurrentTarget))
             {
@@ -101,8 +95,6 @@ namespace ScourgeBloom.Class.DeathKnight
         private static async Task<bool> PullBuffs()
 #pragma warning restore 1998
         {
-            if (Paused) return false;
-
             return false;
         }
 
@@ -165,8 +157,8 @@ namespace ScourgeBloom.Class.DeathKnight
         {
             if (Paused) return false;
 
-            if (/*!Me.Combat || */Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting ||
-                Me.IsChanneling) return false;
+            if ( /*!Me.Combat || */Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting ||
+                                   Me.IsChanneling) return false;
 
             if (Capabilities.IsMovingAllowed)
                 await MovementManager.MoveToTarget();
@@ -199,17 +191,6 @@ namespace ScourgeBloom.Class.DeathKnight
         #endregion Pull
 
         #region Openers
-
-        private static async Task<bool> ExampleOpener(bool reqs)
-        {
-            if (Paused) return false;
-
-            if (!reqs) return false;
-
-            await CommonCoroutines.SleepForLagDuration();
-
-            return true;
-        }
 
         #endregion Openers
 
@@ -551,6 +532,10 @@ namespace ScourgeBloom.Class.DeathKnight
             if (!reqs) return false;
 
             //Custom - SingularBased LowbieRotation
+            if (await Spell.CoCast(S.DeathStrike, onunit,
+                (Me.HasActiveAura("Dark Succor") && Me.HealthPercent < 80) || Me.HealthPercent <= 40))
+                return true;
+
             if (await Spell.CoCast(S.HowlingBlast, onunit,
                 Capabilities.IsAoeAllowed && Me.CurrentTarget.GetAuraTimeLeft(S.AuraFrostFever).TotalSeconds < 1.8d))
                 return true;
