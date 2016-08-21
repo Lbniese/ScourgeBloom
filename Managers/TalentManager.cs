@@ -88,13 +88,6 @@ namespace ScourgeBloom.Managers
 
         #endregion
 
-
-        #region 110 level
-
-            //not implemented yet
-
-        #endregion
-
         private static LocalPlayer Me => StyxWoW.Me;
 
         public static WoWSpec CurrentSpec { get; private set; }
@@ -226,7 +219,10 @@ namespace ScourgeBloom.Managers
         {
             using (StyxWoW.Memory.AcquireFrame())
             {
-                Lua.Events.AttachEvent("PLAYER_LEVEL_UP", PlayerLeveledUp);
+                if (Me.Level < 100)
+                {
+                    Lua.Events.AttachEvent("PLAYER_LEVEL_UP", PlayerLeveledUp);
+                }
                 Lua.Events.AttachEvent("CHARACTER_POINTS_CHANGED", InitializeTalents);
                 Lua.Events.AttachEvent("ACTIVE_TALENT_GROUP_CHANGED", InitializeTalents);
                 Lua.Events.AttachEvent("PLAYER_SPECIALIZATION_CHANGED", TalentSpecChanged);
@@ -470,5 +466,11 @@ namespace ScourgeBloom.Managers
             Logging.Write("Talents changed...");
             InitTalents();
         }
+
+        #region 110 level
+
+        //not implemented yet
+
+        #endregion
     }
 }

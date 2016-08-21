@@ -58,7 +58,7 @@ namespace ScourgeBloom
 
         protected static readonly LocalPlayer Me = StyxWoW.Me;
 
-        public static readonly Version Version = new Version(1, 4, 44);
+        public static readonly Version Version = new Version(1, 4, 45);
 
         private static bool _initialized;
 
@@ -696,7 +696,7 @@ namespace ScourgeBloom
                     Log.WriteLog($"[ScourgeBloom] Botbase - {BotManager.Current.Name} detected");
                     break;
 
-                case "DungeonBuddy":
+                case "Dungeonbuddy":
                     GeneralSettings.Instance.AutoDismount = true;
                     GeneralSettings.Instance.Movement = true;
                     GeneralSettings.Instance.AutoReleaseSpirit = true;
