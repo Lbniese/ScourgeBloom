@@ -33,6 +33,17 @@ namespace ScourgeBloom.Helpers
         public static uint SeriousHealth { get; set; }
 
         /// <summary>
+        /// checks if unit has a current target.  Differs from WoWUnit.GotTarget since it
+        /// will only return true if targeting a WoWUnit
+        /// </summary>
+        /// <param name="unit">unit to check for a CurrentTarget</param>
+        /// <returns>false: if CurrentTarget == null, otherwise true</returns>
+        public static bool GotTarget(this WoWUnit unit)
+        {
+            return unit.CurrentTarget != null;
+        }
+
+        /// <summary>
         /// Calls the UnitCanAttack LUA to check if current target is attackable. This is
         /// necessary because the WoWUnit.Attackable property returns 'true' when targeting
         /// any enemy player including in Sanctuary, not PVP flagged, etc where a player

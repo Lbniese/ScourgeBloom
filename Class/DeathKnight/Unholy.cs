@@ -458,18 +458,28 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CoCast(S.DeathCoil, onunit, Me.CurrentRunicPower >= 35 && Me.CurrentTarget.Distance <= 40))
                 return true;
 
+            // apocalypse,if=debuff.festering_wound.stack= 8
+            //if ( await Spell.CoCast(S.Apocalypse, Me,
+            //            Me.Inventory.Equipped.MainHand.ItemInfo.Id == 128403 &&
+            //            Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) == 8)) return true;
+
+            // festering_strike,if=debuff.festering_wound.stack<8&cooldown.apocalypse.remains<5
+            //if (await Spell.CoCast(S.FesteringStrike, onunit,
+            //            Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.HasMyAura(S.AuraFesteringWound) &&
+            //            Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) < 8 && Spell.GetCooldownLeft(S.Apocalypse).TotalSeconds < 5)) return true;
+
             // call_action_list,name=aoe,if=active_enemies>=2
             if (await AOE(onunit, Units.EnemiesInRange(10) >= 2))
             {
                 return true;
             }
 
-            // festering_strike,if=debuff.festering_wound.stack<=6
+            // festering_strike,if=debuff.festering_wound.stack<=3
             if (
                 await
                     Spell.CoCast(S.FesteringStrike, onunit,
                         Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.HasMyAura(S.AuraFesteringWound) &&
-                        Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) <= 6)) return true; //Fix stacks checking
+                        Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) <= 3)) return true; //Fix stacks checking
 
             // scourge_strike,if=debuff.festering_wound.up
             if (
