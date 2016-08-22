@@ -58,7 +58,7 @@ namespace ScourgeBloom
 
         protected static readonly LocalPlayer Me = StyxWoW.Me;
 
-        public static readonly Version Version = new Version(1, 4, 52);
+        public static readonly Version Version = new Version(1, 4, 53);
 
         private static bool _initialized;
 
@@ -99,11 +99,6 @@ namespace ScourgeBloom
         public override bool WantButton => true;
 
         public override CapabilityFlags SupportedCapabilities => CapabilityFlags.All;
-
-        /*public static bool IsAllowed(CapabilityFlags flags)
-        {
-            return RoutineManager.GetCapabilityState(flags) == CapabilityState.DontCare;
-        }*/
 
         public override Composite CombatBehavior => CreateCombat();
 
@@ -555,8 +550,7 @@ namespace ScourgeBloom
                 if (currFps != _lastFps)
                 {
                     _lastFps = currFps;
-                    Logging.WriteDiagnostic("Combat Performance Monitoring:");
-                    Logging.WriteDiagnostic("FPS:{ 0} Latency: { 1}", currFps, Latency);
+                    Logging.WriteDiagnostic("Combat Performance Monitoring: FPS:{ 0} Latency: { 1}, currFps, Latency");
                 }
 
                 PollInterval.Reset();

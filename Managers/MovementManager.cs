@@ -50,7 +50,6 @@ namespace ScourgeBloom.Managers
 
         public static void Face(WoWUnit unit)
         {
-            if (Capabilities.IsFacingAllowed)
                 unit.Face();
         }
 
@@ -71,24 +70,22 @@ namespace ScourgeBloom.Managers
                 if (StyxWoW.Me.GotTarget && !StyxWoW.Me.IsSafelyFacing(StyxWoW.Me.CurrentTarget))
                     StyxWoW.Me.CurrentTarget.Face();
             }
-
-            if (!Capabilities.IsMovingAllowed)
-                return;
-
+            if (Capabilities.IsFacingAllowed)
             EnsureTarget();
 
             // Move into LOS
-            if (StyxWoW.Me.CurrentTarget != null && StyxWoW.Me.CurrentTarget.Distance > Range)
+            if (Capabilities.IsMovingAllowed && StyxWoW.Me.CurrentTarget != null && StyxWoW.Me.CurrentTarget.Distance > Range)
             {
                 Navigator.MoveTo(StyxWoW.Me.CurrentTarget.Location);
             }
 
-            if (StyxWoW.Me.CurrentTarget != null && !StyxWoW.Me.IsMoving && !StyxWoW.Me.CurrentTarget.IsMe &&
+
+            if (Capabilities.IsFacingAllowed && StyxWoW.Me.CurrentTarget != null && !StyxWoW.Me.IsMoving && !StyxWoW.Me.CurrentTarget.IsMe &&
                 !StyxWoW.Me.IsSafelyFacing(StyxWoW.Me.CurrentTarget, 70))
                 StyxWoW.Me.CurrentTarget.Face();
 
 
-            if (!StyxWoW.Me.IsCasting && !StyxWoW.Me.IsChanneling)
+            if (Capabilities.IsMovingAllowed && !StyxWoW.Me.IsCasting && !StyxWoW.Me.IsChanneling)
             {
                 var currentTarget = StyxWoW.Me.CurrentTarget;
 

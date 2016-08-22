@@ -67,7 +67,7 @@ namespace ScourgeBloom.Class.DeathKnight
             if (Paused) return false;
 
             if (!Me.IsAlive)
-                return false;
+                return true;
 
             if (GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.CanWeAttack() &&
                 Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight && Me.IsSafelyFacing(Me.CurrentTarget))
@@ -160,7 +160,7 @@ namespace ScourgeBloom.Class.DeathKnight
             if ( /*!Me.Combat || */Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting ||
                                    Me.IsChanneling) return false;
 
-            if (Capabilities.IsMovingAllowed)
+            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
                 await MovementManager.MoveToTarget();
 
             if (Capabilities.IsTargetingAllowed)

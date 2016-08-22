@@ -39,7 +39,7 @@ namespace ScourgeBloom.Class.DeathKnight
             if (!Me.Combat || Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting ||
                 Me.IsChanneling) return true;
 
-            if (Capabilities.IsMovingAllowed)
+            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
                 await MovementManager.MoveToTarget();
 
             if (Capabilities.IsTargetingAllowed)
