@@ -215,9 +215,9 @@ namespace ScourgeBloom.Class.DeathKnight
             //if (await Spell.CoCast(S.FesteringStrike, onunit, Me.CurrentTarget.HasMyAura(S.AuraFesteringWound) &&
             //    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) < 8 &&  Spell.GetCooldownLeft(S.Apocalypse).TotalSeconds < 5))
             //    return true;
-  
+
             // soul_reaper,if=debuff.festering_wound.stack>=3
-                if (await Spell.CoCast(S.SoulReaper, onunit,
+            if (await Spell.CoCast(S.SoulReaper, onunit,
                 SoulReaperSelected() && Me.CurrentTarget.IsWithinMeleeRange &&
                 Me.CurrentTarget.HasMyAura(S.AuraFesteringWound) &&
                 Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 3)) return true;
@@ -256,9 +256,9 @@ namespace ScourgeBloom.Class.DeathKnight
 
             // festering_strike,if=debuff.festering_wound.stack<=3
             if (await
-                    Spell.CoCast(S.FesteringStrike, onunit,
-                        Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.HasMyAura(S.AuraFesteringWound) &&
-                        Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) <= 3)) return true;
+                Spell.CoCast(S.FesteringStrike, onunit,
+                    Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.HasMyAura(S.AuraFesteringWound) &&
+                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) <= 3)) return true;
 
             // scourge_strike,if=buff.necrosis.react
             if (
@@ -490,6 +490,11 @@ namespace ScourgeBloom.Class.DeathKnight
                         Me.CurrentRunes >= 1 &&
                         Me.CurrentTarget.HasMyAura(S.AuraFesteringWound))) return true;
 
+            if (Capabilities.IsTargetingAllowed)
+                MovementManager.AutoTarget();
+
+            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
+                await MovementManager.MoveToTarget();
 
             await CommonCoroutines.SleepForLagDuration();
 
@@ -505,6 +510,13 @@ namespace ScourgeBloom.Class.DeathKnight
             if (!reqs) return false;
 
             //Custom - SingularBased LowbieRotation
+            if (
+                await
+                    Spell.CoCast(S.RaiseDead, Me,
+                        Capabilities.IsPetUsageAllowed && !Me.GotAlivePet && Capabilities.IsPetSummonAllowed &&
+                        !Me.OnTaxi && !Me.Mounted))
+                return true;
+
             if (await Spell.CoCast(S.DeathStrike, onunit,
                 (Me.HasActiveAura("Dark Succor") && Me.HealthPercent < 80) || Me.HealthPercent <= 40))
                 return true;
@@ -531,6 +543,11 @@ namespace ScourgeBloom.Class.DeathKnight
 
             if (await Spell.CoCast(S.DeathCoil, onunit, RunicPowerDeficit < 10)) return true;
 
+            if (Capabilities.IsTargetingAllowed)
+                MovementManager.AutoTarget();
+
+            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
+                await MovementManager.MoveToTarget();
 
             await CommonCoroutines.SleepForLagDuration();
 
@@ -555,6 +572,13 @@ namespace ScourgeBloom.Class.DeathKnight
             // death_and_decay,if=spell_targets.death_and_decay>=2
             if (await Spell.CastOnGround(S.DeathandDecay, Me,
                 Me.GotTarget && Me.CurrentTarget.IsWithinMeleeRange && !Me.CurrentTarget.IsMoving &&
+                Capabilities.IsAoeAllowed && Units.EnemiesInRange(10) >= 2))
+                return true;
+
+            // custom defile
+            if (await Spell.CastOnGround(S.Defile, Me,
+                TalentManager.UnholyDefile && Me.GotTarget && Me.CurrentTarget.IsWithinMeleeRange &&
+                !Me.CurrentTarget.IsMoving &&
                 Capabilities.IsAoeAllowed && Units.EnemiesInRange(10) >= 2))
                 return true;
 
@@ -599,6 +623,12 @@ namespace ScourgeBloom.Class.DeathKnight
 
             if (await Spell.CoCast(S.ScourgeStrike, onunit,
                 Me.CurrentTarget.IsWithinMeleeRange && !SpellManager.HasSpell(S.ClawingShadows))) return true;
+
+            if (Capabilities.IsTargetingAllowed)
+                MovementManager.AutoTarget();
+
+            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
+                await MovementManager.MoveToTarget();
 
             await CommonCoroutines.SleepForLagDuration();
 

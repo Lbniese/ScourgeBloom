@@ -329,8 +329,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
             // frostscythe,if=buff.killing_machine.react|spell_targets.frostscythe>=4
             if (await Spell.CoCast(S.Frostscythe, onunit,
-            Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.Distance <= 8 &&
-            (Me.HasAura(S.AuraKillingMachine) || Units.EnemiesInRange(8) >= 4))) return true;
+                Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.Distance <= 8 &&
+                (Me.HasAura(S.AuraKillingMachine) || Units.EnemiesInRange(8) >= 4))) return true;
 
             // obliterate,if=buff.killing_machine.react
             if (await Spell.CoCast(S.Obliterate, onunit,
@@ -409,6 +409,12 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.CurrentTarget.Distance <= 8 &&
                 !BoSSelected() && !Me.HasActiveAura("Hungering Rune Weapon"))) return true;
 
+            if (Capabilities.IsTargetingAllowed)
+                MovementManager.AutoTarget();
+
+            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
+                await MovementManager.MoveToTarget();
+
             await CommonCoroutines.SleepForLagDuration();
 
             return true;
@@ -453,6 +459,11 @@ namespace ScourgeBloom.Class.DeathKnight
                 Capabilities.IsCooldownUsageAllowed && HornofWinterSelected() && Me.CurrentRunes < 4 &&
                 RunicPowerDeficit >= 20)) return true;
 
+            if (Capabilities.IsTargetingAllowed)
+                MovementManager.AutoTarget();
+
+            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
+                await MovementManager.MoveToTarget();
 
             await CommonCoroutines.SleepForLagDuration();
 
@@ -460,7 +471,7 @@ namespace ScourgeBloom.Class.DeathKnight
         }
 
         #endregion
-        
+
         #region AOE Routine
 
         // ReSharper disable once InconsistentNaming
@@ -469,6 +480,12 @@ namespace ScourgeBloom.Class.DeathKnight
             if (!reqs) return false;
 
             // Not enough info yet
+
+            if (Capabilities.IsTargetingAllowed)
+                MovementManager.AutoTarget();
+
+            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
+                await MovementManager.MoveToTarget();
 
             await CommonCoroutines.SleepForLagDuration();
 
@@ -498,9 +515,9 @@ namespace ScourgeBloom.Class.DeathKnight
             // frost_strike,if= buff.obliteration.up & !buff.killing_machine.react
             if (await Spell.CoCast(S.FrostStrike, onunit, Me.HasActiveAura("Obliteration")) &&
                 !Me.HasActiveAura("Killing Machine")) return true;
-  
+
             // frostscythe,if=buff.killing_machine.react|spell_targets.frostscythe>=4
-                if (await Spell.CoCast(S.Frostscythe, onunit,
+            if (await Spell.CoCast(S.Frostscythe, onunit,
                 Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.Distance <= 8 &&
                 (Me.HasAura(S.AuraKillingMachine) || Units.EnemiesInRange(8) >= 4))) return true;
 
@@ -537,19 +554,22 @@ namespace ScourgeBloom.Class.DeathKnight
             if (
                 await
                     Spell.CoCast(S.HornofWinter, Me,
-                        Capabilities.IsCooldownUsageAllowed && HornofWinterSelected() && Me.GotTarget && BoSSelected() && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
+                        Capabilities.IsCooldownUsageAllowed && HornofWinterSelected() && Me.GotTarget && BoSSelected() &&
+                        Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
 
             //  horn_of_winter,if= !talent.breath_of_sindragosa.enabled
             if (
                 await
                     Spell.CoCast(S.HornofWinter, Me,
-                        Capabilities.IsCooldownUsageAllowed && HornofWinterSelected() && Me.GotTarget && !BoSSelected())) return true;
+                        Capabilities.IsCooldownUsageAllowed && HornofWinterSelected() && Me.GotTarget && !BoSSelected()))
+                return true;
 
             //  frost_strike,if= talent.breath_of_sindragosa.enabled & cooldown.breath_of_sindragosa.remains > 15
             if (
                 await
                     Spell.CoCast(S.FrostStrike, onunit,
-                        Me.GotTarget && BoSSelected() && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
+                        Me.GotTarget && BoSSelected() && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15))
+                return true;
 
 
             //  frost_strike,if= !talent.breath_of_sindragosa.enabled
@@ -562,13 +582,15 @@ namespace ScourgeBloom.Class.DeathKnight
             if (
                 await
                     Spell.CoCast(S.EmpowerRuneWeapon, Me,
-                        Me.GotTarget && BoSSelected() && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
+                        Me.GotTarget && BoSSelected() && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15))
+                return true;
 
             //  hungering_rune_weapon,if= talent.breath_of_sindragosa.enabled & cooldown.breath_of_sindragosa.remains > 15
             if (
                 await
                     Spell.CoCast(S.HungeringRuneWeapon, Me,
-                        Me.GotTarget && BoSSelected() && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
+                        Me.GotTarget && BoSSelected() && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15))
+                return true;
 
             //  empower_rune_weapon,if= !talent.breath_of_sindragosa.enabled
             if (
@@ -582,6 +604,11 @@ namespace ScourgeBloom.Class.DeathKnight
                     Spell.CoCast(S.HungeringRuneWeapon, Me,
                         Me.GotTarget && !BoSSelected())) return true;
 
+            if (Capabilities.IsTargetingAllowed)
+                MovementManager.AutoTarget();
+
+            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
+                await MovementManager.MoveToTarget();
 
             await CommonCoroutines.SleepForLagDuration();
 

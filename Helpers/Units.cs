@@ -32,9 +32,40 @@ namespace ScourgeBloom.Helpers
         public static int TrivialElite { get; set; }
         public static uint SeriousHealth { get; set; }
 
+        public static IEnumerable<WoWUnit> NearbyUnitsInCombatWithMeOrMyStuff
+        {
+            get
+            {
+                return
+                    NearbyUnfriendlyUnits.Where(
+                        p => p.Aggro || (p.Combat && (p.TaggedByMe || (p.GotTarget && p.IsTargetingMyStuff()))));
+            }
+        }
+
+        public static IEnumerable<WoWUnit> NearbyUnitsInCombatWithUsOrOurStuff => UnitsInCombatWithUsOrOurStuff(40);
+
         /// <summary>
-        /// checks if unit has a current target.  Differs from WoWUnit.GotTarget since it
-        /// will only return true if targeting a WoWUnit
+        ///     Gets the nearby unfriendly units within 40 yards.
+        /// </summary>
+        /// <value>The nearby unfriendly units.</value>
+        public static IEnumerable<WoWUnit> NearbyUnfriendlyUnits => UnfriendlyUnits(40);
+
+        #region GroupMemberInfos
+
+        /// <summary>
+        ///     List of WoWPartyMember in your Group. Deals with Party / Raid in a list independent manner and does not restrict
+        ///     distance
+        /// </summary>
+        public static IEnumerable<WoWPartyMember> GroupMemberInfos
+        {
+            get { return StyxWoW.Me.GroupInfo.RaidMembers.Union(StyxWoW.Me.GroupInfo.PartyMembers).Distinct(); }
+        }
+
+        #endregion GroupMemberInfos
+
+        /// <summary>
+        ///     checks if unit has a current target.  Differs from WoWUnit.GotTarget since it
+        ///     will only return true if targeting a WoWUnit
         /// </summary>
         /// <param name="unit">unit to check for a CurrentTarget</param>
         /// <returns>false: if CurrentTarget == null, otherwise true</returns>
@@ -44,10 +75,10 @@ namespace ScourgeBloom.Helpers
         }
 
         /// <summary>
-        /// Calls the UnitCanAttack LUA to check if current target is attackable. This is
-        /// necessary because the WoWUnit.Attackable property returns 'true' when targeting
-        /// any enemy player including in Sanctuary, not PVP flagged, etc where a player
-        /// is not attackable
+        ///     Calls the UnitCanAttack LUA to check if current target is attackable. This is
+        ///     necessary because the WoWUnit.Attackable property returns 'true' when targeting
+        ///     any enemy player including in Sanctuary, not PVP flagged, etc where a player
+        ///     is not attackable
         /// </summary>
         public static bool CanWeAttack(this WoWUnit unit, bool restoreFocus = true)
         {
@@ -82,37 +113,6 @@ namespace ScourgeBloom.Helpers
 
             return canAttack;
         }
-
-        public static IEnumerable<WoWUnit> NearbyUnitsInCombatWithMeOrMyStuff
-        {
-            get
-            {
-                return
-                    NearbyUnfriendlyUnits.Where(
-                        p => p.Aggro || (p.Combat && (p.TaggedByMe || (p.GotTarget && p.IsTargetingMyStuff()))));
-            }
-        }
-
-        public static IEnumerable<WoWUnit> NearbyUnitsInCombatWithUsOrOurStuff => UnitsInCombatWithUsOrOurStuff(40);
-
-        /// <summary>
-        ///     Gets the nearby unfriendly units within 40 yards.
-        /// </summary>
-        /// <value>The nearby unfriendly units.</value>
-        public static IEnumerable<WoWUnit> NearbyUnfriendlyUnits => UnfriendlyUnits(40);
-
-        #region GroupMemberInfos
-
-        /// <summary>
-        ///     List of WoWPartyMember in your Group. Deals with Party / Raid in a list independent manner and does not restrict
-        ///     distance
-        /// </summary>
-        public static IEnumerable<WoWPartyMember> GroupMemberInfos
-        {
-            get { return StyxWoW.Me.GroupInfo.RaidMembers.Union(StyxWoW.Me.GroupInfo.PartyMembers).Distinct(); }
-        }
-
-        #endregion GroupMemberInfos
 
         /// <summary>
         ///     checks if unit is targeting you, your minions, a group member, or group pets
