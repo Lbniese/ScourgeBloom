@@ -48,6 +48,14 @@ namespace ScourgeBloom.Class.DeathKnight
             if (!StyxWoW.Me.GotTarget || !Me.CurrentTarget.CanWeAttack())
                 return false;
 
+            if (
+                await
+                    Spell.CoCast(S.Outbreak,
+                        GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.CanWeAttack() &&
+                        Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight &&
+                        Me.IsSafelyFacing(Me.CurrentTarget)))
+                return true;
+
             // Attack if not attacking
             if (Capabilities.IsPetUsageAllowed && !Me.Pet.IsAutoAttacking)
             {
@@ -356,9 +364,6 @@ namespace ScourgeBloom.Class.DeathKnight
             if (!Me.IsAlive)
                 return true;
 
-            //if (await Spell.CoCast(S.UnholyPresence, Me, !Me.HasAura(S.UnholyPresence)))
-            //    return true;
-
             if (
                 await
                     Spell.CoCast(S.RaiseDead, Me,
@@ -392,7 +397,15 @@ namespace ScourgeBloom.Class.DeathKnight
         {
             if (Paused) return false;
 
-            return false;
+            if (
+                await
+                    Spell.CoCast(S.Outbreak,
+                        GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.CanWeAttack() &&
+                        Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight &&
+                        Me.IsSafelyFacing(Me.CurrentTarget)))
+                return true;
+
+            return true;
         }
 
         #endregion PullBuffs
