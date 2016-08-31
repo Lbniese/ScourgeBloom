@@ -184,49 +184,75 @@ namespace ScourgeBloom.Class.DeathKnight
                 !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation") && !Me.HasActiveAura("Dark Transformation")))
                 return true;
 
-            // blighted_rune_weapon
+            // dark_transformation,if= equipped.137075 & cooldown.dark_arbiter.remains > 165
+            // dark_transformation,if= equipped.137075 & !talent.shadow_infusion.enabled & cooldown.dark_arbiter.remains > 55
+            // dark_transformation,if= equipped.137075 & talent.shadow_infusion.enabled & cooldown.dark_arbiter.remains > 35
+            // dark_transformation,if= equipped.137075 & target.time_to_die < cooldown.dark_arbiter.remains - 8
+            // dark_transformation,if= equipped.137075 & cooldown.summon_gargoyle.remains > 160
+            // dark_transformation,if= equipped.137075 & !talent.shadow_infusion.enabled & cooldown.summon_gargoyle.remains > 55
+            // dark_transformation,if= equipped.137075 & talent.shadow_infusion.enabled & cooldown.summon_gargoyle.remains > 35
+            // dark_transformation,if= equipped.137075 & target.time_to_die < cooldown.summon_gargoyle.remains - 8
+            // dark_transformation,if= !equipped.137075 & rune <= 3
+
+            // blighted_rune_weapon,if=rune<=3
             if (await Spell.CoCast(S.BlightedRuneWeapon, Me,
-                Capabilities.IsCooldownUsageAllowed && Me.GotTarget && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange))
+                Capabilities.IsCooldownUsageAllowed && Me.GotTarget && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange &&
+                Me.CurrentRunes <= 3))
                 return true;
 
+            // valkyr,if=talent.dark_arbiter.enabled&pet.valkyr_battlemaiden.active
             if (await ValkyrActive(onunit,
                 Me.Combat && Me.GotTarget && Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.CanWeAttack() &&
                 DarkArbiterSelected() && Me.HasAura(S.AuraSummonGargoyle))) return true;
 
-            // dark_arbiter,if=runic_power>80
+            // dark_arbiter,if=!equipped.137075&runic_power.deficit<30
             if (await Spell.CoCast(S.DarkArbiter, onunit,
                 Me.CurrentTarget.Distance <= 8 && Me.GotTarget && Me.CurrentTarget.CanWeAttack() &&
-                Me.CurrentRunicPower > 80)) return true;
+                RunicPowerDeficit < 30 && Me.Inventory.Equipped.Shoulder.ItemInfo.Id != 137075)) return true;
 
-            // summon_gargoyle
+            // dark_arbiter,if= equipped.137075 & runic_power.deficit < 30 & cooldown.dark_transformation.remains < 2
+            if (await Spell.CoCast(S.DarkArbiter, onunit,
+                Me.CurrentTarget.Distance <= 8 && Me.GotTarget && Me.CurrentTarget.CanWeAttack() &&
+                RunicPowerDeficit < 30 && Me.Inventory.Equipped.Shoulder.ItemInfo.Id == 137075 &&
+                Spell.GetCooldownLeft(S.DarkTransformation).TotalSeconds < 2)) return true;
+
+            // summon_gargoyle,if=!equipped.137075,if=rune<=3
             if (await Spell.CoCast(S.SummonGargoyle, onunit,
                 Me.GotTarget && Me.CurrentTarget.Distance <= 30 && DeathKnightSettings.Instance.SummonGargoyleOnCd &&
-                Capabilities.IsCooldownUsageAllowed)) return true;
+                Capabilities.IsCooldownUsageAllowed && Me.Inventory.Equipped.Shoulder.ItemInfo.Id != 137075 &&
+                Me.CurrentRunes <= 3)) return true;
 
-            // apocalypse,if=debuff.festering_wound.stack= 8
+            // summon_gargoyle,if=equipped.137075&cooldown.dark_transformation.remains<10&rune<=3
+            if (await Spell.CoCast(S.SummonGargoyle, onunit,
+                Me.GotTarget && Me.CurrentTarget.Distance <= 30 && DeathKnightSettings.Instance.SummonGargoyleOnCd &&
+                Capabilities.IsCooldownUsageAllowed && Me.Inventory.Equipped.Shoulder.ItemInfo.Id == 137075 &&
+                Me.CurrentRunes <= 3 && Spell.GetCooldownLeft(S.DarkTransformation).TotalSeconds < 10)) return true;
+
+            // soul_reaper,if=debuff.festering_wound.stack>=7&cooldown.apocalypse.remains<2
+
+            // apocalypse,if=debuff.festering_wound.stack>=7
             if (await Spell.CoCast(S.Apocalypse, Me,
                 Me.Inventory.Equipped.MainHand.ItemInfo.Id == 128403 &&
-                Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) == 8)) return true;
+                Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 7)) return true;
 
-            // death_coil,if=runic_power>80
-            if (await Spell.CoCast(S.DeathCoil, onunit, Me.CurrentTarget.Distance <= 40 && Me.CurrentRunicPower > 80))
+            // death_coil,if=runic_power.deficit<30
+            if (await Spell.CoCast(S.DeathCoil, onunit, Me.CurrentTarget.Distance <= 40 && RunicPowerDeficit < 30))
                 return true;
 
-            // death_coil,if=talent.dark_arbiter.enabled&buff.sudden_doom.react&cooldown.dark_arbiter.remains>5
+            // death_coil,if=!talent.dark_arbiter.enabled&buff.sudden_doom.up&!buff.necrosis.up&rune<=3
+
+            // death_coil,if=talent.dark_arbiter.enabled&buff.sudden_doom.up&cooldown.dark_arbiter.remains>5&rune<=3
             if (await Spell.CoCast(S.DeathCoil, onunit,
                 Me.CurrentTarget.Distance <= 40 && DarkArbiterSelected() && Me.HasAura(S.AuraSuddenDoom) &&
-                Spell.GetCooldownLeft(S.DarkArbiter).TotalSeconds > 5)) return true;
+                Spell.GetCooldownLeft(S.DarkArbiter).TotalSeconds > 5 && Me.CurrentRunes <= 3)) return true;
 
-            // death_coil,if=!talent.dark_arbiter.enabled&buff.sudden_doom.react
-            if (await Spell.CoCast(S.DeathCoil, onunit,
-                Me.CurrentTarget.Distance <= 40 && !DarkArbiterSelected() && Me.HasAura(S.AuraSuddenDoom)))
-                return true;
-
-            // festering_strike,if= debuff.festering_wound.stack < 8 & cooldown.apocalypse.remains < 5
+            // festering_strike,if= debuff.festering_wound.stack < 7 & cooldown.apocalypse.remains < 5
             if (await Spell.CoCast(S.FesteringStrike, onunit, Me.CurrentTarget.HasMyAura(S.AuraFesteringWound) &&
-                                                              Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) < 8 &&
+                                                              Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) < 7 &&
                                                               Spell.GetCooldownLeft(S.Apocalypse).TotalSeconds < 5))
                 return true;
+
+            // wait,sec=1,if=cooldown.apocalypse.remains<=1
 
             // soul_reaper,if=debuff.festering_wound.stack>=3
             if (await Spell.CoCast(S.SoulReaper, onunit,
@@ -266,84 +292,28 @@ namespace ScourgeBloom.Class.DeathKnight
                 return true;
             }
 
-            // festering_strike,if=debuff.festering_wound.stack<=3
-            if (await
-                Spell.CoCast(S.FesteringStrike, onunit,
-                    Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.HasMyAura(S.AuraFesteringWound) &&
-                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) <= 3)) return true;
-
-            // scourge_strike,if=buff.necrosis.react
-            if (
-                await
-                    Spell.CoCast(S.ScourgeStrike, onunit,
-                        !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
-                        Me.HasAura(S.AuraNecrosis))) return true; //Aura on Me or Target?
-
-            // clawing_shadows,if=buff.necrosis.react
-            if (
-                await
-                    Spell.CoCast(S.ClawingShadows, onunit,
-                        SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentRunes >= 1 &&
-                        Me.CurrentTarget.IsWithinMeleeRange &&
-                        Me.HasAura(S.AuraNecrosis))) return true;
-
-            // scourge_strike,if=buff.unholy_strength.react
-            if (
-                await
-                    Spell.CoCast(S.ScourgeStrike, onunit,
-                        !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
-                        Me.HasAura(S.AuraUnholyStrength))) return true;
-
-            // clawing_shadows,if=buff.unholy_strength.react
-            if (
-                await
-                    Spell.CoCast(S.ClawingShadows, onunit,
-                        SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentRunes >= 1 &&
-                        Me.CurrentTarget.IsWithinMeleeRange &&
-                        Me.HasAura(S.AuraUnholyStrength))) return true;
-
-            // scourge_strike,if=rune>=2
-            if (
-                await
-                    Spell.CoCast(S.ScourgeStrike, onunit,
-                        !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
-                        Me.CurrentRunes >= 2)) return true;
-
-            // clawing_shadows,if=rune>=2
-            if (
-                await
-                    Spell.CoCast(S.ClawingShadows, onunit,
-                        SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentRunes >= 1 &&
-                        Me.CurrentTarget.IsWithinMeleeRange &&
-                        Me.CurrentRunes >= 2)) return true;
-
-            if (Me.CurrentTarget.Distance <= 40)
+            // call_action_list,name = instructors,if= equipped.132448
+            if (await Instructors(onunit, Me.Inventory.Equipped.Wrist.ItemInfo.Id == 132448))
             {
-                // death_coil,if=talent.shadow_infusion.enabled&talent.dark_arbiter.enabled&!buff.dark_transformation.up&cooldown.dark_arbiter.remains>15
-                if (
-                    await
-                        Spell.CoCast(S.DeathCoil, onunit,
-                            ShadowInfusionSelected() && DarkArbiterSelected() &&
-                            !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation") &&
-                            Spell.GetCooldownLeft(S.DarkArbiter).TotalSeconds > 15)) return true;
+                return true;
+            }
 
-                // death_coil,if=talent.shadow_infusion.enabled&!talent.dark_arbiter.enabled&!buff.dark_transformation.up
-                if (
-                    await
-                        Spell.CoCast(S.DeathCoil, onunit,
-                            ShadowInfusionSelected() && !DarkArbiterSelected() &&
-                            !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation"))) return true;
+            // call_action_list,name = standard,if= !talent.castigator.enabled & !equipped.132448
+            if (
+                await
+                    Standard(onunit,
+                        !TalentManager.UnholyCastigator && Me.Inventory.Equipped.Wrist.ItemInfo.Id != 132448))
+            {
+                return true;
+            }
 
-                // death_coil,if=talent.dark_arbiter.enabled&cooldown.dark_arbiter.remains>15
-                if (
-                    await
-                        Spell.CoCast(S.DeathCoil, onunit,
-                            DarkArbiterSelected() && Spell.GetCooldownLeft(S.DarkArbiter).TotalSeconds > 15))
-                    return true;
-
-                // death_coil,if=!talent.shadow_infusion.enabled&!talent.dark_arbiter.enabled
-                if (await Spell.CoCast(S.DeathCoil, onunit, !ShadowInfusionSelected() && !DarkArbiterSelected()))
-                    return true;
+            // call_action_list,name = castigator,if= talent.castigator.enabled & !equipped.132448
+            if (
+                await
+                    Castigator(onunit,
+                        TalentManager.UnholyCastigator && Me.Inventory.Equipped.Wrist.ItemInfo.Id != 132448))
+            {
+                return true;
             }
 
             if (Capabilities.IsTargetingAllowed)
@@ -573,6 +543,316 @@ namespace ScourgeBloom.Class.DeathKnight
         }
 
         #endregion LowbieRotation
+
+        #region Instructors
+
+        private static async Task<bool> Instructors(WoWUnit onunit, bool reqs)
+        {
+            if (!reqs) return false;
+
+            // festering_strike,if= debuff.festering_wound.stack <= 4 & runic_power.deficit > 23
+            if (await
+                Spell.CoCast(S.FesteringStrike, onunit,
+                    Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.HasMyAura(S.AuraFesteringWound) &&
+                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) <= 4 && RunicPowerDeficit > 23)) return true;
+
+            // death_coil,if= !buff.necrosis.up & talent.necrosis.enabled & rune <= 3
+            if (
+                await
+                    Spell.CoCast(S.DeathCoil, onunit,
+                        Me.CurrentTarget.Distance <= 40 && Me.HasAura(S.AuraNecrosis) && Me.CurrentRunes <= 3))
+                return true;
+
+            if (Me.CurrentTarget.HasMyAura("Festering Wound") &&
+                Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 5 && RunicPowerDeficit > 29)
+            {
+                // scourge_strike,if= buff.necrosis.react & debuff.festering_wound.stack >= 5 & runic_power.deficit > 29
+                if (
+                    await
+                        Spell.CoCast(S.ScourgeStrike, onunit,
+                            !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
+                            Me.HasAura(S.AuraNecrosis))) return true;
+
+                // clawing_shadows,if= buff.necrosis.react & debuff.festering_wound.stack >= 5 & runic_power.deficit > 29
+                if (
+                    await
+                        Spell.CoCast(S.ClawingShadows, onunit,
+                            SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentRunes >= 1 &&
+                            Me.CurrentTarget.Distance <= 8 &&
+                            Me.HasAura(S.AuraNecrosis)))
+                    return true;
+
+                // scourge_strike,if= buff.unholy_strength.react & debuff.festering_wound.stack >= 5 & runic_power.deficit > 29
+                if (
+                    await
+                        Spell.CoCast(S.ScourgeStrike, onunit,
+                            !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
+                            Me.HasAura(S.AuraUnholyStrength))) return true;
+
+                // clawing_shadows,if= buff.unholy_strength.react & debuff.festering_wound.stack >= 5 & runic_power.deficit > 29
+                if (
+                    await
+                        Spell.CoCast(S.ClawingShadows, onunit,
+                            SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentRunes >= 1 &&
+                            Me.CurrentTarget.IsWithinMeleeRange &&
+                            Me.HasAura(S.AuraUnholyStrength))) return true;
+
+                // scourge_strike,if= rune >= 2 & debuff.festering_wound.stack >= 5 & runic_power.deficit > 29
+                if (
+                    await
+                        Spell.CoCast(S.ScourgeStrike, onunit,
+                            !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
+                            Me.CurrentRunes >= 2)) return true;
+
+                // clawing_shadows,if= rune >= 2 & debuff.festering_wound.stack >= 5 & runic_power.deficit > 29
+                if (
+                    await
+                        Spell.CoCast(S.ClawingShadows, onunit,
+                            SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentRunes >= 1 &&
+                            Me.CurrentTarget.IsWithinMeleeRange &&
+                            Me.CurrentRunes >= 2)) return true;
+            }
+            if (Me.CurrentTarget.Distance <= 40)
+            {
+                // death_coil,if=talent.shadow_infusion.enabled&talent.dark_arbiter.enabled&!buff.dark_transformation.up&cooldown.dark_arbiter.remains>15
+                if (
+                    await
+                        Spell.CoCast(S.DeathCoil, onunit,
+                            ShadowInfusionSelected() && DarkArbiterSelected() &&
+                            !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation") &&
+                            Spell.GetCooldownLeft(S.DarkArbiter).TotalSeconds > 15)) return true;
+
+                // death_coil,if=talent.shadow_infusion.enabled&!talent.dark_arbiter.enabled&!buff.dark_transformation.up
+                if (
+                    await
+                        Spell.CoCast(S.DeathCoil, onunit,
+                            ShadowInfusionSelected() && !DarkArbiterSelected() &&
+                            !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation"))) return true;
+
+                // death_coil,if=talent.dark_arbiter.enabled&cooldown.dark_arbiter.remains>15
+                if (
+                    await
+                        Spell.CoCast(S.DeathCoil, onunit,
+                            DarkArbiterSelected() && Spell.GetCooldownLeft(S.DarkArbiter).TotalSeconds > 15))
+                    return true;
+
+                // death_coil,if=!talent.shadow_infusion.enabled&!talent.dark_arbiter.enabled
+                if (await Spell.CoCast(S.DeathCoil, onunit, !ShadowInfusionSelected() && !DarkArbiterSelected()))
+                    return true;
+            }
+
+
+            if (Capabilities.IsTargetingAllowed)
+                MovementManager.AutoTarget();
+
+            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
+                await MovementManager.MoveToTarget();
+
+            await CommonCoroutines.SleepForLagDuration();
+
+            return true;
+        }
+
+        #endregion
+
+        #region Standard
+
+        private static async Task<bool> Standard(WoWUnit onunit, bool reqs)
+        {
+            if (!reqs) return false;
+
+            // festering_strike,if=debuff.festering_wound.stack<=4&runic_power.deficit>23
+            if (await
+                Spell.CoCast(S.FesteringStrike, onunit,
+                    Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.HasMyAura(S.AuraFesteringWound) &&
+                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) <= 4 && RunicPowerDeficit > 23)) return true;
+
+            // death_coil,if= !buff.necrosis.up & talent.necrosis.enabled & rune <= 3
+            if (
+                await
+                    Spell.CoCast(S.DeathCoil, onunit,
+                        Me.CurrentTarget.Distance <= 40 && !Me.HasAura(S.AuraNecrosis) && Me.CurrentRunes <= 3))
+                return true;
+
+            // debuff.festering_wound.stack>=1&runic_power.deficit>15
+            if (Me.CurrentTarget.HasMyAura("Festering Wound") &&
+                Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 1 && RunicPowerDeficit > 15)
+            {
+                // scourge_strike,if=buff.necrosis.react&debuff.festering_wound.stack>=1&runic_power.deficit>15
+                if (
+                    await
+                        Spell.CoCast(S.ScourgeStrike, onunit,
+                            !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
+                            Me.HasAura(S.AuraNecrosis))) return true;
+
+                // clawing_shadows,if=buff.necrosis.react&debuff.festering_wound.stack>=1&runic_power.deficit>15
+                if (
+                    await
+                        Spell.CoCast(S.ClawingShadows, onunit,
+                            SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentRunes >= 1 &&
+                            Me.CurrentTarget.Distance <= 8 &&
+                            Me.HasAura(S.AuraNecrosis)))
+                    return true;
+
+                // scourge_strike,if=buff.unholy_strength.react&debuff.festering_wound.stack>=1&runic_power.deficit>15
+                if (
+                    await
+                        Spell.CoCast(S.ScourgeStrike, onunit,
+                            !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
+                            Me.HasAura(S.AuraUnholyStrength))) return true;
+
+                // clawing_shadows,if=buff.unholy_strength.react&debuff.festering_wound.stack>=1&runic_power.deficit>15
+                if (
+                    await
+                        Spell.CoCast(S.ClawingShadows, onunit,
+                            SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentRunes >= 1 &&
+                            Me.CurrentTarget.IsWithinMeleeRange &&
+                            Me.HasAura(S.AuraUnholyStrength))) return true;
+
+
+                // scourge_strike,if=rune>=2&debuff.festering_wound.stack>=1&runic_power.deficit>15
+                if (
+                    await
+                        Spell.CoCast(S.ScourgeStrike, onunit,
+                            !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
+                            Me.CurrentRunes >= 2)) return true;
+
+                // clawing_shadows,if=rune>=2&debuff.festering_wound.stack>=1&runic_power.deficit>15
+                if (
+                    await
+                        Spell.CoCast(S.ClawingShadows, onunit,
+                            SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentRunes >= 1 &&
+                            Me.CurrentTarget.IsWithinMeleeRange &&
+                            Me.CurrentRunes >= 2)) return true;
+            }
+
+            if (Me.CurrentTarget.Distance <= 40)
+            {
+                // death_coil,if=talent.shadow_infusion.enabled&talent.dark_arbiter.enabled&!buff.dark_transformation.up&cooldown.dark_arbiter.remains>15
+                if (
+                    await
+                        Spell.CoCast(S.DeathCoil, onunit,
+                            ShadowInfusionSelected() && DarkArbiterSelected() &&
+                            !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation") &&
+                            Spell.GetCooldownLeft(S.DarkArbiter).TotalSeconds > 15)) return true;
+
+                // death_coil,if=talent.shadow_infusion.enabled&!talent.dark_arbiter.enabled&!buff.dark_transformation.up
+                if (
+                    await
+                        Spell.CoCast(S.DeathCoil, onunit,
+                            ShadowInfusionSelected() && !DarkArbiterSelected() &&
+                            !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation"))) return true;
+
+                // death_coil,if=talent.dark_arbiter.enabled&cooldown.dark_arbiter.remains>15
+                if (
+                    await
+                        Spell.CoCast(S.DeathCoil, onunit,
+                            DarkArbiterSelected() && Spell.GetCooldownLeft(S.DarkArbiter).TotalSeconds > 15))
+                    return true;
+
+                // death_coil,if=!talent.shadow_infusion.enabled&!talent.dark_arbiter.enabled
+                if (await Spell.CoCast(S.DeathCoil, onunit, !ShadowInfusionSelected() && !DarkArbiterSelected()))
+                    return true;
+            }
+
+            if (Capabilities.IsTargetingAllowed)
+                MovementManager.AutoTarget();
+
+            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
+                await MovementManager.MoveToTarget();
+
+            await CommonCoroutines.SleepForLagDuration();
+
+            return true;
+        }
+
+        #endregion
+
+        #region Castigator
+
+        private static async Task<bool> Castigator(WoWUnit onunit, bool reqs)
+        {
+            if (!reqs) return false;
+
+            // festering_strike,if= debuff.festering_wound.stack <= 4 & runic_power.deficit > 23
+            if (await
+                Spell.CoCast(S.FesteringStrike, onunit,
+                    Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.HasMyAura(S.AuraFesteringWound) &&
+                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) <= 4 && RunicPowerDeficit > 23)) return true;
+
+            // death_coil,if= !buff.necrosis.up & talent.necrosis.enabled & rune <= 3
+            if (
+                await
+                    Spell.CoCast(S.DeathCoil, onunit,
+                        Me.CurrentTarget.Distance <= 40 && !Me.HasAura(S.AuraNecrosis) && Me.CurrentRunes <= 3))
+                return true;
+
+            if (Me.CurrentTarget.HasMyAura("Festering Wound") &&
+                Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 3 && RunicPowerDeficit > 23)
+            {
+                // scourge_strike,if= buff.necrosis.react & debuff.festering_wound.stack >= 3 & runic_power.deficit > 23
+                if (
+                    await
+                        Spell.CoCast(S.ScourgeStrike, onunit,
+                            !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
+                            Me.HasAura(S.AuraNecrosis))) return true;
+
+                // scourge_strike,if= buff.unholy_strength.react & debuff.festering_wound.stack >= 3 & runic_power.deficit > 23
+                if (
+                    await
+                        Spell.CoCast(S.ScourgeStrike, onunit,
+                            !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
+                            Me.HasAura(S.AuraUnholyStrength))) return true;
+
+                // scourge_strike,if= rune >= 2 & debuff.festering_wound.stack >= 3 & runic_power.deficit > 23
+                if (
+                    await
+                        Spell.CoCast(S.ScourgeStrike, onunit,
+                            !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
+                            Me.CurrentRunes >= 2)) return true;
+            }
+            if (Me.CurrentTarget.Distance <= 40)
+            {
+                // death_coil,if= talent.shadow_infusion.enabled & talent.dark_arbiter.enabled & !buff.dark_transformation.up & cooldown.dark_arbiter.remains > 15
+                if (
+                    await
+                        Spell.CoCast(S.DeathCoil, onunit,
+                            ShadowInfusionSelected() && DarkArbiterSelected() &&
+                            !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation") &&
+                            Spell.GetCooldownLeft(S.DarkArbiter).TotalSeconds > 15)) return true;
+
+                // death_coil,if= talent.shadow_infusion.enabled & !talent.dark_arbiter.enabled & !buff.dark_transformation.up
+                if (
+                    await
+                        Spell.CoCast(S.DeathCoil, onunit,
+                            ShadowInfusionSelected() && !DarkArbiterSelected() &&
+                            !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation"))) return true;
+
+                // death_coil,if= talent.dark_arbiter.enabled & cooldown.dark_arbiter.remains > 15
+                if (
+                    await
+                        Spell.CoCast(S.DeathCoil, onunit,
+                            DarkArbiterSelected() && Spell.GetCooldownLeft(S.DarkArbiter).TotalSeconds > 15))
+                    return true;
+
+                // death_coil,if= !talent.shadow_infusion.enabled & !talent.dark_arbiter.enabled
+                if (await Spell.CoCast(S.DeathCoil, onunit, !ShadowInfusionSelected() && !DarkArbiterSelected()))
+                    return true;
+            }
+
+
+            if (Capabilities.IsTargetingAllowed)
+                MovementManager.AutoTarget();
+
+            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
+                await MovementManager.MoveToTarget();
+
+            await CommonCoroutines.SleepForLagDuration();
+
+            return true;
+        }
+
+        #endregion
 
         #region AOE
 
