@@ -465,7 +465,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
         #endregion CombatBuffs
 
-        #region Routine Valkyr
+        #region Valkyr
 
         private static async Task<bool> ValkyrActive(WoWUnit onunit, bool reqs)
         {
@@ -499,7 +499,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 await
                     Spell.CoCast(S.FesteringStrike, onunit,
                         Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.HasMyAura(S.AuraFesteringWound) &&
-                        Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) <= 3)) return true; //Fix stacks checking
+                        Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) <= 3)) return true;
 
             // scourge_strike,if=debuff.festering_wound.up
             if (
@@ -899,12 +899,6 @@ namespace ScourgeBloom.Class.DeathKnight
         {
             if (!reqs) return false;
 
-            // dark_transformation
-            if (await Spell.CoCast(S.DarkTransformation, onunit,
-                Capabilities.IsCooldownUsageAllowed && Me.GotAlivePet &&
-                !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation") && !Me.HasActiveAura("Dark Transformation")))
-                return true;
-
             // death_and_decay,if=spell_targets.death_and_decay>=2
             if (await Spell.CastOnGround(S.DeathandDecay, Me,
                 Me.GotTarget && Me.CurrentTarget.IsWithinMeleeRange && !Me.CurrentTarget.IsMoving &&
@@ -915,7 +909,14 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CastOnGround(S.Defile, Me,
                 TalentManager.UnholyDefile && Me.GotTarget && Me.CurrentTarget.IsWithinMeleeRange &&
                 !Me.CurrentTarget.IsMoving &&
-                Capabilities.IsAoeAllowed && Units.EnemiesInRange(10) >= 2))
+                Capabilities.IsAoeAllowed))
+                return true;
+
+            // custom deathanddecay
+            if (await Spell.CastOnGround(S.DeathandDecay, Me,
+                !TalentManager.UnholyDefile && Me.GotTarget && Me.CurrentTarget.IsWithinMeleeRange &&
+                !Me.CurrentTarget.IsMoving &&
+                Capabilities.IsAoeAllowed))
                 return true;
 
             // epidemic,if=spell_targets.epidemic>4
@@ -942,23 +943,6 @@ namespace ScourgeBloom.Class.DeathKnight
                 Capabilities.IsCooldownUsageAllowed && Capabilities.IsAoeAllowed && EpidemicSelected() &&
                 Me.CurrentTarget.IsWithinMeleeRange && Units.EnemiesInRange(10) > 2))
                 return true;
-
-            if (await Spell.CoCast(S.FesteringStrike, onunit,
-                Me.CurrentTarget.IsWithinMeleeRange)) return true;
-
-            if (await Spell.CoCast(S.DeathCoil, onunit,
-                ShadowInfusionSelected() && DarkArbiterSelected() &&
-                !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation") &&
-                Spell.GetCooldownLeft(S.DarkArbiter).TotalSeconds > 15)) return true;
-
-            if (await Spell.CoCast(S.DeathCoil, onunit, Me.CurrentRunicPower > 60)) return true;
-
-            if (await Spell.CoCast(S.ClawingShadows, onunit,
-                Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentRunes >= 1 && SpellManager.HasSpell(S.ClawingShadows)))
-                return true;
-
-            if (await Spell.CoCast(S.ScourgeStrike, onunit,
-                Me.CurrentTarget.IsWithinMeleeRange && !SpellManager.HasSpell(S.ClawingShadows))) return true;
 
             if (Capabilities.IsTargetingAllowed)
                 MovementManager.AutoTarget();
