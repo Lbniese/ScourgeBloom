@@ -61,6 +61,9 @@ namespace ScourgeBloom.Lists
             Epidemic = 207317,
             SoulReaper = 130736,
 
+            //Unholy Artifact Traits
+            Apocalypse = 220143,
+
             //Frost Talents --
             HungeringRuneWeapon = 207127,
             GlacialAdvance = 194913,
