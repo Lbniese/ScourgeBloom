@@ -58,7 +58,7 @@ namespace ScourgeBloom
 
         protected static readonly LocalPlayer Me = StyxWoW.Me;
 
-        public static readonly Version Version = new Version(1, 4, 58);
+        public static readonly Version Version = new Version(1, 4, 59);
 
         private static bool _initialized;
 
@@ -201,6 +201,8 @@ namespace ScourgeBloom
             return WoWContext.Normal;
         }
 
+        #region DescribeContext
+
         public static void DescribeContext()
         {
             var sRace = RaceName();
@@ -312,6 +314,207 @@ namespace ScourgeBloom
                     "[ScourgeBloom]: Your Pull Distance is {0:F0} yards, which is low for any class!",
                     Targeting.PullDistance);
         }
+
+        #endregion
+
+        #region Pulse
+
+        public override void Pulse()
+        {
+            try
+            {
+                if (Capabilities.IsPetUsageAllowed && Capabilities.IsPetSummonAllowed &&
+                    Me.Specialization == WoWSpec.DeathKnightUnholy)
+                {
+                    PetManager.Pulse();
+                }
+
+                if (Capabilities.IsTargetingAllowed && Me.GotTarget && !Me.CurrentTarget.CanLoot &&
+                    !Me.CurrentTarget.Lootable && Me.CurrentTarget.IsDead &&
+                    BotPoi.Current.Type != PoiType.Loot && BotPoi.Current.Type != PoiType.Skin &&
+                    !ObjectManager.GetObjectsOfType<WoWUnit>()
+                        .Any(
+                            u =>
+                                u.IsDead &&
+                                ((CharacterSettings.Instance.LootMobs && u.CanLoot && u.Lootable) ||
+                                 (CharacterSettings.Instance.SkinMobs && u.Skinnable && u.CanSkin)) &&
+                                u.Distance < CharacterSettings.Instance.LootRadius))
+                {
+                    Log.WriteLog("[ScourgeBloom] Clearing target, since it is dead and not lootable!");
+                    Me.ClearTarget();
+                }
+
+                _pulsePhase++;
+
+                if (_pulsePhase == 1)
+                {
+                    if (WaitForLatencyCheck.IsFinished)
+                    {
+                        Latency = StyxWoW.WoWClient.Latency;
+                        WaitForLatencyCheck.Reset();
+                    }
+
+
+                    UpdateDiagnosticFps();
+                }
+
+                if (Paused) return;
+
+                if (_pulsePhase == 2)
+                {
+                    if (Me.IsDead && GeneralSettings.Instance.AutoReleaseSpirit)
+                    {
+                        SpiritHandler.ReleaseSpirit();
+                    }
+                    _pulsePhase = 0;
+                }
+
+                base.Pulse();
+            }
+            catch (Exception e)
+            {
+                Logging.WriteException(e);
+                throw;
+            }
+        }
+
+        #endregion Pulse
+
+        public override void Initialize()
+        {
+            HotkeysManager.Initialize(StyxWoW.Memory.Process.MainWindowHandle);
+            GeneralSettings.Instance.Load();
+            BotEvents.OnBotStarted += OnBotStartEvent;
+            BotEvents.OnBotStopped += OnBotStopEvent;
+            TalentManager.InitTalents();
+
+            Lua.Events.AttachEvent("PLAYER_REGEN_DISABLED", OnCombatStarted);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
+        private static uint GetFps()
+        {
+            try
+            {
+                return (uint) Lua.GetReturnVal<float>("return GetFramerate()", 0);
+            }
+            catch
+            {
+                // ignored
+            }
+
+            return 0;
+        }
+
+        private static void UpdateDiagnosticFps()
+        {
+            if (GeneralSettings.Instance.Debug && PollInterval.IsFinished && Me.Combat)
+            {
+                var currFps = GetFps();
+                if (currFps != _lastFps)
+                {
+                    _lastFps = currFps;
+                    Logging.WriteDiagnostic("Combat Performance Monitoring: FPS:{ 0} Latency: { 1}, currFps, Latency");
+                }
+
+                PollInterval.Reset();
+            }
+        }
+
+        private static void OnCombatStarted(object sender, LuaEventArgs e)
+        {
+            Logging.Write(Colors.GreenYellow, "[ScourgeBloom] Entered Combat");
+            Globals.CombatTime.Restart();
+        }
+
+        public override void ShutDown()
+        {
+            BotEvents.OnBotStarted -= OnBotStartEvent;
+            BotEvents.OnBotStopped -= OnBotStopEvent;
+        }
+
+        private static void OnBotStartEvent(object o)
+        {
+            HotkeyManager.RegisterHotKeys();
+            InitializeOnce();
+            EventLog.AttachCombatLogEvent();
+        }
+
+        private static void OnBotStopEvent(object o)
+        {
+            HotkeyManager.RemoveHotkeys();
+            EventLog.DetachCombatLogEvent();
+            _initialized = false;
+        }
+
+        private static void InitializeOnce()
+        {
+            if (_initialized)
+                return;
+
+            ScourgeBloomSettings.ClassSettings.Initialize();
+            StatCounter.StatCount();
+
+            //TalentManager.InitTalents();
+            GeneralSettings.Instance.Save();
+
+            _initialized = true;
+
+            Log.WriteLog("ScourgeBloom Loaded", Colors.DarkGreen);
+        }
+
+        protected virtual Composite CreateCombat()
+        {
+            return new HookExecutor("ScourgeBloom_Combat_Root",
+                "Root composite for ScourgeBloom combat. Rotations will be plugged into this hook.",
+                new ActionAlwaysFail());
+        }
+
+        protected virtual Composite CreatePreCombatBuff()
+        {
+            return new HookExecutor("ScourgeBloom_PreCombatBuffs_Root",
+                "Root composite for ScourgeBloom PreCombatBuffs. Rotations will be plugged into this hook.",
+                new ActionAlwaysFail());
+        }
+
+        protected virtual Composite CreateCombatBuff()
+        {
+            return new HookExecutor("ScourgeBloom_CombatBuffs_Root",
+                "Root composite for ScourgeBloom PreCombatBuffs. Rotations will be plugged into this hook.",
+                new ActionAlwaysFail());
+        }
+
+        protected virtual Composite CreatePullBuff()
+        {
+            return new HookExecutor("ScourgeBloom_PullBuffs_Root",
+                "Root composite for ScourgeBloom PreCombatBuffs. Rotations will be plugged into this hook.",
+                new ActionAlwaysFail());
+        }
+
+        protected virtual Composite CreateRest()
+        {
+            return new HookExecutor("ScourgeBloom_Rest_Root",
+                "Root composite for ScourgeBloom Resting. Rotations will be plugged into this hook.",
+                new ActionAlwaysFail());
+        }
+
+        protected virtual Composite CreatePull()
+        {
+            return new HookExecutor("ScourgeBloom_Pull_Root",
+                "Root composite for ScourgeBloom Pulling. Rotations will be plugged into this hook.",
+                new ActionAlwaysFail());
+        }
+
+        protected virtual Composite CreateHeal()
+        {
+            return new HookExecutor("ScourgeBloom_Heals_Root",
+                "Root composite for ScourgeBloom heals. Rotations will be plugged into this hook.",
+                new ActionAlwaysFail());
+        }
+
+        #region DON'T TOUCH - CORE SHIT
 
         public static string RaceName()
         {
@@ -450,202 +653,6 @@ namespace ScourgeBloom
             gui.Show();
         }
 
-        public override void Pulse()
-        {
-            try
-            {
-                _pulsePhase++;
-
-                if (_pulsePhase == 1)
-                {
-                    if (WaitForLatencyCheck.IsFinished)
-                    {
-                        Latency = StyxWoW.WoWClient.Latency;
-                        WaitForLatencyCheck.Reset();
-                    }
-
-
-                    UpdateDiagnosticFps();
-                }
-
-                if (Paused) return;
-
-                if (_pulsePhase == 2)
-                {
-                    if (Me.IsDead && GeneralSettings.Instance.AutoReleaseSpirit)
-                    {
-                        SpiritHandler.ReleaseSpirit();
-                    }
-                }
-
-                else if (_pulsePhase == 3)
-                {
-                    if (Capabilities.IsTargetingAllowed && Me.GotTarget && !Me.CurrentTarget.CanLoot &&
-                        !Me.CurrentTarget.Lootable && Me.CurrentTarget.IsDead &&
-                        BotPoi.Current.Type != PoiType.Loot && BotPoi.Current.Type != PoiType.Skin &&
-                        !ObjectManager.GetObjectsOfType<WoWUnit>()
-                            .Any(
-                                u =>
-                                    u.IsDead &&
-                                    ((CharacterSettings.Instance.LootMobs && u.CanLoot && u.Lootable) ||
-                                     (CharacterSettings.Instance.SkinMobs && u.Skinnable && u.CanSkin)) &&
-                                    u.Distance < CharacterSettings.Instance.LootRadius))
-                    {
-                        Log.WriteLog("[ScourgeBloom] Clearing target, since it is dead and not lootable!");
-                        Me.ClearTarget();
-                    }
-                }
-                else if (_pulsePhase == 4)
-                {
-                    _pulsePhase = 0;
-                    if (Capabilities.IsPetUsageAllowed && Capabilities.IsPetSummonAllowed &&
-                        Me.Specialization == WoWSpec.DeathKnightUnholy)
-                    {
-                        PetManager.Pulse();
-                    }
-                }
-
-                base.Pulse();
-            }
-            catch (Exception e)
-            {
-                Logging.WriteException(e);
-                throw;
-            }
-        }
-
-        public override void Initialize()
-        {
-            HotkeysManager.Initialize(StyxWoW.Memory.Process.MainWindowHandle);
-            GeneralSettings.Instance.Load();
-            BotEvents.OnBotStarted += OnBotStartEvent;
-            BotEvents.OnBotStopped += OnBotStopEvent;
-            TalentManager.InitTalents();
-
-            Lua.Events.AttachEvent("PLAYER_REGEN_DISABLED", OnCombatStarted);
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
-        private static uint GetFps()
-        {
-            try
-            {
-                return (uint) Lua.GetReturnVal<float>("return GetFramerate()", 0);
-            }
-            catch
-            {
-                // ignored
-            }
-
-            return 0;
-        }
-
-        private static void UpdateDiagnosticFps()
-        {
-            if (GeneralSettings.Instance.Debug && PollInterval.IsFinished && Me.Combat)
-            {
-                var currFps = GetFps();
-                if (currFps != _lastFps)
-                {
-                    _lastFps = currFps;
-                    Logging.WriteDiagnostic("Combat Performance Monitoring: FPS:{ 0} Latency: { 1}, currFps, Latency");
-                }
-
-                PollInterval.Reset();
-            }
-        }
-
-        private static void OnCombatStarted(object sender, LuaEventArgs e)
-        {
-            Logging.Write(Colors.GreenYellow, "[ScourgeBloom] Entered Combat");
-            Globals.CombatTime.Restart();
-        }
-
-        public override void ShutDown()
-        {
-            BotEvents.OnBotStarted -= OnBotStartEvent;
-            BotEvents.OnBotStopped -= OnBotStopEvent;
-        }
-
-        private static void OnBotStartEvent(object o)
-        {
-            HotkeyManager.RegisterHotKeys();
-            InitializeOnce();
-            EventLog.AttachCombatLogEvent();
-        }
-
-        private static void OnBotStopEvent(object o)
-        {
-            HotkeyManager.RemoveHotkeys();
-            EventLog.DetachCombatLogEvent();
-            _initialized = false;
-        }
-
-        private static void InitializeOnce()
-        {
-            if (_initialized)
-                return;
-
-            ScourgeBloomSettings.ClassSettings.Initialize();
-            StatCounter.StatCount();
-
-            //TalentManager.InitTalents();
-            GeneralSettings.Instance.Save();
-
-            _initialized = true;
-
-            Log.WriteLog("ScourgeBloom Loaded", Colors.DarkGreen);
-        }
-
-        protected virtual Composite CreateCombat()
-        {
-            return new HookExecutor("ScourgeBloom_Combat_Root",
-                "Root composite for ScourgeBloom combat. Rotations will be plugged into this hook.",
-                new ActionAlwaysFail());
-        }
-
-        protected virtual Composite CreatePreCombatBuff()
-        {
-            return new HookExecutor("ScourgeBloom_PreCombatBuffs_Root",
-                "Root composite for ScourgeBloom PreCombatBuffs. Rotations will be plugged into this hook.",
-                new ActionAlwaysFail());
-        }
-
-        protected virtual Composite CreateCombatBuff()
-        {
-            return new HookExecutor("ScourgeBloom_CombatBuffs_Root",
-                "Root composite for ScourgeBloom PreCombatBuffs. Rotations will be plugged into this hook.",
-                new ActionAlwaysFail());
-        }
-
-        protected virtual Composite CreatePullBuff()
-        {
-            return new HookExecutor("ScourgeBloom_PullBuffs_Root",
-                "Root composite for ScourgeBloom PreCombatBuffs. Rotations will be plugged into this hook.",
-                new ActionAlwaysFail());
-        }
-
-        protected virtual Composite CreateRest()
-        {
-            return new HookExecutor("ScourgeBloom_Rest_Root",
-                "Root composite for ScourgeBloom Resting. Rotations will be plugged into this hook.",
-                new ActionAlwaysFail());
-        }
-
-        protected virtual Composite CreatePull()
-        {
-            return new HookExecutor("ScourgeBloom_Pull_Root",
-                "Root composite for ScourgeBloom Pulling. Rotations will be plugged into this hook.",
-                new ActionAlwaysFail());
-        }
-
-        protected virtual Composite CreateHeal()
-        {
-            return new HookExecutor("ScourgeBloom_Heals_Root",
-                "Root composite for ScourgeBloom heals. Rotations will be plugged into this hook.",
-                new ActionAlwaysFail());
-        }
+        #endregion
     }
 }
