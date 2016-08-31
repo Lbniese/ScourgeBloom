@@ -58,7 +58,7 @@ namespace ScourgeBloom
 
         protected static readonly LocalPlayer Me = StyxWoW.Me;
 
-        public static readonly Version Version = new Version(1, 4, 54);
+        public static readonly Version Version = new Version(1, 4, 55);
 
         private static bool _initialized;
 
@@ -590,133 +590,6 @@ namespace ScourgeBloom
 
             ScourgeBloomSettings.ClassSettings.Initialize();
             StatCounter.StatCount();
-
-            switch (BotManager.Current.Name)
-            {
-                case "Occidere Machinam":
-                    GeneralSettings.Instance.Movement = false;
-                    GeneralSettings.Instance.Targeting = false;
-                    GeneralSettings.Instance.Facing = false;
-                    GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog($"[ScourgeBloom] Botbase - {BotManager.Current.Name} detected");
-                    break;
-
-                case "LazyRaider":
-                    GeneralSettings.Instance.Movement = false;
-                    GeneralSettings.Instance.Targeting = false;
-                    GeneralSettings.Instance.Facing = false;
-                    GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog($"[ScourgeBloom] Botbase - {BotManager.Current.Name} detected");
-                    break;
-
-                case "Enyo (Buddystore)":
-                    GeneralSettings.Instance.Movement = false;
-                    GeneralSettings.Instance.Targeting = false;
-                    GeneralSettings.Instance.Facing = false;
-                    GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog($"[ScourgeBloom] Botbase - {BotManager.Current.Name} detected");
-                    break;
-
-                case "Enyo":
-                    GeneralSettings.Instance.Movement = false;
-                    GeneralSettings.Instance.Targeting = false;
-                    GeneralSettings.Instance.Facing = false;
-                    GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog($"[ScourgeBloom] Botbase - {BotManager.Current.Name} detected");
-                    break;
-
-                case "Questing":
-                    GeneralSettings.Instance.Movement = true;
-                    GeneralSettings.Instance.Targeting = true;
-                    GeneralSettings.Instance.Facing = true;
-                    GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog($"[ScourgeBloom] Movement Enabled - Bot - {BotManager.Current.Name} detected");
-                    break;
-
-                case "BGBuddy":
-                    GeneralSettings.Instance.Movement = true;
-                    GeneralSettings.Instance.Targeting = true;
-                    GeneralSettings.Instance.Facing = true;
-                    GeneralSettings.Instance.PvP = true;
-                    GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog($"[ScourgeBloom] Movement Enabled - Bot - {BotManager.Current.Name} detected");
-                    break;
-
-                case "BGFarmer [Millz]":
-                    GeneralSettings.Instance.Movement = true;
-                    GeneralSettings.Instance.Targeting = true;
-                    GeneralSettings.Instance.Facing = true;
-                    GeneralSettings.Instance.PvP = true;
-                    GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog($"[ScourgeBloom] Movement Enabled - Bot - {BotManager.Current.Name} detected");
-                    break;
-
-                case "BG Bot":
-                    GeneralSettings.Instance.Movement = true;
-                    GeneralSettings.Instance.Targeting = true;
-                    GeneralSettings.Instance.Facing = true;
-                    GeneralSettings.Instance.PvP = true;
-                    GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog($"[ScourgeBloom] Movement Enabled - Bot - {BotManager.Current.Name} detected");
-                    break;
-
-                case "Combat Bot":
-                    GeneralSettings.Instance.Movement = true;
-                    GeneralSettings.Instance.Targeting = true;
-                    GeneralSettings.Instance.Facing = true;
-                    GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog($"[ScourgeBloom] Movement Enabled - Bot - {BotManager.Current.Name} detected");
-                    break;
-
-                case "Grind Bot":
-                    GeneralSettings.Instance.Movement = true;
-                    GeneralSettings.Instance.Facing = true;
-                    GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog($"[ScourgeBloom] Movement Enabled - Bot - {BotManager.Current.Name} detected");
-                    break;
-
-                case "Raid Bot":
-                    GeneralSettings.Instance.Movement = false;
-                    GeneralSettings.Instance.Targeting = false;
-                    GeneralSettings.Instance.Facing = false;
-                    GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog($"[ScourgeBloom] Botbase - {BotManager.Current.Name} detected");
-                    break;
-
-                case "RaidBot Improved":
-                    GeneralSettings.Instance.Movement = false;
-                    GeneralSettings.Instance.Targeting = false;
-                    GeneralSettings.Instance.Facing = false;
-                    GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog($"[ScourgeBloom] Botbase - {BotManager.Current.Name} detected");
-                    break;
-
-                case "Dungeonbuddy":
-                    GeneralSettings.Instance.AutoDismount = true;
-                    GeneralSettings.Instance.Movement = true;
-                    GeneralSettings.Instance.AutoReleaseSpirit = true;
-                    GeneralSettings.Instance.AutoAttack = false;
-                    GeneralSettings.Instance.Targeting = true;
-                    GeneralSettings.Instance.Facing = true;
-                    DeathKnightSettings.Instance.DeathGrip = false;
-                    GeneralSettings.Instance.Interrupts = true;
-                    GeneralSettings.Instance.UseRacials = true;
-                    GeneralSettings.Instance.Cooldowns = true;
-                    DeathKnightSettings.Instance.UseDeathStrike = true;
-                    DeathKnightSettings.Instance.UseDeathStrikeHp = 15;
-                    DeathKnightSettings.Instance.UseDeathSiphon = true;
-                    DeathKnightSettings.Instance.UseDeathSiphonHp = 20;
-                    Log.WriteLog($"[ScourgeBloom] Movement Enabled - Bot - {BotManager.Current.Name} detected");
-                    break;
-
-                default:
-                    GeneralSettings.Instance.Movement = false;
-                    GeneralSettings.Instance.Targeting = false;
-                    GeneralSettings.Instance.Facing = false;
-                    GeneralSettings.Instance.Cooldowns = true;
-                    Log.WriteLog($"[ScourgeBloom] Botbase - {BotManager.Current.Name} detected");
-                    break;
-            }
 
             //TalentManager.InitTalents();
             GeneralSettings.Instance.Save();

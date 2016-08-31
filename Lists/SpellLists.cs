@@ -52,7 +52,6 @@ namespace ScourgeBloom.Lists
             ChainsOfIce = 45524,
 
             //New Spells
-            SindragosasFury = 190778,
             BlightedRuneWeapon = 194918,
 
             //Unholy Talents --
@@ -68,7 +67,11 @@ namespace ScourgeBloom.Lists
             HungeringRuneWeapon = 207127,
             GlacialAdvance = 194913,
             Frostscythe = 207230,
-            Obliteration = 207256;
+            Obliteration = 207256,
+
+            //Frost Artifact Traits
+            SindragosasFury = 190778;
+
 
         #endregion Class Spells
 
