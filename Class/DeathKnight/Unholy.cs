@@ -178,21 +178,59 @@ namespace ScourgeBloom.Class.DeathKnight
             // outbreak,target_if=!dot.virulent_plague.ticking
             if (await Spell.CoCast(S.Outbreak, onunit, !Me.CurrentTarget.HasMyAura(S.AuraVirulentPlague))) return true;
 
-            // dark_transformation
+            // dark_transformation,if= equipped.137075 & cooldown.dark_arbiter.remains > 165
             if (await Spell.CoCast(S.DarkTransformation, onunit,
                 Capabilities.IsCooldownUsageAllowed && Me.GotAlivePet &&
-                !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation") && !Me.HasActiveAura("Dark Transformation")))
+                !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation") && !Me.HasActiveAura("Dark Transformation") && Me.Inventory.Equipped.Shoulder.ItemInfo.Id == 137075 && Spell.GetCooldownLeft(S.DarkArbiter).TotalSeconds > 165))
                 return true;
 
-            // dark_transformation,if= equipped.137075 & cooldown.dark_arbiter.remains > 165
             // dark_transformation,if= equipped.137075 & !talent.shadow_infusion.enabled & cooldown.dark_arbiter.remains > 55
+            if (await Spell.CoCast(S.DarkTransformation, onunit,
+                Capabilities.IsCooldownUsageAllowed && Me.GotAlivePet &&
+                !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation") && !Me.HasActiveAura("Dark Transformation") && Me.Inventory.Equipped.Shoulder.ItemInfo.Id == 137075 && TalentManager.UnholyShadowInfusion && Spell.GetCooldownLeft(S.DarkArbiter).TotalSeconds > 55))
+                return true;
+
             // dark_transformation,if= equipped.137075 & talent.shadow_infusion.enabled & cooldown.dark_arbiter.remains > 35
+            if (await Spell.CoCast(S.DarkTransformation, onunit,
+                Capabilities.IsCooldownUsageAllowed && Me.GotAlivePet &&
+                !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation") && !Me.HasActiveAura("Dark Transformation") && Me.Inventory.Equipped.Shoulder.ItemInfo.Id == 137075 && TalentManager.UnholyShadowInfusion && Spell.GetCooldownLeft(S.DarkArbiter).TotalSeconds > 35))
+                return true;
+
             // dark_transformation,if= equipped.137075 & target.time_to_die < cooldown.dark_arbiter.remains - 8
+            if (await Spell.CoCast(S.DarkTransformation, onunit,
+                Capabilities.IsCooldownUsageAllowed && Me.GotAlivePet &&
+                !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation") && !Me.HasActiveAura("Dark Transformation") && Me.Inventory.Equipped.Shoulder.ItemInfo.Id == 137075 && (TimeToDeath.TimeToDeathExtension.TimeToDeath(Me.CurrentTarget) < Spell.GetCooldownLeft(S.DarkArbiter).TotalSeconds - 8 )))
+                return true;
+
             // dark_transformation,if= equipped.137075 & cooldown.summon_gargoyle.remains > 160
+            if (await Spell.CoCast(S.DarkTransformation, onunit,
+                Capabilities.IsCooldownUsageAllowed && Me.GotAlivePet &&
+                !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation") && !Me.HasActiveAura("Dark Transformation") && Me.Inventory.Equipped.Shoulder.ItemInfo.Id == 137075 && Spell.GetCooldownLeft(S.SummonGargoyle).TotalSeconds > 160))
+                return true;
+
             // dark_transformation,if= equipped.137075 & !talent.shadow_infusion.enabled & cooldown.summon_gargoyle.remains > 55
+            if (await Spell.CoCast(S.DarkTransformation, onunit,
+                Capabilities.IsCooldownUsageAllowed && Me.GotAlivePet &&
+                !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation") && !Me.HasActiveAura("Dark Transformation") && Me.Inventory.Equipped.Shoulder.ItemInfo.Id == 137075 && !ShadowInfusionSelected() && Spell.GetCooldownLeft(S.SummonGargoyle).TotalSeconds > 55))
+                return true;
+
             // dark_transformation,if= equipped.137075 & talent.shadow_infusion.enabled & cooldown.summon_gargoyle.remains > 35
+            if (await Spell.CoCast(S.DarkTransformation, onunit,
+                Capabilities.IsCooldownUsageAllowed && Me.GotAlivePet &&
+                !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation") && !Me.HasActiveAura("Dark Transformation") && Me.Inventory.Equipped.Shoulder.ItemInfo.Id == 137075 && ShadowInfusionSelected() && Spell.GetCooldownLeft(S.SummonGargoyle).TotalSeconds > 35))
+                return true;
+
             // dark_transformation,if= equipped.137075 & target.time_to_die < cooldown.summon_gargoyle.remains - 8
+            if (await Spell.CoCast(S.DarkTransformation, onunit,
+                Capabilities.IsCooldownUsageAllowed && Me.GotAlivePet &&
+                !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation") && !Me.HasActiveAura("Dark Transformation") && Me.Inventory.Equipped.Shoulder.ItemInfo.Id == 137075 && (TimeToDeath.TimeToDeathExtension.TimeToDeath(Me.CurrentTarget) < Spell.GetCooldownLeft(S.DarkArbiter).TotalSeconds - 8)))
+                return true;
+
             // dark_transformation,if= !equipped.137075 & rune <= 3
+            if (await Spell.CoCast(S.DarkTransformation, onunit,
+                Capabilities.IsCooldownUsageAllowed && Me.GotAlivePet &&
+                !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation") && !Me.HasActiveAura("Dark Transformation") && Me.Inventory.Equipped.Shoulder.ItemInfo.Id != 137075 && Me.CurrentRunes <= 3))
+                return true;
 
             // blighted_rune_weapon,if=rune<=3
             if (await Spell.CoCast(S.BlightedRuneWeapon, Me,
