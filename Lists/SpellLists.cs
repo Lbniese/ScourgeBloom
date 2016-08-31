@@ -72,7 +72,6 @@ namespace ScourgeBloom.Lists
             //Frost Artifact Traits
             SindragosasFury = 190778;
 
-
         #endregion Class Spells
 
         #region Racials

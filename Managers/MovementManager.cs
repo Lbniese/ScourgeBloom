@@ -50,7 +50,7 @@ namespace ScourgeBloom.Managers
 
         public static void Face(WoWUnit unit)
         {
-                unit.Face();
+            unit.Face();
         }
 
 #pragma warning disable 1998
@@ -71,16 +71,18 @@ namespace ScourgeBloom.Managers
                     StyxWoW.Me.CurrentTarget.Face();
             }
             if (Capabilities.IsFacingAllowed)
-            EnsureTarget();
+                EnsureTarget();
 
             // Move into LOS
-            if (Capabilities.IsMovingAllowed && StyxWoW.Me.CurrentTarget != null && StyxWoW.Me.CurrentTarget.Distance > Range)
+            if (Capabilities.IsMovingAllowed && StyxWoW.Me.CurrentTarget != null &&
+                StyxWoW.Me.CurrentTarget.Distance > Range)
             {
                 Navigator.MoveTo(StyxWoW.Me.CurrentTarget.Location);
             }
 
 
-            if (Capabilities.IsFacingAllowed && StyxWoW.Me.CurrentTarget != null && !StyxWoW.Me.IsMoving && !StyxWoW.Me.CurrentTarget.IsMe &&
+            if (Capabilities.IsFacingAllowed && StyxWoW.Me.CurrentTarget != null && !StyxWoW.Me.IsMoving &&
+                !StyxWoW.Me.CurrentTarget.IsMe &&
                 !StyxWoW.Me.IsSafelyFacing(StyxWoW.Me.CurrentTarget, 70))
                 StyxWoW.Me.CurrentTarget.Face();
 

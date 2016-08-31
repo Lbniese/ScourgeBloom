@@ -130,7 +130,7 @@ namespace ScourgeBloom.Class.DeathKnight
             if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
                 await MovementManager.MoveToTarget();
 
-            if (!Me.Combat) return true;
+            if (!Me.Combat || !Me.CurrentTarget.CanWeAttack()) return true;
 
             // Attack if not attacking
             if (Capabilities.IsPetUsageAllowed && !Me.Pet.IsAutoAttacking && Me.GotAlivePet)
@@ -164,6 +164,9 @@ namespace ScourgeBloom.Class.DeathKnight
             {
                 await Defensives.DefensivesMethod();
             }
+
+            if (!Me.CurrentTarget.CanWeAttack())
+                return false;
 
             if (Capabilities.IsInterruptingAllowed && Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.IsCasting &&
                 Me.CurrentTarget.CanInterruptCurrentSpellCast)
@@ -201,9 +204,9 @@ namespace ScourgeBloom.Class.DeathKnight
                 Capabilities.IsCooldownUsageAllowed)) return true;
 
             // apocalypse,if=debuff.festering_wound.stack= 8
-            if ( await Spell.CoCast(S.Apocalypse, Me,
-                        Me.Inventory.Equipped.MainHand.ItemInfo.Id == 128403 &&
-                        Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) == 8)) return true;
+            if (await Spell.CoCast(S.Apocalypse, Me,
+                Me.Inventory.Equipped.MainHand.ItemInfo.Id == 128403 &&
+                Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) == 8)) return true;
 
             // death_coil,if=runic_power>80
             if (await Spell.CoCast(S.DeathCoil, onunit, Me.CurrentTarget.Distance <= 40 && Me.CurrentRunicPower > 80))
@@ -221,7 +224,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
             // festering_strike,if= debuff.festering_wound.stack < 8 & cooldown.apocalypse.remains < 5
             if (await Spell.CoCast(S.FesteringStrike, onunit, Me.CurrentTarget.HasMyAura(S.AuraFesteringWound) &&
-                Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) < 8 &&  Spell.GetCooldownLeft(S.Apocalypse).TotalSeconds < 5))
+                                                              Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) < 8 &&
+                                                              Spell.GetCooldownLeft(S.Apocalypse).TotalSeconds < 5))
                 return true;
 
             // soul_reaper,if=debuff.festering_wound.stack>=3
@@ -466,14 +470,15 @@ namespace ScourgeBloom.Class.DeathKnight
                 return true;
 
             // apocalypse,if=debuff.festering_wound.stack= 8
-            if ( await Spell.CoCast(S.Apocalypse, Me,
-                        Me.Inventory.Equipped.MainHand.ItemInfo.Id == 128403 &&
-                        Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) == 8)) return true;
+            if (await Spell.CoCast(S.Apocalypse, Me,
+                Me.Inventory.Equipped.MainHand.ItemInfo.Id == 128403 &&
+                Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) == 8)) return true;
 
             // festering_strike,if=debuff.festering_wound.stack<8&cooldown.apocalypse.remains<5
             if (await Spell.CoCast(S.FesteringStrike, onunit,
-                        Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.HasMyAura(S.AuraFesteringWound) &&
-                        Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) < 8 && Spell.GetCooldownLeft(S.Apocalypse).TotalSeconds < 5)) return true;
+                Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.HasMyAura(S.AuraFesteringWound) &&
+                Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) < 8 &&
+                Spell.GetCooldownLeft(S.Apocalypse).TotalSeconds < 5)) return true;
 
             // call_action_list,name=aoe,if=active_enemies>=2
             if (await AOE(onunit, Units.EnemiesInRange(10) >= 2))

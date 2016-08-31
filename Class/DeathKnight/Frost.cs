@@ -209,14 +209,13 @@ namespace ScourgeBloom.Class.DeathKnight
             if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
                 await MovementManager.MoveToTarget();
 
-            if (!Me.Combat) return true;
+            if (!Me.Combat || !Me.CanWeAttack()) return true;
 
             if (!Me.IsAutoAttacking)
             {
                 Lua.DoString("StartAttack()");
                 return true;
             }
-
 
             if (Capabilities.IsRacialUsageAllowed)
             {
@@ -237,6 +236,9 @@ namespace ScourgeBloom.Class.DeathKnight
             {
                 await Defensives.DefensivesMethod();
             }
+
+            if (!Me.CurrentTarget.CanWeAttack())
+                return false;
 
             if (Capabilities.IsInterruptingAllowed && Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.IsCasting &&
                 Me.CurrentTarget.CanInterruptCurrentSpellCast)
