@@ -209,8 +209,9 @@ namespace ScourgeBloom.Class.DeathKnight
             if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
                 await MovementManager.MoveToTarget();
 
-            if (!Me.Combat || !Me.CanWeAttack()) return true;
+            if (!Me.Combat || !Me.CurrentTarget.CanWeAttack()) return true;
 
+            // Attack if not attacking
             if (!Me.IsAutoAttacking)
             {
                 Lua.DoString("StartAttack()");
@@ -274,34 +275,6 @@ namespace ScourgeBloom.Class.DeathKnight
                 return true;
             }
 
-            //Dual-wield and 2h share the same routine atm (Do people even 2h as frost anymore?)
-            if (await single_target(onunit, !IsDualWielding || IsDualWielding))
-            {
-                return true;
-            }
-
-            // if (await AOE(onunit, Units.EnemiesInRange(10) >= 4 && !IsDualWielding ||
-            //                                (Units.EnemiesInRange(10) >= 3 && IsDualWielding)))
-            // {
-            //     return true;
-            // }
-
-            if (Capabilities.IsTargetingAllowed)
-                MovementManager.AutoTarget();
-
-            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
-                await MovementManager.MoveToTarget();
-
-            await CommonCoroutines.SleepForLagDuration();
-
-            return false;
-        }
-
-        #region Single Target Routine
-
-        private static async Task<bool> single_target(WoWUnit onunit, bool reqs)
-        {
-            if (!reqs) return false;
             // howling_blast,target_if=!dot.frost_fever.ticking
             if (await Spell.CoCast(S.HowlingBlast, onunit,
                 Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 &&
@@ -329,9 +302,9 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CoCast(S.FrostStrike, onunit, Me.HasActiveAura("Obliteration")) &&
                 !Me.HasActiveAura("Killing Machine")) return true;
 
-            // frostscythe,if=buff.killing_machine.react|spell_targets.frostscythe>=4
+            // ffrostscythe,if=!talent.breath_of_sindragosa.enabled&(buff.killing_machine.react|spell_targets.frostscythe>=4)
             if (await Spell.CoCast(S.Frostscythe, onunit,
-                Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.Distance <= 8 &&
+                Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.Distance <= 8 && !TalentManager.FrostBreathOfSindragosa &&
                 (Me.HasAura(S.AuraKillingMachine) || Units.EnemiesInRange(8) >= 4))) return true;
 
             // obliterate,if=buff.killing_machine.react
@@ -363,19 +336,21 @@ namespace ScourgeBloom.Class.DeathKnight
                         Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 && FrozenPulseSelected()))
                 return true;
 
-            // frost_strike,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
-            if (await Spell.CoCast(S.FrostStrike, onunit,
-                Me.CurrentTarget.IsWithinMeleeRange && BoSSelected() &&
-                Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
-
-            // frost_strike,if=!talent.breath_of_sindragosa.enabled
-            if (await Spell.CoCast(S.FrostStrike, onunit, Me.CurrentTarget.IsWithinMeleeRange && !BoSSelected()))
-                return true;
-
             // horn_of_winter,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
             if (await Spell.CoCast(S.HornofWinter, Me,
                 Capabilities.IsCooldownUsageAllowed && HornofWinterSelected() && BoSSelected() &&
                 Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
+
+            // horn_of_winter,if=!talent.breath_of_sindragosa.enabled
+            if (await Spell.CoCast(S.HornofWinter, Me,
+                Capabilities.IsCooldownUsageAllowed && HornofWinterSelected() && !BoSSelected())) return true;
+
+            // frost_strike,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
+            if (await Spell.CoCast(S.FrostStrike, onunit, Me.CurrentTarget.IsWithinMeleeRange && TalentManager.FrostBreathOfSindragosa
+                && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
+
+            // frost_strike,if=!talent.breath_of_sindragosa.enabled
+            if (await Spell.CoCast(S.FrostStrike, onunit, Me.CurrentTarget.IsWithinMeleeRange && !TalentManager.FrostBreathOfSindragosa)) return true;
 
             // empower_rune_weapon,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
             if (await Spell.CoCast(S.EmpowerRuneWeapon, Me,
@@ -391,12 +366,6 @@ namespace ScourgeBloom.Class.DeathKnight
                 !Me.HasActiveAura("Hungering Rune Weapon")))
                 return true;
 
-            // horn_of_winter,if=!talent.breath_of_sindragosa.enabled
-            if (
-                await
-                    Spell.CoCast(S.HornofWinter, Me,
-                        Capabilities.IsCooldownUsageAllowed && HornofWinterSelected() && !BoSSelected())) return true;
-
             // empower_rune_weapon,if=!talent.breath_of_sindragosa.enabled
             if (
                 await
@@ -411,6 +380,12 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.CurrentTarget.Distance <= 8 &&
                 !BoSSelected() && !Me.HasActiveAura("Hungering Rune Weapon"))) return true;
 
+            // if (await AOE(onunit, Units.EnemiesInRange(10) >= 4 && !IsDualWielding ||
+            //                                (Units.EnemiesInRange(10) >= 3 && IsDualWielding)))
+            // {
+            //     return true;
+            // }
+
             if (Capabilities.IsTargetingAllowed)
                 MovementManager.AutoTarget();
 
@@ -419,10 +394,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
             await CommonCoroutines.SleepForLagDuration();
 
-            return true;
+            return false;
         }
-
-        #endregion
 
         #region Lowbie Routine
 

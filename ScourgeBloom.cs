@@ -58,7 +58,7 @@ namespace ScourgeBloom
 
         protected static readonly LocalPlayer Me = StyxWoW.Me;
 
-        public static readonly Version Version = new Version(1, 4, 59);
+        public static readonly Version Version = new Version(1, 4, 60);
 
         private static bool _initialized;
 
@@ -116,6 +116,7 @@ namespace ScourgeBloom
 
         public static bool Paused => HotkeyManager.PauseHotkey;
 
+        #region Context
 
         public static event EventHandler<WoWContextEventArg> OnWoWContextChanged;
 
@@ -200,6 +201,8 @@ namespace ScourgeBloom
 
             return WoWContext.Normal;
         }
+
+        #endregion
 
         #region DescribeContext
 
@@ -391,9 +394,6 @@ namespace ScourgeBloom
             Lua.Events.AttachEvent("PLAYER_REGEN_DISABLED", OnCombatStarted);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         private static uint GetFps()
         {
             try
@@ -446,7 +446,6 @@ namespace ScourgeBloom
         {
             HotkeyManager.RemoveHotkeys();
             EventLog.DetachCombatLogEvent();
-            _initialized = false;
         }
 
         private static void InitializeOnce()
