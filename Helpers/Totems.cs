@@ -7,8 +7,10 @@
  */
 
 using System.Linq;
+using System.Numerics;
 using ScourgeBloom.Managers;
 using Styx;
+using Styx.Common;
 using Styx.WoWInternals;
 
 namespace ScourgeBloom.Helpers
@@ -74,7 +76,7 @@ namespace ScourgeBloom.Helpers
         /// <param name="pt"></param>
         /// <param name="tt"></param>
         /// <returns></returns>
-        public static bool ExistInRange(WoWPoint pt, WoWTotem tt)
+        public static bool ExistInRange(Vector3 pt, WoWTotem tt)
         {
             if (!Exist(tt))
                 return false;
@@ -89,7 +91,7 @@ namespace ScourgeBloom.Helpers
         /// <param name="pt"></param>
         /// <param name="awt"></param>
         /// <returns></returns>
-        public static bool ExistInRange(WoWPoint pt, params WoWTotem[] awt)
+        public static bool ExistInRange(Vector3 pt, params WoWTotem[] awt)
         {
             return awt.Any(t => ExistInRange(pt, t));
         }
@@ -100,7 +102,7 @@ namespace ScourgeBloom.Helpers
         /// <param name="pt"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static bool ExistInRange(WoWPoint pt, WoWTotemType type)
+        public static bool ExistInRange(Vector3 pt, WoWTotemType type)
         {
             var ti = GetTotem(type);
             return Exist(ti) && ti.Unit != null && ti.Unit.Location.Distance(pt) < GetTotemRange(ti.WoWTotem);

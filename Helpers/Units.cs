@@ -15,6 +15,7 @@ using Bots.DungeonBuddy.Helpers;
 using ScourgeBloom.Managers;
 using ScourgeBloom.Utilities;
 using Styx;
+using Styx.Common;
 using Styx.CommonBot;
 using Styx.CommonBot.POI;
 using Styx.Helpers;
@@ -304,7 +305,7 @@ namespace ScourgeBloom.Helpers
             var dist = distance*distance;
             var curTarLocation = StyxWoW.Me.CurrentTarget.Location;
             return ObjectManager.GetObjectsOfType<WoWUnit>().Where(
-                p => IsValid(p) && p.IsFriendly && p.Location.DistanceSqr(curTarLocation) <= dist)
+                p => IsValid(p) && p.IsFriendly && p.Location.DistanceSquared(curTarLocation) <= dist)
                 .ToList();
         }
 
@@ -578,10 +579,7 @@ namespace ScourgeBloom.Helpers
 
         #region EnemyUnitsMelee
 
-        public static IEnumerable<WoWUnit> EnemyUnitsMelee
-        {
-            get { return EnemyUnits(Me.MeleeRange().ToString(CultureInfo.InvariantCulture).ToInt32()); }
-        }
+        public static IEnumerable<WoWUnit> EnemyUnitsMelee => EnemyUnits(Me.MeleeRange.ToString(CultureInfo.InvariantCulture).ToInt32());
 
         #endregion EnemyUnitsMelee
 
@@ -592,7 +590,7 @@ namespace ScourgeBloom.Helpers
             var dist = distance*distance;
             var curTarLocation = StyxWoW.Me.CurrentTarget.Location;
             return ObjectManager.GetObjectsOfType<WoWUnit>().Where(
-                p => IsValid(p) && p.IsHostile && p.Location.DistanceSqr(curTarLocation) <= dist).ToList();
+                p => IsValid(p) && p.IsHostile && p.Location.DistanceSquared(curTarLocation) <= dist).ToList();
         }
 
         #endregion EnemyUnitsNearTarget
