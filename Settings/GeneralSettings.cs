@@ -29,7 +29,7 @@ namespace ScourgeBloom.Settings
         {
         }
 
-        [Setting, Styx.Helpers.DefaultValue(false), Category("Behaviour")]
+        [Setting, DefaultValue(false), Category("Behaviour")]
         [Browsable(true)]
         public bool Targeting { get; set; }
 

@@ -116,101 +116,6 @@ namespace ScourgeBloom.Class.DeathKnight
                 }
             }
 
-            if (Capabilities.IsRacialUsageAllowed)
-            {
-                await Racials.RacialsMethod();
-            }
-
-            if (GeneralSettings.Instance.UseTrinket1 && Capabilities.IsTrinketUsageAllowed)
-            {
-                await Trinkets.Trinket1Method();
-            }
-
-            if (GeneralSettings.Instance.UseTrinket2 && Capabilities.IsTrinketUsageAllowed)
-            {
-                await Trinkets.Trinket2Method();
-            }
-
-            if (SpellManager.GlobalCooldown)
-                return false;
-
-            //if (await Spell.CoCast(S.FrostPresence, Me, !Me.HasAura(S.FrostPresence)))
-            //    return true;
-
-            if (
-                await
-                    Spell.CoCast(S.HornofWinter, Me,
-                        Capabilities.IsCooldownUsageAllowed && Me.GotTarget && Me.Combat &&
-                        Me.CurrentTarget.IsWithinMeleeRange && HornofWinterSelected()))
-                return true;
-
-            await CommonCoroutines.SleepForLagDuration();
-
-            return false;
-        }
-
-        #endregion CombatBuffs
-
-        #region Pull
-
-        public static async Task<bool> PullRoutine()
-        {
-            if (Paused) return false;
-
-            if ( /*!Me.Combat || */Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting ||
-                                   Me.IsChanneling) return false;
-
-            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
-                await MovementManager.MoveToTarget();
-
-            if (Capabilities.IsTargetingAllowed)
-                MovementManager.AutoTarget();
-
-            if (!StyxWoW.Me.GotTarget)
-                return false;
-
-            // Attack if not attacking
-            if (!Me.IsAutoAttacking)
-            {
-                Lua.DoString("StartAttack()");
-                return false;
-            }
-
-            if (!Me.CurrentTarget.IsBoss && Me.CurrentTarget.IsAlive) return false;
-
-            // if (await ExampleOpener(IsDualWielding))
-            // {
-            //     return false;
-            // }
-
-            await CommonCoroutines.SleepForLagDuration();
-
-            return false;
-        }
-
-        #endregion Pull
-
-        #region Openers
-
-        #endregion Openers
-
-        #region CombatRoutine
-
-        private static async Task<bool> CombatRoutine(WoWUnit onunit)
-        {
-            if (Paused) return false;
-
-            if (Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting ||
-                Me.IsChanneling) return true;
-
-            if (Capabilities.IsTargetingAllowed)
-                MovementManager.AutoTarget();
-
-            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
-                await MovementManager.MoveToTarget();
-
-            if (!Me.Combat || !Me.CurrentTarget.CanWeAttack()) return true;
-
             // Attack if not attacking
             if (!Me.IsAutoAttacking)
             {
@@ -238,8 +143,72 @@ namespace ScourgeBloom.Class.DeathKnight
                 await Defensives.DefensivesMethod();
             }
 
-            if (!Me.CurrentTarget.CanWeAttack())
+            if (SpellManager.GlobalCooldown)
                 return false;
+
+            //if (await Spell.CoCast(S.FrostPresence, Me, !Me.HasAura(S.FrostPresence)))
+            //    return true;
+
+            if (
+                await
+                    Spell.CoCast(S.HornofWinter, Me,
+                        Capabilities.IsCooldownUsageAllowed && Me.GotTarget && Me.Combat &&
+                        Me.CurrentTarget.IsWithinMeleeRange && HornofWinterSelected()))
+                return true;
+
+            //await CommonCoroutines.SleepForLagDuration();
+
+            return false;
+        }
+
+        #endregion CombatBuffs
+
+        #region Pull
+
+        public static async Task<bool> PullRoutine()
+        {
+
+            if (Paused || !Me.IsAlive || (!Me.GotTarget || !Me.CurrentTarget.IsAlive) || Globals.Mounted)
+                return true;
+
+            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
+                await MovementManager.MoveToTarget();
+
+            if (Capabilities.IsTargetingAllowed)
+                MovementManager.AutoTarget();
+
+            // Attack if not attacking
+            if (!Me.IsAutoAttacking)
+            {
+                Lua.DoString("StartAttack()");
+                return false;
+            }
+
+            if (!Me.CurrentTarget.IsBoss && Me.CurrentTarget.IsAlive) return false;
+
+            //await CommonCoroutines.SleepForLagDuration();
+
+            return false;
+        }
+
+        #endregion Pull
+
+        #region Openers
+
+        #endregion Openers
+
+        #region CombatRoutine
+
+        private static async Task<bool> CombatRoutine(WoWUnit onunit)
+        {
+            if (Paused || !Me.IsAlive || (!Me.GotTarget || !Me.CurrentTarget.IsAlive) || Globals.Mounted)
+                return true;
+
+            if (Capabilities.IsTargetingAllowed)
+                MovementManager.AutoTarget();
+
+            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
+                await MovementManager.MoveToTarget();
 
             if (Capabilities.IsInterruptingAllowed && Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.IsCasting &&
                 Me.CurrentTarget.CanInterruptCurrentSpellCast)
@@ -392,7 +361,7 @@ namespace ScourgeBloom.Class.DeathKnight
             if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
                 await MovementManager.MoveToTarget();
 
-            await CommonCoroutines.SleepForLagDuration();
+            //await CommonCoroutines.SleepForLagDuration();
 
             return false;
         }
@@ -440,7 +409,7 @@ namespace ScourgeBloom.Class.DeathKnight
             if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
                 await MovementManager.MoveToTarget();
 
-            await CommonCoroutines.SleepForLagDuration();
+            //await CommonCoroutines.SleepForLagDuration();
 
             return true;
         }
@@ -449,23 +418,22 @@ namespace ScourgeBloom.Class.DeathKnight
 
         #region AOE Routine
 
-        // ReSharper disable once InconsistentNaming
-        private static async Task<bool> AOE(WoWUnit onunit, bool reqs)
-        {
-            if (!reqs) return false;
+        //private static async Task<bool> AOE(WoWUnit onunit, bool reqs)
+        //{
+        //    if (!reqs) return false;
 
-            // Not enough info yet
+        //    // Not enough info yet
 
-            if (Capabilities.IsTargetingAllowed)
-                MovementManager.AutoTarget();
+        //    if (Capabilities.IsTargetingAllowed)
+        //        MovementManager.AutoTarget();
 
-            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
-                await MovementManager.MoveToTarget();
+        //    if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
+        //        await MovementManager.MoveToTarget();
 
-            await CommonCoroutines.SleepForLagDuration();
+        //    //await CommonCoroutines.SleepForLagDuration();
 
-            return true;
-        }
+        //    return true;
+        //}
 
         #endregion
 
@@ -585,7 +553,7 @@ namespace ScourgeBloom.Class.DeathKnight
             if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
                 await MovementManager.MoveToTarget();
 
-            await CommonCoroutines.SleepForLagDuration();
+            //await CommonCoroutines.SleepForLagDuration();
 
             return true;
         }
@@ -611,7 +579,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
             Styx.CommonBot.Rest.FeedImmediate();
 
-            await CommonCoroutines.SleepForLagDuration();
+            //await CommonCoroutines.SleepForLagDuration();
 
             return await Coroutine.Wait(1000, () => Me.HasAura("Food"));
         }
@@ -624,13 +592,6 @@ namespace ScourgeBloom.Class.DeathKnight
         #endregion RestCoroutine
 
         #region Logics
-
-        #region IsDualWielding
-
-        private static bool IsDualWielding
-            => Me.Inventory.Equipped.MainHand != null && Me.Inventory.Equipped.OffHand != null;
-
-        #endregion IsDualWielding
 
         #region TalentSelected
 

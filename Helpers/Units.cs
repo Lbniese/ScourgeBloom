@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Numerics;
 using System.Windows.Media;
 using Bots.DungeonBuddy.Helpers;
 using ScourgeBloom.Managers;
@@ -74,6 +75,35 @@ namespace ScourgeBloom.Helpers
         {
             return unit.CurrentTarget != null;
         }
+
+        #region [Method] - Active Enemies
+        public static IEnumerable<WoWUnit> ActiveEnemies(Vector3 fromLocation, double range)
+        {
+            var hostile = EnemyCount;
+            return hostile?.Where(x => x.Location.DistanceSquared(fromLocation) <= range * range);
+        }
+        private static List<WoWUnit> EnemyCount { get; set; }
+        public static void EnemyAnnex(double range)
+        {
+            EnemyCount.Clear();
+            foreach (var u in SurroundingEnemies())
+            {
+                if (u == null || !u.IsValid)//<~ Use isUnitValid(u, Range) instead of the frist five of these first calls?
+                    continue;
+                if (!u.IsAlive || u.DistanceSqr > range * range)
+                    continue;
+                if (!u.Attackable || !u.CanSelect)
+                    continue;
+                if (u.IsFriendly)
+                    continue;
+                if (u.IsNonCombatPet && u.IsCritter)
+                    continue;
+                EnemyCount.Add(u);
+            }
+        }
+        private static IEnumerable<WoWUnit> SurroundingEnemies() { return ObjectManager.GetObjectsOfTypeFast<WoWUnit>(); }
+        static Units() { EnemyCount = new List<WoWUnit>(); }
+        #endregion
 
         /// <summary>
         ///     Calls the UnitCanAttack LUA to check if current target is attackable. This is

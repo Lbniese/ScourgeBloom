@@ -58,7 +58,7 @@ namespace ScourgeBloom
 
         protected static readonly LocalPlayer Me = StyxWoW.Me;
 
-        public static readonly Version Version = new Version(1, 4, 61);
+        public static readonly Version Version = new Version(1, 4, 62);
 
         private static bool _initialized;
 
@@ -326,6 +326,11 @@ namespace ScourgeBloom
         {
             try
             {
+                if (!StyxWoW.IsInGame || !StyxWoW.IsInWorld || Me == null || !Me.IsValid || !Me.IsAlive)
+                    return;
+
+                Units.EnemyAnnex(8f);
+
                 if (Capabilities.IsPetUsageAllowed && Capabilities.IsPetSummonAllowed &&
                     Me.Specialization == WoWSpec.DeathKnightUnholy)
                 {

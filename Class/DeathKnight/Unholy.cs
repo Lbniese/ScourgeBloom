@@ -34,10 +34,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> PullRoutine()
         {
-            if (Paused) return false;
-
-            if (!Me.Combat || Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting ||
-                Me.IsChanneling) return true;
+            if (Paused || !Me.IsAlive || (!Me.GotTarget || !Me.CurrentTarget.IsAlive) || Globals.Mounted)
+                return true;
 
             if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
                 await MovementManager.MoveToTarget();
@@ -69,15 +67,12 @@ namespace ScourgeBloom.Class.DeathKnight
                 return true;
             }
 
-            if (!Me.CurrentTarget.IsBoss) return true;
+            //if (await ExampleOpener(Me.Level >= 100 && Me.CurrentTarget.IsBoss))
+            //{
+            //    return true;
+            //}
 
-
-            if (await ExampleOpener(Me.Level >= 100))
-            {
-                return true;
-            }
-
-            await CommonCoroutines.SleepForLagDuration();
+            //await CommonCoroutines.SleepForLagDuration();
 
             return false;
         }
@@ -108,7 +103,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
             #endregion Healthstone
 
-            await CommonCoroutines.SleepForLagDuration();
+            //await CommonCoroutines.SleepForLagDuration();
 
             return false;
         }
@@ -119,10 +114,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> CombatCoroutine(WoWUnit onunit)
         {
-            if (Paused) return false;
-
-            if (Globals.Mounted || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Me.IsCasting ||
-                Me.IsChanneling) return true;
+            if (Paused || !Me.IsAlive || (!Me.GotTarget || !Me.CurrentTarget.IsAlive) || Globals.Mounted)
+                return true;
 
             if (Capabilities.IsTargetingAllowed)
                 MovementManager.AutoTarget();
@@ -131,42 +124,6 @@ namespace ScourgeBloom.Class.DeathKnight
                 await MovementManager.MoveToTarget();
 
             if (!Me.Combat || !Me.CurrentTarget.CanWeAttack()) return true;
-
-            // Attack if not attacking
-            if (Capabilities.IsPetUsageAllowed && !Me.Pet.IsAutoAttacking && Me.GotAlivePet)
-            {
-                await PetAttack();
-                return true;
-            }
-
-            if (!Me.IsAutoAttacking)
-            {
-                Lua.DoString("StartAttack()");
-                return true;
-            }
-
-            if (Capabilities.IsRacialUsageAllowed)
-            {
-                await Racials.RacialsMethod();
-            }
-
-            if (GeneralSettings.Instance.UseTrinket1 && Capabilities.IsTrinketUsageAllowed)
-            {
-                await Trinkets.Trinket1Method();
-            }
-
-            if (GeneralSettings.Instance.UseTrinket2 && Capabilities.IsTrinketUsageAllowed)
-            {
-                await Trinkets.Trinket2Method();
-            }
-
-            if (Me.Combat)
-            {
-                await Defensives.DefensivesMethod();
-            }
-
-            if (!Me.CurrentTarget.CanWeAttack())
-                return false;
 
             if (Capabilities.IsInterruptingAllowed && Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.IsCasting &&
                 Me.CurrentTarget.CanInterruptCurrentSpellCast)
@@ -337,18 +294,14 @@ namespace ScourgeBloom.Class.DeathKnight
             }
 
             // call_action_list,name = standard,if= !talent.castigator.enabled & !equipped.132448
-            if (
-                await
-                    Standard(onunit,
+            if (await Standard(onunit,
                         !TalentManager.UnholyCastigator && Me.Inventory.Equipped.Wrist.ItemInfo.Id != 132448))
             {
                 return true;
             }
 
             // call_action_list,name = castigator,if= talent.castigator.enabled & !equipped.132448
-            if (
-                await
-                    Castigator(onunit,
+            if (await Castigator(onunit,
                         TalentManager.UnholyCastigator && Me.Inventory.Equipped.Wrist.ItemInfo.Id != 132448))
             {
                 return true;
@@ -360,7 +313,7 @@ namespace ScourgeBloom.Class.DeathKnight
             if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
                 await MovementManager.MoveToTarget();
 
-            await CommonCoroutines.SleepForLagDuration();
+            //await CommonCoroutines.SleepForLagDuration();
 
             return false;
         }
@@ -381,6 +334,9 @@ namespace ScourgeBloom.Class.DeathKnight
                     Spell.CoCast(S.RaiseDead, Me,
                         Capabilities.IsPetUsageAllowed && !Me.GotAlivePet && Capabilities.IsPetSummonAllowed &&
                         !Me.OnTaxi && !Me.Mounted))
+                return true;
+
+            if ((!Me.GotTarget || !Me.CurrentTarget.IsAlive) || Globals.Mounted)
                 return true;
 
             if (GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.CanWeAttack() &&
@@ -438,6 +394,11 @@ namespace ScourgeBloom.Class.DeathKnight
                 }
             }
 
+            if (Capabilities.IsRacialUsageAllowed)
+            {
+                await Racials.RacialsMethod();
+            }
+
             if (GeneralSettings.Instance.UseTrinket1 && Capabilities.IsTrinketUsageAllowed)
             {
                 await Trinkets.Trinket1Method();
@@ -448,17 +409,29 @@ namespace ScourgeBloom.Class.DeathKnight
                 await Trinkets.Trinket2Method();
             }
 
+            if (Me.Combat)
+            {
+                await Defensives.DefensivesMethod();
+            }
+
             if (SpellManager.GlobalCooldown)
                 return false;
 
-            if (
-                await
-                    Spell.CoCast(S.RaiseDead, Me,
+            if (await Spell.CoCast(S.RaiseDead, Me,
                         Capabilities.IsPetUsageAllowed && !Me.GotAlivePet && Capabilities.IsPetSummonAllowed &&
                         !Me.OnTaxi && !Me.Mounted))
                 return true;
 
-            await CommonCoroutines.SleepForLagDuration();
+            if (!Me.IsAutoAttacking) { Lua.DoString("StartAttack()"); return true; }
+
+            // Attack if not attacking
+            if (Capabilities.IsPetUsageAllowed && !Me.Pet.IsAutoAttacking && Me.GotAlivePet)
+            {
+                await PetAttack();
+                return true;
+            }
+
+            //await CommonCoroutines.SleepForLagDuration();
 
             return false;
         }
@@ -502,29 +475,17 @@ namespace ScourgeBloom.Class.DeathKnight
                         Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) <= 3)) return true;
 
             // scourge_strike,if=debuff.festering_wound.up
-            if (
-                await
-                    Spell.CoCast(S.ScourgeStrike, onunit,
+            if (await  Spell.CoCast(S.ScourgeStrike, onunit,
                         Me.CurrentTarget.IsWithinMeleeRange && !SpellManager.HasSpell(S.ClawingShadows) &&
                         Me.CurrentTarget.HasMyAura(S.AuraFesteringWound))) return true;
 
             // clawing_shadows,if=debuff.festering_wound.up
-            if (
-                await
-                    Spell.CoCast(S.ClawingShadows, onunit,
-                        Me.CurrentTarget.IsWithinMeleeRange && SpellManager.HasSpell(S.ClawingShadows) &&
-                        Me.CurrentRunes >= 1 &&
-                        Me.CurrentTarget.HasMyAura(S.AuraFesteringWound))) return true;
+            return await Spell.CoCast(S.ClawingShadows, onunit,
+                Me.CurrentTarget.IsWithinMeleeRange && SpellManager.HasSpell(S.ClawingShadows) &&
+                Me.CurrentRunes >= 1 &&
+                Me.CurrentTarget.HasMyAura(S.AuraFesteringWound));
 
-            if (Capabilities.IsTargetingAllowed)
-                MovementManager.AutoTarget();
-
-            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
-                await MovementManager.MoveToTarget();
-
-            await CommonCoroutines.SleepForLagDuration();
-
-            return false;
+            //await CommonCoroutines.SleepForLagDuration();
         }
 
         #endregion Routine Valkyr
@@ -536,9 +497,7 @@ namespace ScourgeBloom.Class.DeathKnight
             if (!reqs) return false;
 
             //Custom - SingularBased LowbieRotation
-            if (
-                await
-                    Spell.CoCast(S.RaiseDead, Me,
+            if (await Spell.CoCast(S.RaiseDead, Me,
                         Capabilities.IsPetUsageAllowed && !Me.GotAlivePet && Capabilities.IsPetSummonAllowed &&
                         !Me.OnTaxi && !Me.Mounted))
                 return true;
@@ -567,17 +526,9 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 1))
                 return true;
 
-            if (await Spell.CoCast(S.DeathCoil, onunit, RunicPowerDeficit < 10)) return true;
+            return await Spell.CoCast(S.DeathCoil, onunit, RunicPowerDeficit < 10);
 
-            if (Capabilities.IsTargetingAllowed)
-                MovementManager.AutoTarget();
-
-            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
-                await MovementManager.MoveToTarget();
-
-            await CommonCoroutines.SleepForLagDuration();
-
-            return true;
+            //await CommonCoroutines.SleepForLagDuration();
         }
 
         #endregion LowbieRotation
@@ -668,9 +619,7 @@ namespace ScourgeBloom.Class.DeathKnight
                             !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation"))) return true;
 
                 // death_coil,if=talent.dark_arbiter.enabled&cooldown.dark_arbiter.remains>15
-                if (
-                    await
-                        Spell.CoCast(S.DeathCoil, onunit,
+                if ( await Spell.CoCast(S.DeathCoil, onunit,
                             DarkArbiterSelected() && Spell.GetCooldownLeft(S.DarkArbiter).TotalSeconds > 15))
                     return true;
 
@@ -679,14 +628,7 @@ namespace ScourgeBloom.Class.DeathKnight
                     return true;
             }
 
-
-            if (Capabilities.IsTargetingAllowed)
-                MovementManager.AutoTarget();
-
-            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
-                await MovementManager.MoveToTarget();
-
-            await CommonCoroutines.SleepForLagDuration();
+            //await CommonCoroutines.SleepForLagDuration();
 
             return true;
         }
@@ -724,41 +666,31 @@ namespace ScourgeBloom.Class.DeathKnight
                             Me.HasAura(S.AuraNecrosis))) return true;
 
                 // clawing_shadows,if=buff.necrosis.react&debuff.festering_wound.stack>=1&runic_power.deficit>15
-                if (
-                    await
-                        Spell.CoCast(S.ClawingShadows, onunit,
+                if (await Spell.CoCast(S.ClawingShadows, onunit,
                             SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentRunes >= 1 &&
                             Me.CurrentTarget.Distance <= 8 &&
                             Me.HasAura(S.AuraNecrosis)))
                     return true;
 
                 // scourge_strike,if=buff.unholy_strength.react&debuff.festering_wound.stack>=1&runic_power.deficit>15
-                if (
-                    await
-                        Spell.CoCast(S.ScourgeStrike, onunit,
+                if (await Spell.CoCast(S.ScourgeStrike, onunit,
                             !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
                             Me.HasAura(S.AuraUnholyStrength))) return true;
 
                 // clawing_shadows,if=buff.unholy_strength.react&debuff.festering_wound.stack>=1&runic_power.deficit>15
-                if (
-                    await
-                        Spell.CoCast(S.ClawingShadows, onunit,
+                if (await Spell.CoCast(S.ClawingShadows, onunit,
                             SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentRunes >= 1 &&
                             Me.CurrentTarget.IsWithinMeleeRange &&
                             Me.HasAura(S.AuraUnholyStrength))) return true;
 
 
                 // scourge_strike,if=rune>=2&debuff.festering_wound.stack>=1&runic_power.deficit>15
-                if (
-                    await
-                        Spell.CoCast(S.ScourgeStrike, onunit,
+                if (await Spell.CoCast(S.ScourgeStrike, onunit,
                             !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
                             Me.CurrentRunes >= 2)) return true;
 
                 // clawing_shadows,if=rune>=2&debuff.festering_wound.stack>=1&runic_power.deficit>15
-                if (
-                    await
-                        Spell.CoCast(S.ClawingShadows, onunit,
+                if (await Spell.CoCast(S.ClawingShadows, onunit,
                             SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentRunes >= 1 &&
                             Me.CurrentTarget.IsWithinMeleeRange &&
                             Me.CurrentRunes >= 2)) return true;
@@ -767,24 +699,18 @@ namespace ScourgeBloom.Class.DeathKnight
             if (Me.CurrentTarget.Distance <= 40)
             {
                 // death_coil,if=talent.shadow_infusion.enabled&talent.dark_arbiter.enabled&!buff.dark_transformation.up&cooldown.dark_arbiter.remains>15
-                if (
-                    await
-                        Spell.CoCast(S.DeathCoil, onunit,
+                if (await Spell.CoCast(S.DeathCoil, onunit,
                             ShadowInfusionSelected() && DarkArbiterSelected() &&
                             !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation") &&
                             Spell.GetCooldownLeft(S.DarkArbiter).TotalSeconds > 15)) return true;
 
                 // death_coil,if=talent.shadow_infusion.enabled&!talent.dark_arbiter.enabled&!buff.dark_transformation.up
-                if (
-                    await
-                        Spell.CoCast(S.DeathCoil, onunit,
+                if (await Spell.CoCast(S.DeathCoil, onunit,
                             ShadowInfusionSelected() && !DarkArbiterSelected() &&
                             !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation"))) return true;
 
                 // death_coil,if=talent.dark_arbiter.enabled&cooldown.dark_arbiter.remains>15
-                if (
-                    await
-                        Spell.CoCast(S.DeathCoil, onunit,
+                if (await Spell.CoCast(S.DeathCoil, onunit,
                             DarkArbiterSelected() && Spell.GetCooldownLeft(S.DarkArbiter).TotalSeconds > 15))
                     return true;
 
@@ -793,13 +719,7 @@ namespace ScourgeBloom.Class.DeathKnight
                     return true;
             }
 
-            if (Capabilities.IsTargetingAllowed)
-                MovementManager.AutoTarget();
-
-            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
-                await MovementManager.MoveToTarget();
-
-            await CommonCoroutines.SleepForLagDuration();
+            //await CommonCoroutines.SleepForLagDuration();
 
             return true;
         }
@@ -878,14 +798,7 @@ namespace ScourgeBloom.Class.DeathKnight
                     return true;
             }
 
-
-            if (Capabilities.IsTargetingAllowed)
-                MovementManager.AutoTarget();
-
-            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
-                await MovementManager.MoveToTarget();
-
-            await CommonCoroutines.SleepForLagDuration();
+            //await CommonCoroutines.SleepForLagDuration();
 
             return true;
         }
@@ -944,13 +857,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.CurrentTarget.IsWithinMeleeRange && Units.EnemiesInRange(10) > 2))
                 return true;
 
-            if (Capabilities.IsTargetingAllowed)
-                MovementManager.AutoTarget();
-
-            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
-                await MovementManager.MoveToTarget();
-
-            await CommonCoroutines.SleepForLagDuration();
+            //await CommonCoroutines.SleepForLagDuration();
 
             return true;
         }
@@ -959,16 +866,16 @@ namespace ScourgeBloom.Class.DeathKnight
 
         #region Openers
 
-        private static async Task<bool> ExampleOpener(bool reqs)
-        {
-            if (Paused) return false;
+        //private static async Task<bool> ExampleOpener(bool reqs)
+        //{
+        //    if (Paused) return false;
 
-            if (!reqs) return false;
-            if (await Spell.CoCast(S.ArmyoftheDead,
-                Capabilities.IsCooldownUsageAllowed && DeathKnightSettings.Instance.UseAotD)) return true;
+        //    if (!reqs) return false;
 
-            return true;
-        }
+        //    await CommonCoroutines.SleepForLagDuration();
+
+        //    return true;
+        //}
 
         #endregion Openers
 
@@ -989,7 +896,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
             Styx.CommonBot.Rest.FeedImmediate();
 
-            await CommonCoroutines.SleepForLagDuration();
+            //await CommonCoroutines.SleepForLagDuration();
 
             return await Coroutine.Wait(1000, () => Me.HasAura("Food"));
         }
@@ -1046,7 +953,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 Lua.DoString("PetAttack();");
             }
 
-            await CommonCoroutines.SleepForLagDuration();
+            //await CommonCoroutines.SleepForLagDuration();
 
             return false;
         }
