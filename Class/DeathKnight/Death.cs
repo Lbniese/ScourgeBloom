@@ -16,7 +16,6 @@ namespace ScourgeBloom.Class.DeathKnight
 
         public static async Task<bool> DeathBehavor()
         {
-
             if (Me.IsDead && GeneralSettings.Instance.AutoReleaseSpirit)
             {
                 Log.WriteLog(DateTime.Now.ToString("mm:ss:ffffff") + " RepopMe()");

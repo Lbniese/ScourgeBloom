@@ -17,7 +17,6 @@ using ScourgeBloom.Managers;
 using ScourgeBloom.Settings;
 using Styx;
 using Styx.CommonBot;
-using Styx.CommonBot.Coroutines;
 using Styx.CommonBot.Inventory;
 using Styx.TreeSharp;
 using Styx.WoWInternals;
@@ -69,19 +68,19 @@ namespace ScourgeBloom.Class.DeathKnight
             if (!Me.IsAlive)
                 return true;
 
-            if (GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.CanWeAttack() &&
-                Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight && Me.IsSafelyFacing(Me.CurrentTarget))
-            {
-                if (Me.GotTarget && Me.CurrentTarget.CanWeAttack() && Me.IsSafelyFacing(Me.CurrentTarget) &&
-                    Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.Distance > 7 && Me.CurrentTarget.InLineOfSight &&
-                    DeathKnightSettings.Instance.DeathGrip)
-                    return await Spell.CoCast(S.DeathGrip, SpellManager.CanCast(S.DeathGrip));
+            //if (GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.CanWeAttack() &&
+            //    Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight && Me.IsSafelyFacing(Me.CurrentTarget))
+            //{
+            //    if (Me.GotTarget && Me.CurrentTarget.CanWeAttack() && Me.IsSafelyFacing(Me.CurrentTarget) &&
+            //        Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.Distance > 7 && Me.CurrentTarget.InLineOfSight &&
+            //        DeathKnightSettings.Instance.DeathGrip)
+            //        return await Spell.CoCast(S.DeathGrip, SpellManager.CanCast(S.DeathGrip));
 
-                if (Me.GotTarget && Me.CurrentTarget.CanWeAttack() && Me.IsSafelyFacing(Me.CurrentTarget) &&
-                    Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight &&
-                    Spell.GetCooldownLeft(S.Outbreak).TotalSeconds > 1)
-                    return await Spell.CoCast(S.HowlingBlast, SpellManager.CanCast(S.HowlingBlast));
-            }
+            //    if (Me.GotTarget && Me.CurrentTarget.CanWeAttack() && Me.IsSafelyFacing(Me.CurrentTarget) &&
+            //        Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight &&
+            //        Spell.GetCooldownLeft(S.Outbreak).TotalSeconds > 1)
+            //        return await Spell.CoCast(S.HowlingBlast, SpellManager.CanCast(S.HowlingBlast));
+            //}
 
             return false;
         }
@@ -146,14 +145,9 @@ namespace ScourgeBloom.Class.DeathKnight
             if (SpellManager.GlobalCooldown)
                 return false;
 
-            //if (await Spell.CoCast(S.FrostPresence, Me, !Me.HasAura(S.FrostPresence)))
-            //    return true;
-
-            if (
-                await
-                    Spell.CoCast(S.HornofWinter, Me,
-                        Capabilities.IsCooldownUsageAllowed && Me.GotTarget && Me.Combat &&
-                        Me.CurrentTarget.IsWithinMeleeRange && HornofWinterSelected()))
+            if (await Spell.CoCast(S.HornofWinter, Me,
+                Capabilities.IsCooldownUsageAllowed && Me.GotTarget && Me.Combat &&
+                Me.CurrentTarget.IsWithinMeleeRange && HornofWinterSelected()))
                 return true;
 
             //await CommonCoroutines.SleepForLagDuration();
@@ -167,8 +161,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
         public static async Task<bool> PullRoutine()
         {
-
-            if (Paused || !Me.IsAlive || (!Me.GotTarget || !Me.CurrentTarget.IsAlive) || Globals.Mounted)
+            if (Paused || !Me.IsAlive || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Globals.Mounted)
                 return true;
 
             if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
@@ -184,7 +177,19 @@ namespace ScourgeBloom.Class.DeathKnight
                 return false;
             }
 
-            if (!Me.CurrentTarget.IsBoss && Me.CurrentTarget.IsAlive) return false;
+            if (GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.CanWeAttack() &&
+                Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight && Me.IsSafelyFacing(Me.CurrentTarget))
+            {
+                if (Me.GotTarget && Me.CurrentTarget.CanWeAttack() && Me.IsSafelyFacing(Me.CurrentTarget) &&
+                    Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.Distance > 7 && Me.CurrentTarget.InLineOfSight &&
+                    DeathKnightSettings.Instance.DeathGrip)
+                    return await Spell.CoCast(S.DeathGrip, SpellManager.CanCast(S.DeathGrip));
+
+                if (Me.GotTarget && Me.CurrentTarget.CanWeAttack() && Me.IsSafelyFacing(Me.CurrentTarget) &&
+                    Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight &&
+                    Spell.GetCooldownLeft(S.Outbreak).TotalSeconds > 1)
+                    return await Spell.CoCast(S.HowlingBlast, SpellManager.CanCast(S.HowlingBlast));
+            }
 
             //await CommonCoroutines.SleepForLagDuration();
 
@@ -201,7 +206,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> CombatRoutine(WoWUnit onunit)
         {
-            if (Paused || !Me.IsAlive || (!Me.GotTarget || !Me.CurrentTarget.IsAlive) || Globals.Mounted)
+            if (Paused || !Me.IsAlive || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Globals.Mounted)
                 return true;
 
             if (Capabilities.IsTargetingAllowed)
@@ -210,7 +215,7 @@ namespace ScourgeBloom.Class.DeathKnight
             if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
                 await MovementManager.MoveToTarget();
 
-            if (Capabilities.IsInterruptingAllowed && Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.IsCasting &&
+            if (Capabilities.IsInterruptingAllowed && Me.CurrentTarget.Distance <= 15 && Me.CurrentTarget.IsCasting &&
                 Me.CurrentTarget.CanInterruptCurrentSpellCast)
                 await Interrupts.MindFreezeMethod();
 
@@ -247,13 +252,11 @@ namespace ScourgeBloom.Class.DeathKnight
             // howling_blast,target_if=!dot.frost_fever.ticking
             if (await Spell.CoCast(S.HowlingBlast, onunit,
                 Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 &&
-                !Me.CurrentTarget.HasMyAura(S.AuraFrostFever))) return true;
+                !Me.CurrentTarget.HasAura(S.AuraFrostFever))) return true;
 
             // howling_blast,if=buff.rime.react
-            if (
-                await
-                    Spell.CoCast(S.HowlingBlast, onunit,
-                        Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 && Me.HasAura(S.AuraRime)))
+            if (await Spell.CoCast(S.HowlingBlast, onunit,
+                Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 && Me.HasAura(S.AuraRime)))
                 return true;
 
             // frost_strike,if=runic_power>=80
@@ -261,19 +264,18 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentRunicPower >= 80)) return true;
 
             // glacial_advance
-            if (
-                await
-                    Spell.CoCast(S.GlacialAdvance, Me,
-                        Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed &&
-                        Me.CurrentTarget.IsWithinMeleeRange)) return true;
+            if (await Spell.CoCast(S.GlacialAdvance, Me,
+                Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed &&
+                Me.CurrentTarget.IsWithinMeleeRange)) return true;
 
             // frost_strike,if= buff.obliteration.up & !buff.killing_machine.react
             if (await Spell.CoCast(S.FrostStrike, onunit, Me.HasActiveAura("Obliteration")) &&
                 !Me.HasActiveAura("Killing Machine")) return true;
 
-            // ffrostscythe,if=!talent.breath_of_sindragosa.enabled&(buff.killing_machine.react|spell_targets.frostscythe>=4)
+            // frostscythe,if=!talent.breath_of_sindragosa.enabled&(buff.killing_machine.react|spell_targets.frostscythe>=4)
             if (await Spell.CoCast(S.Frostscythe, onunit,
-                Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.Distance <= 8 && !TalentManager.FrostBreathOfSindragosa &&
+                Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.Distance <= 8 &&
+                !TalentManager.FrostBreathOfSindragosa &&
                 (Me.HasAura(S.AuraKillingMachine) || Units.EnemiesInRange(8) >= 4))) return true;
 
             // obliterate,if=buff.killing_machine.react
@@ -281,28 +283,22 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.CurrentTarget.IsWithinMeleeRange && Me.HasAura(S.AuraKillingMachine))) return true;
 
             // remorseless_winter,if=spell_targets.remorseless_winter>=2
-            if (
-                await
-                    Spell.CoCast(S.RemorselessWinter, Me,
-                        Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed && Units.EnemiesInRange(4) >= 2))
+            if (await Spell.CoCast(S.RemorselessWinter, Me,
+                Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed && Units.EnemiesInRange(4) >= 2))
                 return true; // How wide is the range?
 
             // obliterate
             if (await Spell.CoCast(S.Obliterate, onunit, Me.CurrentTarget.IsWithinMeleeRange)) return true;
 
             // frostscythe,if=talent.frozen_pulse.enabled
-            if (
-                await
-                    Spell.CoCast(S.Frostscythe, Me,
-                        Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed &&
-                        Me.CurrentTarget.Distance <= 8 && FrozenPulseSelected()))
+            if (await Spell.CoCast(S.Frostscythe, Me,
+                Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed &&
+                Me.CurrentTarget.Distance <= 8 && FrozenPulseSelected()))
                 return true;
 
             // howling_blast,if=talent.frozen_pulse.enabled
-            if (
-                await
-                    Spell.CoCast(S.HowlingBlast, Me,
-                        Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 && FrozenPulseSelected()))
+            if (await Spell.CoCast(S.HowlingBlast, Me,
+                Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 && FrozenPulseSelected()))
                 return true;
 
             // horn_of_winter,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
@@ -315,11 +311,17 @@ namespace ScourgeBloom.Class.DeathKnight
                 Capabilities.IsCooldownUsageAllowed && HornofWinterSelected() && !BoSSelected())) return true;
 
             // frost_strike,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
-            if (await Spell.CoCast(S.FrostStrike, onunit, Me.CurrentTarget.IsWithinMeleeRange && TalentManager.FrostBreathOfSindragosa
-                && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
+            if (
+                await
+                    Spell.CoCast(S.FrostStrike, onunit,
+                        Me.CurrentTarget.IsWithinMeleeRange && TalentManager.FrostBreathOfSindragosa
+                        && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
 
             // frost_strike,if=!talent.breath_of_sindragosa.enabled
-            if (await Spell.CoCast(S.FrostStrike, onunit, Me.CurrentTarget.IsWithinMeleeRange && !TalentManager.FrostBreathOfSindragosa)) return true;
+            if (
+                await
+                    Spell.CoCast(S.FrostStrike, onunit,
+                        Me.CurrentTarget.IsWithinMeleeRange && !TalentManager.FrostBreathOfSindragosa)) return true;
 
             // empower_rune_weapon,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
             if (await Spell.CoCast(S.EmpowerRuneWeapon, Me,
@@ -336,11 +338,9 @@ namespace ScourgeBloom.Class.DeathKnight
                 return true;
 
             // empower_rune_weapon,if=!talent.breath_of_sindragosa.enabled
-            if (
-                await
-                    Spell.CoCast(S.EmpowerRuneWeapon, Me,
-                        Capabilities.IsCooldownUsageAllowed && !BoSSelected() &&
-                        !Me.HasActiveAura("Empower Rune Weapon")))
+            if (await Spell.CoCast(S.EmpowerRuneWeapon, Me,
+                Capabilities.IsCooldownUsageAllowed && !BoSSelected() &&
+                !Me.HasActiveAura("Empower Rune Weapon")))
                 return true;
 
             // hungering_rune_weapon,if=!talent.breath_of_sindragosa.enabled
@@ -354,12 +354,6 @@ namespace ScourgeBloom.Class.DeathKnight
             // {
             //     return true;
             // }
-
-            if (Capabilities.IsTargetingAllowed)
-                MovementManager.AutoTarget();
-
-            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
-                await MovementManager.MoveToTarget();
 
             //await CommonCoroutines.SleepForLagDuration();
 
@@ -399,19 +393,11 @@ namespace ScourgeBloom.Class.DeathKnight
             if (await Spell.CoCast(S.FrostStrike, onunit, Me.CurrentTarget.IsWithinMeleeRange && RunicPowerDeficit < 35))
                 return true;
 
-            if (await Spell.CoCast(S.HornofWinter, Me,
+            return await Spell.CoCast(S.HornofWinter, Me,
                 Capabilities.IsCooldownUsageAllowed && HornofWinterSelected() && Me.CurrentRunes < 4 &&
-                RunicPowerDeficit >= 20)) return true;
-
-            if (Capabilities.IsTargetingAllowed)
-                MovementManager.AutoTarget();
-
-            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
-                await MovementManager.MoveToTarget();
+                RunicPowerDeficit >= 20);
 
             //await CommonCoroutines.SleepForLagDuration();
-
-            return true;
         }
 
         #endregion
@@ -432,7 +418,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
         //    //await CommonCoroutines.SleepForLagDuration();
 
-        //    return true;
+        //    return false;
         //}
 
         #endregion
@@ -446,7 +432,7 @@ namespace ScourgeBloom.Class.DeathKnight
             // howling_blast,target_if=!dot.frost_fever.ticking
             if (await Spell.CoCast(S.HowlingBlast, onunit,
                 Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 &&
-                !Me.CurrentTarget.HasMyAura(S.AuraFrostFever))) return true;
+                !Me.CurrentTarget.HasAura(S.AuraFrostFever))) return true;
 
             // glacial_advance
             if (
@@ -529,33 +515,21 @@ namespace ScourgeBloom.Class.DeathKnight
                 return true;
 
             //  hungering_rune_weapon,if= talent.breath_of_sindragosa.enabled & cooldown.breath_of_sindragosa.remains > 15
-            if (
-                await
-                    Spell.CoCast(S.HungeringRuneWeapon, Me,
-                        Me.GotTarget && BoSSelected() && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15))
+            if (await Spell.CoCast(S.HungeringRuneWeapon, Me,
+                Me.GotTarget && BoSSelected() && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15))
                 return true;
 
             //  empower_rune_weapon,if= !talent.breath_of_sindragosa.enabled
-            if (
-                await
-                    Spell.CoCast(S.EmpowerRuneWeapon, Me,
-                        Me.GotTarget && !BoSSelected())) return true;
+            if (await Spell.CoCast(S.EmpowerRuneWeapon, Me,
+                Me.GotTarget && !BoSSelected())) return true;
 
             //  hungering_rune_weapon,if= !talent.breath_of_sindragosa.enabled
-            if (
-                await
-                    Spell.CoCast(S.HungeringRuneWeapon, Me,
-                        Me.GotTarget && !BoSSelected())) return true;
+            return await
+                Spell.CoCast(S.HungeringRuneWeapon, Me,
+                    Me.GotTarget && !BoSSelected());
 
-            if (Capabilities.IsTargetingAllowed)
-                MovementManager.AutoTarget();
-
-            if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
-                await MovementManager.MoveToTarget();
 
             //await CommonCoroutines.SleepForLagDuration();
-
-            return true;
         }
 
         #endregion

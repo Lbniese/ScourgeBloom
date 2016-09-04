@@ -108,7 +108,7 @@ namespace ScourgeBloom.Helpers
                         Spell.UpdateSpellHistory(e.SpellName, 1000, e.DestUnit);
                     }
                     Log.WriteLog(
-                        string.Format("[ScourgeBloom] {0} missed, reason {3} => {1}@{2}", e.SpellName,
+                        string.Format("[ScourgeBloom] {0} missed, reason is {3} => {1}@{2}", e.SpellName,
                             e.DestUnit.SafeName(),
                             e.DestUnit.Status(), e.Args[14]), Colors.Red);
                     break;
