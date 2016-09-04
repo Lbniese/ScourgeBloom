@@ -55,6 +55,7 @@
     <None Include="Resources\HIGHQUALITY1.jpg" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Class\DeathKnight\Death.cs" />
     <Compile Include="Class\DeathKnight\Frost.cs" />
     <Compile Include="Class\DeathKnight\Unholy.cs" />
     <Compile Include="Class\Defensives.cs" />
@@ -111,7 +112,6 @@
     <Compile Include="Settings\GeneralSettings.cs" />
     <Compile Include="Utilities\Damage.cs" />
     <Compile Include="Utilities\EventHandlers.cs" />
-    <Compile Include="Utilities\SpiritHandler.cs" />
     <Compile Include="Utilities\StatCounter.cs" />
   </ItemGroup>
   <ItemGroup>

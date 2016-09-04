@@ -58,11 +58,9 @@ namespace ScourgeBloom
 
         protected static readonly LocalPlayer Me = StyxWoW.Me;
 
-        public static readonly Version Version = new Version(1, 4, 62);
+        public static readonly Version Version = new Version(1, 4, 63);
 
         private static bool _initialized;
-
-        private static int _pulsePhase;
 
         private static readonly WaitTimer PollInterval = new WaitTimer(TimeSpan.FromSeconds(10));
         private static uint _lastFps;
@@ -114,95 +112,9 @@ namespace ScourgeBloom
 
         public override Composite PullBuffBehavior => CreatePullBuff();
 
+        public override Composite DeathBehavior => CreateDeathBehavior();
+
         public static bool Paused => HotkeyManager.PauseHotkey;
-
-        #region Context
-
-        public static event EventHandler<WoWContextEventArg> OnWoWContextChanged;
-
-        public static void DetermineCurrentWoWContext()
-        {
-            CurrentWoWContext = _DetermineCurrentWoWContext();
-        }
-
-        private static WoWContext _DetermineCurrentWoWContext()
-        {
-            if (!StyxWoW.IsInGame)
-                return WoWContext.None;
-
-            if (ForcedContext != WoWContext.None)
-            {
-                if (LastContext != ForcedContext)
-                    Logging.Write(Colors.YellowGreen, "[ScourgeBloom] Context: forcing use of {0} behaviors",
-                        ForcedContext);
-
-                return ForcedContext;
-            }
-
-            var map = StyxWoW.Me.CurrentMap;
-
-            if (map.IsBattleground || map.IsArena)
-            {
-                if (LastContext != WoWContext.Battlegrounds)
-                    Logging.Write(Colors.YellowGreen,
-                        "[ScourgeBloom] Context: using {0} behaviors since in battleground/arena",
-                        WoWContext.Battlegrounds);
-
-                return WoWContext.Battlegrounds;
-            }
-
-            if (Me.IsInGroup())
-            {
-                if (Me.IsInInstance)
-                {
-                    if (LastContext != WoWContext.Instances)
-                        Logging.Write(Colors.YellowGreen,
-                            "[ScourgeBloom] Context: using {0} behaviors since in group inside an Instance",
-                            WoWContext.Instances);
-
-                    return WoWContext.Instances;
-                }
-
-                const int zoneAshran = 6941;
-                const int zoneWintergrasp = 4197;
-                if (Me.ZoneId == zoneAshran || Me.ZoneId == zoneWintergrasp)
-                {
-                    if (LastContext != WoWContext.Battlegrounds)
-                        Logging.Write(Colors.YellowGreen,
-                            "[ScourgeBloom] Context: using {0} behaviors since in group in Zone: {1} #{2}",
-                            WoWContext.Battlegrounds, Me.RealZoneText, Me.ZoneId);
-
-                    return WoWContext.Battlegrounds;
-                }
-
-                // if (Group.Tanks.Any() || Group.Healers.Any())
-                const WoWPartyMember.GroupRole hasGroupRoleMask =
-                    WoWPartyMember.GroupRole.Healer | WoWPartyMember.GroupRole.Tank | WoWPartyMember.GroupRole.Damage;
-                if ((Me.Role & hasGroupRoleMask) != WoWPartyMember.GroupRole.None)
-                {
-                    if (LastContext != WoWContext.Instances)
-                        Logging.Write(Colors.YellowGreen,
-                            "[ScourgeBloom] Context: using {0} behaviors since in group as {1}",
-                            WoWContext.Instances, Me.Role & hasGroupRoleMask);
-
-                    return WoWContext.Instances;
-                }
-
-                if (LastContext != WoWContext.Normal)
-                    Logging.Write(Colors.YellowGreen,
-                        "[ScourgeBloom] Context: no Role assigned (Tank/Healer/Damage), so using Normal (SOLO) behaviors");
-
-                return WoWContext.Normal;
-            }
-
-            if (LastContext != WoWContext.Normal)
-                Logging.Write(Colors.YellowGreen,
-                    "[ScourgeBloom] Context: using Normal (SOLO) behaviors since not in group");
-
-            return WoWContext.Normal;
-        }
-
-        #endregion
 
         #region DescribeContext
 
@@ -352,30 +264,17 @@ namespace ScourgeBloom
                     Me.ClearTarget();
                 }
 
-                _pulsePhase++;
 
-                if (_pulsePhase == 1)
+                if (WaitForLatencyCheck.IsFinished)
                 {
-                    if (WaitForLatencyCheck.IsFinished)
-                    {
-                        Latency = StyxWoW.WoWClient.Latency;
-                        WaitForLatencyCheck.Reset();
-                    }
-
-
-                    UpdateDiagnosticFps();
+                    Latency = StyxWoW.WoWClient.Latency;
+                    WaitForLatencyCheck.Reset();
                 }
+
+
+                UpdateDiagnosticFps();
 
                 if (Paused) return;
-
-                if (_pulsePhase == 2)
-                {
-                    if (Me.IsDead && GeneralSettings.Instance.AutoReleaseSpirit)
-                    {
-                        SpiritHandler.ReleaseSpirit();
-                    }
-                    _pulsePhase = 0;
-                }
 
                 base.Pulse();
             }
@@ -490,6 +389,13 @@ namespace ScourgeBloom
                 new ActionAlwaysFail());
         }
 
+        protected virtual Composite CreateDeathBehavior()
+        {
+            return new HookExecutor("ScourgeBloom_DeathBehavior_Root",
+                "Root composite for ScourgeBloom DeathBehavior. Rotations will be plugged into this hook.",
+                new ActionAlwaysFail());
+        }
+
         protected virtual Composite CreatePullBuff()
         {
             return new HookExecutor("ScourgeBloom_PullBuffs_Root",
@@ -517,6 +423,94 @@ namespace ScourgeBloom
                 "Root composite for ScourgeBloom heals. Rotations will be plugged into this hook.",
                 new ActionAlwaysFail());
         }
+
+        #region Context
+
+        public static event EventHandler<WoWContextEventArg> OnWoWContextChanged;
+
+        public static void DetermineCurrentWoWContext()
+        {
+            CurrentWoWContext = _DetermineCurrentWoWContext();
+        }
+
+        private static WoWContext _DetermineCurrentWoWContext()
+        {
+            if (!StyxWoW.IsInGame)
+                return WoWContext.None;
+
+            if (ForcedContext != WoWContext.None)
+            {
+                if (LastContext != ForcedContext)
+                    Logging.Write(Colors.YellowGreen, "[ScourgeBloom] Context: forcing use of {0} behaviors",
+                        ForcedContext);
+
+                return ForcedContext;
+            }
+
+            var map = StyxWoW.Me.CurrentMap;
+
+            if (map.IsBattleground || map.IsArena)
+            {
+                if (LastContext != WoWContext.Battlegrounds)
+                    Logging.Write(Colors.YellowGreen,
+                        "[ScourgeBloom] Context: using {0} behaviors since in battleground/arena",
+                        WoWContext.Battlegrounds);
+
+                return WoWContext.Battlegrounds;
+            }
+
+            if (Me.IsInGroup())
+            {
+                if (Me.IsInInstance)
+                {
+                    if (LastContext != WoWContext.Instances)
+                        Logging.Write(Colors.YellowGreen,
+                            "[ScourgeBloom] Context: using {0} behaviors since in group inside an Instance",
+                            WoWContext.Instances);
+
+                    return WoWContext.Instances;
+                }
+
+                const int zoneAshran = 6941;
+                const int zoneWintergrasp = 4197;
+                if (Me.ZoneId == zoneAshran || Me.ZoneId == zoneWintergrasp)
+                {
+                    if (LastContext != WoWContext.Battlegrounds)
+                        Logging.Write(Colors.YellowGreen,
+                            "[ScourgeBloom] Context: using {0} behaviors since in group in Zone: {1} #{2}",
+                            WoWContext.Battlegrounds, Me.RealZoneText, Me.ZoneId);
+
+                    return WoWContext.Battlegrounds;
+                }
+
+                // if (Group.Tanks.Any() || Group.Healers.Any())
+                const WoWPartyMember.GroupRole hasGroupRoleMask =
+                    WoWPartyMember.GroupRole.Healer | WoWPartyMember.GroupRole.Tank | WoWPartyMember.GroupRole.Damage;
+                if ((Me.Role & hasGroupRoleMask) != WoWPartyMember.GroupRole.None)
+                {
+                    if (LastContext != WoWContext.Instances)
+                        Logging.Write(Colors.YellowGreen,
+                            "[ScourgeBloom] Context: using {0} behaviors since in group as {1}",
+                            WoWContext.Instances, Me.Role & hasGroupRoleMask);
+
+                    return WoWContext.Instances;
+                }
+
+                if (LastContext != WoWContext.Normal)
+                    Logging.Write(Colors.YellowGreen,
+                        "[ScourgeBloom] Context: no Role assigned (Tank/Healer/Damage), so using Normal (SOLO) behaviors");
+
+                return WoWContext.Normal;
+            }
+
+            if (LastContext != WoWContext.Normal)
+                Logging.Write(Colors.YellowGreen,
+                    "[ScourgeBloom] Context: using Normal (SOLO) behaviors since not in group");
+
+            return WoWContext.Normal;
+        }
+
+        #endregion
 
         #region DON'T TOUCH - CORE SHIT
 

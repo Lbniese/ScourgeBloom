@@ -953,7 +953,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 Lua.DoString("PetAttack();");
             }
 
-            //await CommonCoroutines.SleepForLagDuration();
+            await CommonCoroutines.SleepForLagDuration();
 
             return false;
         }
@@ -1001,6 +1001,13 @@ namespace ScourgeBloom.Class.DeathKnight
         {
             return new ActionRunCoroutine(ret => HealRoutine());
         }
+
+        protected override Composite CreateDeathBehavior()
+        {
+            return new ActionRunCoroutine(ret => DeathKnight.Death.DeathBehavor());
+        }
+
+        public override bool NeedDeath => Me.IsDead;
 
         #endregion Overrides
     }
