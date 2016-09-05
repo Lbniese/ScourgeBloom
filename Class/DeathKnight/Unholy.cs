@@ -6,7 +6,6 @@
  * Licensed under Microsoft Reference Source License (Ms-RSL)
  */
 
-using System.Linq;
 using System.Threading.Tasks;
 using Buddy.Coroutines;
 using CommonBehaviors.Actions;
@@ -298,7 +297,8 @@ namespace ScourgeBloom.Class.DeathKnight
                 && Capabilities.IsAoeAllowed)) return true;
 
             // call_action_list,name=aoe,if=active_enemies>=2
-            if (await AOE(onunit, Units.ActiveEnemies(Me.Location, 8f).Count() >= 2))
+            //if (await AOE(onunit, Units.ActiveEnemies(Me.Location, 8f).Count() >= 2))
+            if (await AOE(onunit, Units.EnemiesInRange(10) >= 2))
                 return true;
 
             // call_action_list,name = instructors,if= equipped.132448
