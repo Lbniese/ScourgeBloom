@@ -2,6 +2,7 @@ using System;
 using ScourgeBloom.Helpers;
 using Styx;
 using Styx.Common;
+using Styx.CommonBot.CharacterManagement;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 
@@ -105,10 +106,24 @@ namespace ScourgeBloom.Managers
 
         private static bool GetTalent(int tier, int index)
         {
-            // these are 0-based, and we are sending in actual tiers and index numbers.
-            tier--;
-            index--;
-            return Me.GetLearnedTalent(tier).Index == index;
+            try
+            {
+                tier--;
+                index--;
+                var tp = Me.GetLearnedTalent(tier);
+                if (tp == null)
+                {
+                    Log.WriteLog("TP " + tier.ToString() + " is null");
+                    return false;
+                }
+                return tp.Index == index;
+            }
+            catch
+            {
+                // ignored
+            }
+
+            return false;
         }
 
         public static void InitTalents()
