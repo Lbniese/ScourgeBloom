@@ -297,7 +297,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 return true;
 
             // howling_blast,if=talent.frozen_pulse.enabled
-            if (await Spell.CoCast(S.HowlingBlast, Me,
+            if (await Spell.CoCast(S.HowlingBlast, onunit,
                 Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 && FrozenPulseSelected()))
                 return true;
 
@@ -311,16 +311,12 @@ namespace ScourgeBloom.Class.DeathKnight
                 Capabilities.IsCooldownUsageAllowed && HornofWinterSelected() && !BoSSelected())) return true;
 
             // frost_strike,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
-            if (
-                await
-                    Spell.CoCast(S.FrostStrike, onunit,
+            if (await Spell.CoCast(S.FrostStrike, onunit,
                         Me.CurrentTarget.IsWithinMeleeRange && TalentManager.FrostBreathOfSindragosa
                         && Spell.GetCooldownLeft(S.BreathofSindragosa).TotalSeconds > 15)) return true;
 
             // frost_strike,if=!talent.breath_of_sindragosa.enabled
-            if (
-                await
-                    Spell.CoCast(S.FrostStrike, onunit,
+            if (await  Spell.CoCast(S.FrostStrike, onunit,
                         Me.CurrentTarget.IsWithinMeleeRange && !TalentManager.FrostBreathOfSindragosa)) return true;
 
             // empower_rune_weapon,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
@@ -349,11 +345,6 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.CurrentTarget.Distance <= 8 &&
                 !BoSSelected() && !Me.HasActiveAura("Hungering Rune Weapon"))) return true;
 
-            // if (await AOE(onunit, Units.EnemiesInRange(10) >= 4 && !IsDualWielding ||
-            //                                (Units.EnemiesInRange(10) >= 3 && IsDualWielding)))
-            // {
-            //     return true;
-            // }
 
             //await CommonCoroutines.SleepForLagDuration();
 
@@ -404,9 +395,21 @@ namespace ScourgeBloom.Class.DeathKnight
 
         #region AOE Routine
 
-        //private static async Task<bool> AOE(WoWUnit onunit, bool reqs)
-        //{
-        //    if (!reqs) return false;
+        // ReSharper disable once InconsistentNaming
+        private static async Task<bool> AOE(WoWUnit onunit, bool reqs)
+        {
+            if (!reqs) return false;
+
+            // Machine Gun Rotation
+            if (TalentManager.FrostIcyTalons && TalentManager.FrostFrozenPulse && TalentManager.FrostGlacialAdvance && TalentManager.FrostAvalanche && TalentManager.FrostFrostscythe)
+            {
+                if (await Spell.CoCast(S.HowlingBlast, onunit,
+                    Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 &&
+                    !Me.CurrentTarget.HasAura(S.AuraFrostFever))) return true;
+
+                if (await Spell.CoCast(S.HowlingBlast, onunit,
+                    Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 && Me.HasAura(S.AuraRime)))
+                    return true;
 
         //    // Not enough info yet
 
@@ -420,6 +423,10 @@ namespace ScourgeBloom.Class.DeathKnight
 
         //    return false;
         //}
+            //await CommonCoroutines.SleepForLagDuration();
+
+            return false;
+        }
 
         #endregion
 
@@ -435,9 +442,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 !Me.CurrentTarget.HasAura(S.AuraFrostFever))) return true;
 
             // glacial_advance
-            if (
-                await
-                    Spell.CoCast(S.GlacialAdvance, Me,
+            if (await Spell.CoCast(S.GlacialAdvance, Me,
                         Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed &&
                         Me.CurrentTarget.IsWithinMeleeRange)) return true;
 
@@ -455,9 +460,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 Me.CurrentTarget.IsWithinMeleeRange && Me.HasAura(S.AuraKillingMachine))) return true;
 
             // remorseless_winter,if=spell_targets.remorseless_winter>=2
-            if (
-                await
-                    Spell.CoCast(S.RemorselessWinter, Me,
+            if (await Spell.CoCast(S.RemorselessWinter, Me,
                         Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed && Units.EnemiesInRange(4) >= 2))
                 return true; // How wide is the range?
 
