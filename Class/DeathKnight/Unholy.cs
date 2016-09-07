@@ -250,6 +250,9 @@ namespace ScourgeBloom.Class.DeathKnight
                 return true;
 
             // death_coil,if=!talent.dark_arbiter.enabled&buff.sudden_doom.up&!buff.necrosis.up&rune<=3
+            if (await Spell.CoCast(S.DeathCoil, onunit,
+                Me.CurrentTarget.Distance <= 40 && DarkArbiterSelected() && Me.HasAura(S.AuraSuddenDoom) &&
+                !Me.HasAura(S.AuraNecrosis) && Me.CurrentRunes <= 3)) return true;
 
             // death_coil,if=talent.dark_arbiter.enabled&buff.sudden_doom.up&cooldown.dark_arbiter.remains>5&rune<=3
             if (await Spell.CoCast(S.DeathCoil, onunit,
@@ -262,7 +265,7 @@ namespace ScourgeBloom.Class.DeathKnight
                                                               Spell.GetCooldownLeft(S.Apocalypse).TotalSeconds < 5))
                 return true;
 
-            // wait,sec=1,if=cooldown.apocalypse.remains<=1
+            // wait,sec=cooldown.apocalypse.remains,if=cooldown.apocalypse.remains<=1&cooldown.apocalypse.remains
 
             // soul_reaper,if=debuff.festering_wound.stack>=3
             if (await Spell.CoCast(S.SoulReaper, onunit,
@@ -618,52 +621,51 @@ namespace ScourgeBloom.Class.DeathKnight
                     return true;
             }
 
-
             //CUSTOM - BASED ON ICY VEINS' SOUL REAPER PRIORITYLIST -- START
-            if (await Spell.CoCast(S.FesteringStrike, onunit,
-                Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) <= 5))
-                return true;
+                if (await Spell.CoCast(S.FesteringStrike, onunit,
+                    Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) <= 5))
+                    return false;
 
-            if (await Spell.CoCast(S.SoulReaper, onunit,
-                Me.CurrentTarget.IsWithinMeleeRange && TalentManager.UnholySoulReaper &&
-                Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 3))
-                return true;
+                if (await Spell.CoCast(S.SoulReaper, onunit,
+                    Me.CurrentTarget.IsWithinMeleeRange && TalentManager.UnholySoulReaper &&
+                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 3))
+                    return false;
 
-            if (await Spell.CoCast(S.ScourgeStrike, onunit,
-                !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
-                Me.HasAura(S.AuraSoulReaper))) return true;
-
-            if (await Spell.CoCast(S.ClawingShadows, onunit,
-                SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
-                Me.HasAura(S.AuraSoulReaper))) return true;
-
-            if (await Spell.CoCast(S.Apocalypse, onunit,
-                SpellManager.HasSpell(S.Apocalypse) && Me.CurrentTarget.IsWithinMeleeRange &&
-                Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 7)) return true;
-
-            if (TalentManager.UnholyCastigator)
-            {
                 if (await Spell.CoCast(S.ScourgeStrike, onunit,
                     !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
-                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 3)) return true;
+                    Me.HasAura(S.AuraSoulReaper))) return false;
 
                 if (await Spell.CoCast(S.ClawingShadows, onunit,
                     SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
-                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 3)) return true;
-            }
+                    Me.HasAura(S.AuraSoulReaper))) return false;
 
-            if (!TalentManager.UnholyCastigator)
-            {
-                if (await Spell.CoCast(S.ScourgeStrike, onunit,
-                    !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
-                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 1)) return true;
+                if (await Spell.CoCast(S.Apocalypse, onunit,
+                    SpellManager.HasSpell(S.Apocalypse) && Me.CurrentTarget.IsWithinMeleeRange &&
+                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 7)) return false;
 
-                if (await Spell.CoCast(S.ClawingShadows, onunit,
-                    SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
-                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 1)) return true;
-            }
+                if (TalentManager.UnholyCastigator)
+                {
+                    if (await Spell.CoCast(S.ScourgeStrike, onunit,
+                        !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
+                        Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 3)) return false;
 
-            return await Spell.CoCast(S.DeathCoil, onunit, Me.CurrentRunicPower > 50);
+                    if (await Spell.CoCast(S.ClawingShadows, onunit,
+                        SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
+                        Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 3)) return false;
+                }
+
+                if (!TalentManager.UnholyCastigator)
+                {
+                    if (await Spell.CoCast(S.ScourgeStrike, onunit,
+                        !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
+                        Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 1)) return false;
+
+                    if (await Spell.CoCast(S.ClawingShadows, onunit,
+                        SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
+                        Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 1)) return false;
+                }
+
+                return await Spell.CoCast(S.DeathCoil, onunit, Me.CurrentRunicPower > 50);
 
             //CUSTOM - BASED ON ICY VEINS' SOUL REAPER PRIORITYLIST -- END
 
@@ -756,50 +758,50 @@ namespace ScourgeBloom.Class.DeathKnight
 
 
             //CUSTOM - BASED ON ICY VEINS' SOUL REAPER PRIORITYLIST -- START
-            if (await Spell.CoCast(S.FesteringStrike, onunit,
-                Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) <= 5))
-                return true;
+                if (await Spell.CoCast(S.FesteringStrike, onunit,
+                    Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) <= 5))
+                    return false;
 
-            if (await Spell.CoCast(S.SoulReaper, onunit,
-                Me.CurrentTarget.IsWithinMeleeRange && TalentManager.UnholySoulReaper &&
-                Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 3))
-                return true;
+                if (await Spell.CoCast(S.SoulReaper, onunit,
+                    Me.CurrentTarget.IsWithinMeleeRange && TalentManager.UnholySoulReaper &&
+                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 3))
+                    return false;
 
-            if (await Spell.CoCast(S.ScourgeStrike, onunit,
-                !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
-                Me.HasAura(S.AuraSoulReaper))) return true;
-
-            if (await Spell.CoCast(S.ClawingShadows, onunit,
-                SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
-                Me.HasAura(S.AuraSoulReaper))) return true;
-
-            if (await Spell.CoCast(S.Apocalypse, onunit,
-                SpellManager.HasSpell(S.Apocalypse) && Me.CurrentTarget.IsWithinMeleeRange &&
-                Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 7)) return true;
-
-            if (TalentManager.UnholyCastigator)
-            {
                 if (await Spell.CoCast(S.ScourgeStrike, onunit,
                     !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
-                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 3)) return true;
+                    Me.HasAura(S.AuraSoulReaper))) return false;
 
                 if (await Spell.CoCast(S.ClawingShadows, onunit,
                     SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
-                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 3)) return true;
-            }
+                    Me.HasAura(S.AuraSoulReaper))) return false;
 
-            if (!TalentManager.UnholyCastigator)
-            {
-                if (await Spell.CoCast(S.ScourgeStrike, onunit,
-                    !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
-                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 1)) return true;
+                if (await Spell.CoCast(S.Apocalypse, onunit,
+                    SpellManager.HasSpell(S.Apocalypse) && Me.CurrentTarget.IsWithinMeleeRange &&
+                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 7)) return false;
 
-                if (await Spell.CoCast(S.ClawingShadows, onunit,
-                    SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
-                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 1)) return true;
-            }
+                if (TalentManager.UnholyCastigator)
+                {
+                    if (await Spell.CoCast(S.ScourgeStrike, onunit,
+                        !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
+                        Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 3)) return false;
 
-            return await Spell.CoCast(S.DeathCoil, onunit, Me.CurrentRunicPower > 50);
+                    if (await Spell.CoCast(S.ClawingShadows, onunit,
+                        SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
+                        Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 3)) return false;
+                }
+
+                if (!TalentManager.UnholyCastigator)
+                {
+                    if (await Spell.CoCast(S.ScourgeStrike, onunit,
+                        !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
+                        Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 1)) return false;
+
+                    if (await Spell.CoCast(S.ClawingShadows, onunit,
+                        SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
+                        Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 1)) return false;
+                }
+
+                return await Spell.CoCast(S.DeathCoil, onunit, Me.CurrentRunicPower > 50);
 
             //CUSTOM - BASED ON ICY VEINS' SOUL REAPER PRIORITYLIST -- END
 
@@ -875,45 +877,45 @@ namespace ScourgeBloom.Class.DeathKnight
             //CUSTOM - BASED ON ICY VEINS' SOUL REAPER PRIORITYLIST -- START
             if (await Spell.CoCast(S.FesteringStrike, onunit,
                 Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) <= 5))
-                return true;
+                return false;
 
             if (await Spell.CoCast(S.SoulReaper, onunit,
                 Me.CurrentTarget.IsWithinMeleeRange && TalentManager.UnholySoulReaper &&
                 Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 3))
-                return true;
+                return false;
 
             if (await Spell.CoCast(S.ScourgeStrike, onunit,
                 !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
-                Me.HasAura(S.AuraSoulReaper))) return true;
+                Me.HasAura(S.AuraSoulReaper))) return false;
 
             if (await Spell.CoCast(S.ClawingShadows, onunit,
                 SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
-                Me.HasAura(S.AuraSoulReaper))) return true;
+                Me.HasAura(S.AuraSoulReaper))) return false;
 
             if (await Spell.CoCast(S.Apocalypse, onunit,
                 SpellManager.HasSpell(S.Apocalypse) && Me.CurrentTarget.IsWithinMeleeRange &&
-                Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 7)) return true;
+                Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 7)) return false;
 
             if (TalentManager.UnholyCastigator)
             {
                 if (await Spell.CoCast(S.ScourgeStrike, onunit,
                     !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
-                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 3)) return true;
+                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 3)) return false;
 
                 if (await Spell.CoCast(S.ClawingShadows, onunit,
                     SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
-                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 3)) return true;
+                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 3)) return false;
             }
 
             if (!TalentManager.UnholyCastigator)
             {
                 if (await Spell.CoCast(S.ScourgeStrike, onunit,
                     !SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
-                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 1)) return true;
+                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 1)) return false;
 
                 if (await Spell.CoCast(S.ClawingShadows, onunit,
                     SpellManager.HasSpell(S.ClawingShadows) && Me.CurrentTarget.IsWithinMeleeRange &&
-                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 1)) return true;
+                    Me.CurrentTarget.GetAuraStacks(S.AuraFesteringWound) >= 1)) return false;
             }
 
             return await Spell.CoCast(S.DeathCoil, onunit, Me.CurrentRunicPower > 50);

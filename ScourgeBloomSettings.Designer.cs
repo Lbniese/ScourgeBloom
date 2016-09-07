@@ -52,7 +52,6 @@ namespace ScourgeBloom
             this.label10 = new System.Windows.Forms.Label();
             this.numIceBoundFortitudeHp = new System.Windows.Forms.NumericUpDown();
             this.UseIceboundFCheckBox = new System.Windows.Forms.CheckBox();
-            this.groupBox15 = new System.Windows.Forms.GroupBox();
             this.groupBox14 = new System.Windows.Forms.GroupBox();
             this.UsePillarofFrostOnCdCheckBox = new System.Windows.Forms.CheckBox();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
@@ -270,7 +269,6 @@ namespace ScourgeBloom
             // Cooldowns
             // 
             this.Cooldowns.Controls.Add(this.groupBox16);
-            this.Cooldowns.Controls.Add(this.groupBox15);
             this.Cooldowns.Controls.Add(this.groupBox14);
             this.Cooldowns.Controls.Add(this.groupBox7);
             this.Cooldowns.Location = new System.Drawing.Point(4, 22);
@@ -289,7 +287,7 @@ namespace ScourgeBloom
             this.groupBox16.Controls.Add(this.UseIceboundFCheckBox);
             this.groupBox16.Location = new System.Drawing.Point(8, 3);
             this.groupBox16.Name = "groupBox16";
-            this.groupBox16.Size = new System.Drawing.Size(558, 108);
+            this.groupBox16.Size = new System.Drawing.Size(558, 270);
             this.groupBox16.TabIndex = 3;
             this.groupBox16.TabStop = false;
             this.groupBox16.Text = "Common";
@@ -355,19 +353,10 @@ namespace ScourgeBloom
             this.UseIceboundFCheckBox.UseVisualStyleBackColor = true;
             this.UseIceboundFCheckBox.CheckedChanged += new System.EventHandler(this.UseIceboundFCheckBox_CheckedChanged);
             // 
-            // groupBox15
-            // 
-            this.groupBox15.Location = new System.Drawing.Point(8, 345);
-            this.groupBox15.Name = "groupBox15";
-            this.groupBox15.Size = new System.Drawing.Size(558, 108);
-            this.groupBox15.TabIndex = 2;
-            this.groupBox15.TabStop = false;
-            this.groupBox15.Text = "Blood";
-            // 
             // groupBox14
             // 
             this.groupBox14.Controls.Add(this.UsePillarofFrostOnCdCheckBox);
-            this.groupBox14.Location = new System.Drawing.Point(8, 231);
+            this.groupBox14.Location = new System.Drawing.Point(3, 393);
             this.groupBox14.Name = "groupBox14";
             this.groupBox14.Size = new System.Drawing.Size(558, 108);
             this.groupBox14.TabIndex = 1;
@@ -391,7 +380,7 @@ namespace ScourgeBloom
             // groupBox7
             // 
             this.groupBox7.Controls.Add(this.GargoyleOnCDcheckBox);
-            this.groupBox7.Location = new System.Drawing.Point(8, 117);
+            this.groupBox7.Location = new System.Drawing.Point(9, 279);
             this.groupBox7.Name = "groupBox7";
             this.groupBox7.Size = new System.Drawing.Size(558, 108);
             this.groupBox7.TabIndex = 0;
@@ -1668,7 +1657,6 @@ namespace ScourgeBloom
         private CheckBox BosBloodFuryCheckBox;
         private CheckBox BerserkingOnCdCheckBox;
         private CheckBox BloodFuryOnCdCheckBox;
-        private GroupBox groupBox15;
         private GroupBox groupBox14;
         private CheckBox UsePillarofFrostOnCdCheckBox;
         private GroupBox groupBox16;

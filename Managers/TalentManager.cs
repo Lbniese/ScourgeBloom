@@ -113,7 +113,7 @@ namespace ScourgeBloom.Managers
                 var tp = Me.GetLearnedTalent(tier);
                 if (tp == null)
                 {
-                    Log.WriteLog("TP " + tier.ToString() + " is null");
+                    Log.WriteLog("Talent tier " + tier.ToString() + " is not taken!");
                     return false;
                 }
                 return tp.Index == index;
