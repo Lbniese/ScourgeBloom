@@ -98,6 +98,7 @@ namespace ScourgeBloom.Lists
 
         public const int
             AuraFrostFever = 55095,
+            AuraRazorice = 51714,
             AuraBreathofSindragosa = 155166,
             AuraSuddenDoom = 81340,
             AuraBloodCharge = 114851,
