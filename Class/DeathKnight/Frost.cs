@@ -458,7 +458,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
                 if (await Spell.CoCast(S.Frostscythe, Me,
                 Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed &&
-                Me.CurrentTarget.Distance <= 8 && Capabilities.IsAoeAllowed))
+                Me.CurrentTarget.Distance <= 8))
                     return true;
 
                 return await Spell.CoCast(S.FrostStrike, onunit,
@@ -468,8 +468,35 @@ namespace ScourgeBloom.Class.DeathKnight
 
 
             #region Against 2-3 Targets
-            else if (Units.EnemiesInRange(10) == (2 | 3) && TalentManager.FrostFrostscythe && TalentManager.FrostGlacialAdvance)
+            else if ((Units.EnemiesInRange(10) == (2 | 3)) && TalentManager.FrostFrostscythe && TalentManager.FrostGlacialAdvance)
             {
+                if (await Spell.CoCast(S.HowlingBlast, onunit,
+                    Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 &&
+                    !Me.CurrentTarget.HasAura(S.AuraFrostFever) && Capabilities.IsAoeAllowed)) return true;
+
+                if (await Spell.CoCast(S.HowlingBlast, onunit,
+                    Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 && Me.HasAura(S.AuraRime) && Capabilities.IsAoeAllowed))
+                    return true;
+
+                if (await Spell.CoCast(S.FrostStrike, onunit,
+                        Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentRunicPower > 80)) return true;
+
+                if (await Spell.CoCast(S.FrostStrike, onunit,
+                        Me.CurrentTarget.IsWithinMeleeRange && Me.CurrentRunes <= 3 && Me.CurrentTarget.GetAuraStacks("Razorice") == 5 && TalentManager.FrostShatteringStrikes)) return true;
+
+                if (await Spell.CoCast(S.GlacialAdvance, Me, Me.IsFacing(onunit) && Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed)) return true;
+
+                if (await Spell.CoCast(S.Frostscythe, Me,
+                Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed &&
+                Me.CurrentTarget.Distance <= 8 && Me.HasAura("Killing Machine")))
+                    return true;
+
+                if (await Spell.CoCast(S.RemorselessWinter, Me,
+                        Capabilities.IsAoeAllowed && Capabilities.IsCooldownUsageAllowed))
+                    return true; // How wide is the range?
+
+                if (await Spell.CoCast(S.Obliterate, onunit,
+                        Me.CurrentTarget.IsWithinMeleeRange && !Me.HasAura("Rime") && RunicPowerDeficit <= 20)) return true;
 
             }
             #endregion
