@@ -63,6 +63,7 @@
     <Compile Include="Class\Interrupts.cs" />
     <Compile Include="Class\Racials.cs" />
     <Compile Include="Class\Trinkets.cs" />
+    <Compile Include="Managers\TargetManager.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

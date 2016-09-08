@@ -7,6 +7,7 @@
  */
 
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
 using Styx;
@@ -16,6 +17,65 @@ namespace ScourgeBloom.Helpers
 {
     public static class Extensions
     {
+        /// <summary>
+        /// determines if a target is off the ground far enough that you can
+        /// reach it with melee spells if standing directly under.
+        /// </summary>
+        /// <param name="u">unit</param>
+        /// <returns>true if above melee reach</returns>
+        public static bool IsAboveTheGround(this WoWUnit u)
+        {
+            // temporary change while working out issues with using mesh to check if off ground
+            // return !Styx.Pathing.Navigator.CanNavigateFully(StyxWoW.Me.Location, u.Location);
+
+            float height = HeightOffTheGround(u);
+            if (height == float.MaxValue)
+                return false;   // make this true if better to assume aerial 
+
+            if (height >= StyxWoW.Me.MeleeDistance(u))
+                return true;
+
+            return false;
+        }
+
+        /// <summary>
+        /// calculate a unit's vertical distance (height) above ground level (mesh).  this is the units position
+        /// relative to the ground and is independent of any other character.  note: this isn't actually the ground,
+        /// it's the height from the mesh and the mesh is not guarranteed to be flush with the terrain (which is why we add the +2f)
+        /// </summary>
+        /// <param name="u">unit</param>
+        /// <returns>float.MinValue if can't determine, otherwise distance off ground</returns>
+        public static float HeightOffTheGround(this WoWUnit u)
+        {
+            var unitLoc = new Vector3(u.Location.X, u.Location.Y, u.Location.Z);
+            float zBelow = u.FindGroundBelow();
+            if (zBelow == float.MaxValue)
+                return float.MaxValue;
+
+            return unitLoc.Z - zBelow;
+        }
+
+        /// <summary>
+        /// calculate the Z of ground below unit.
+        /// </summary>
+        /// <param name="unit">unit to query</param>
+        /// <returns>float.MaxValue if non-deterministic, otherwise Z of ground</returns>
+        public static float FindGroundBelow(this WoWUnit unit)
+        {
+            var unitLoc = unit.Location;
+            return unitLoc.Z;
+            // TODO: FindHeights
+            // This can use mesh sampling with HighlyConnected or Any
+            //            var listMeshZ = Navigator.FindHeights(unitLoc.X, unitLoc.Y);
+            //            if (listMeshZ != null)
+            //            {
+            //                listMeshZ = listMeshZ.Where(h => h <= unitLoc.Z + 2f).ToList();
+            //                if (listMeshZ.Any())
+            //                    return listMeshZ.Max();
+            //            }
+            //            return float.MaxValue;
+        }
+
         public static string AddSpaces(this string data)
         {
             var r = new Regex(@"(?!^)(?=[A-Z])");

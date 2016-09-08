@@ -73,7 +73,7 @@ namespace ScourgeBloom.Class.DeathKnight
             //{
             //    if (Me.GotTarget && Me.CurrentTarget.CanWeAttack() && Me.IsSafelyFacing(Me.CurrentTarget) &&
             //        Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.Distance > 7 && Me.CurrentTarget.InLineOfSight &&
-            //        DeathKnightSettings.Instance.DeathGrip)
+            //        GeneralSettings.DeathGrip)
             //        return await Spell.CoCast(S.DeathGrip, SpellManager.CanCast(S.DeathGrip));
 
             //    if (Me.GotTarget && Me.CurrentTarget.CanWeAttack() && Me.IsSafelyFacing(Me.CurrentTarget) &&
@@ -162,7 +162,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
         public static async Task<bool> PullRoutine()
         {
-            if (Paused || !Me.IsAlive || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Globals.Mounted)
+            if (Paused || !Me.IsAlive || Globals.Mounted)
                 return true;
 
             if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
@@ -171,30 +171,39 @@ namespace ScourgeBloom.Class.DeathKnight
             if (Capabilities.IsTargetingAllowed)
                 MovementManager.AutoTarget();
 
+            if (!Me.GotTarget || !Me.CurrentTarget.IsAlive)
+                return true;
+
+            if (await Spell.CoCast(S.HowlingBlast,
+            GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.IsAboveTheGround() &&
+            Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight &&
+            Me.IsSafelyFacing(Me.CurrentTarget)))
+                return true;
+
+            if (!StyxWoW.Me.GotTarget || !Me.CurrentTarget.CanWeAttack())
+                return false;
+
+            if (await Spell.CoCast(S.HowlingBlast,
+                GeneralSettings.Instance.AutoAttack && Me.GotTarget &&
+                Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight &&
+                Me.IsSafelyFacing(Me.CurrentTarget)))
+                return true;
+
             // Attack if not attacking
             if (!Me.IsAutoAttacking)
             {
                 Lua.DoString("StartAttack()");
-                return false;
+                return true;
             }
 
-            if (GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.CanWeAttack() &&
-                Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight && Me.IsSafelyFacing(Me.CurrentTarget))
-            {
-                if (Me.GotTarget && Me.CurrentTarget.CanWeAttack() && Me.IsSafelyFacing(Me.CurrentTarget) &&
-                    Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.Distance > 7 && Me.CurrentTarget.InLineOfSight &&
-                    DeathKnightSettings.Instance.DeathGrip)
-                    return await Spell.CoCast(S.DeathGrip, SpellManager.CanCast(S.DeathGrip));
-
-                if (Me.GotTarget && Me.CurrentTarget.CanWeAttack() && Me.IsSafelyFacing(Me.CurrentTarget) &&
-                    Capabilities.IsAoeAllowed && Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight &&
-                    Spell.GetCooldownLeft(S.Outbreak).TotalSeconds > 1)
-                    return await Spell.CoCast(S.HowlingBlast, SpellManager.CanCast(S.HowlingBlast));
-            }
+            //if (await ExampleOpener(Me.Level >= 100 && Me.CurrentTarget.IsBoss))
+            //{
+            //    return true;
+            //}
 
             //await CommonCoroutines.SleepForLagDuration();
 
-            return false;
+            return true;
         }
 
         #endregion Pull
@@ -209,6 +218,9 @@ namespace ScourgeBloom.Class.DeathKnight
         {
             if (Paused || !Me.IsAlive || Globals.Mounted)
                 return true;
+
+            if (Capabilities.IsTargetingAllowed)
+                TargetManager.EnsureTarget(onunit);
 
             if (Capabilities.IsTargetingAllowed)
                 MovementManager.AutoTarget();
@@ -229,7 +241,7 @@ namespace ScourgeBloom.Class.DeathKnight
             // pillar_of_frost
             await Spell.CoCast(S.PillarofFrost,
                 Capabilities.IsCooldownUsageAllowed && Me.Combat && Me.CurrentTarget.IsWithinMeleeRange &&
-                Me.CurrentTarget.CanWeAttack() && DeathKnightSettings.Instance.PillarofFrostOnCd &&
+                Me.CurrentTarget.CanWeAttack() && GeneralSettings.PillarofFrostOnCd &&
                 !Me.HasActiveAura("Pillar of Frost"));
 
             // sindragosas_fury

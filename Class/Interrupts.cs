@@ -52,12 +52,12 @@ namespace ScourgeBloom.Class
 
             var percentage = 100 - timeLeft*100/castTime;
 
-            if (DeathKnightSettings.Instance.MindFreezeRandomTimerUse)
+            if (GeneralSettings.MindFreezeRandomTimerUse)
             {
-                if (percentage > DeathKnightSettings.Instance.MindFreezeRandomTimerMax)
+                if (percentage > GeneralSettings.MindFreezeRandomTimerMax)
                     return false;
 
-                if (percentage < DeathKnightSettings.Instance.MindFreezeRandomTimerMin)
+                if (percentage < GeneralSettings.MindFreezeRandomTimerMin)
                     return false;
 
 

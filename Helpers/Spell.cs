@@ -143,6 +143,52 @@ namespace ScourgeBloom.Helpers
 
         private static Dictionary<string, long> UndefinedSpells { get; [UsedImplicitly] set; }
 
+        public static float MeleeDistance(this WoWUnit unit)
+        {
+            return Me.MeleeDistance(unit);
+        }
+
+        /// <summary>
+        /// get melee distance between two units
+        /// </summary>
+        /// <param name="unit">unit</param>
+        /// <param name="other">Me if null, otherwise second unit</param>
+        /// <returns></returns>
+        public static float MeleeDistance(this WoWUnit unit, WoWUnit atTarget = null)
+        {
+            // abort if mob null
+            if (unit == null)
+                return 0;
+
+            // when called as SomeUnit.SpellDistance()
+            // .. convert to SomeUnit.SpellDistance(Me)
+            if (atTarget == null)
+                atTarget = StyxWoW.Me;
+
+            // when called as SomeUnit.SpellDistance(Me) then
+            // .. convert to Me.SpellDistance(SomeUnit)
+            if (atTarget.IsMe)
+            {
+                atTarget = unit;
+                unit = StyxWoW.Me;
+            }
+
+            // pvp, then keep it close
+            if (atTarget.IsPlayer && unit.IsPlayer)
+                return 3.5f;
+
+            // return Math.Max(5f, atTarget.CombatReach + 1.3333334f + unit.CombatReach);
+            return Math.Max(5f, atTarget.CombatReach + 1.3333334f);
+        }
+
+        public static float MeleeRange
+        {
+            get
+            {
+                return StyxWoW.Me.CurrentTarget.MeleeDistance();
+            }
+        }
+
         public static bool CastPrimative(string spellName)
         {
             LastSpellTarget = WoWGuid.Empty;

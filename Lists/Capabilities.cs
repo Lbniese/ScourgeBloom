@@ -48,7 +48,7 @@ namespace ScourgeBloom.Lists
         public static bool IsDeathGripAllowed
             =>
                 !RoutineManager.IsAnyDisallowed(CapabilityFlags.Taunting | CapabilityFlags.GapCloser) &&
-                DeathKnightSettings.Instance.DeathGrip;
+                GeneralSettings.DeathGrip;
 
         public static bool IsFacingAllowed
             => !RoutineManager.IsAnyDisallowed(CapabilityFlags.Facing) && GeneralSettings.Instance.Facing;
@@ -78,7 +78,7 @@ namespace ScourgeBloom.Lists
         public static bool IsTauntingAllowed
             =>
                 !RoutineManager.IsAnyDisallowed(CapabilityFlags.Taunting) &&
-                !RoutineManager.IsAnyDisallowed(CapabilityFlags.GapCloser) && DeathKnightSettings.Instance.DeathGrip;
+                !RoutineManager.IsAnyDisallowed(CapabilityFlags.GapCloser) && GeneralSettings.DeathGrip;
 
         public static bool IsAoeAllowed
             => !RoutineManager.IsAnyDisallowed(CapabilityFlags.Aoe) && GeneralSettings.Instance.AoE;

@@ -357,5 +357,114 @@ namespace ScourgeBloom.Settings
         public string PauseHotkey { get; set; }
 
         #endregion Hotkeys
+
+        [Setting, DefaultValue(false), Category("Behaviour")]
+        [Browsable(false)]
+        public static bool DeathGrip { get; set; }
+
+        [Setting, DefaultValue(true)]
+        [Category("Combat")]
+        [Browsable(false)]
+        [Description("Allow automatically using Death Strike")]
+        public static bool UseDeathStrike { get; set; }
+
+        [Setting, DefaultValue(50)]
+        [Category("Combat")]
+        [Browsable(false)]
+        [Description("The health percentage we use Death Strike at")]
+        public static int UseDeathStrikeHp { get; set; }
+
+        [Setting, DefaultValue(true)]
+        [ReadOnly(true)]
+        [Category("Common")]
+        [Browsable(false)]
+        [Description("The health percentage we use Icebound Fortitude at")]
+        public static bool UseIceBoundFortitude { get; set; }
+
+        [Setting, DefaultValue(50)]
+        [ReadOnly(true)]
+        [Category("Common")]
+        [Browsable(false)]
+        [Description("The health percentage we use Icebound Fortitude at")]
+        public static int UseIceBoundFortitudeHp { get; set; }
+
+        [Setting, DefaultValue(true)]
+        [ReadOnly(true)]
+        [Category("Unholy")]
+        [Browsable(false)]
+        [Description("Summon Gargoyle on cooldown")]
+        public static bool SummonGargoyleOnCd { get; set; }
+
+        [Setting, DefaultValue(true)]
+        [ReadOnly(true)]
+        [Category("Common")]
+        [Browsable(false)]
+        public static bool UseAms { get; set; }
+
+        [Setting, DefaultValue(true)]
+        [ReadOnly(true)]
+        [Category("Unholy")]
+        [Browsable(false)]
+        [Description("Pillar of Frost on cooldown")]
+        public static bool PillarofFrostOnCd { get; set; }
+
+        [Setting, DefaultValue(true)]
+        [ReadOnly(true)]
+        [Category("Common")]
+        [Browsable(false)]
+        [Description("Use Army of the Dead")]
+        public static bool UseAotD { get; set; }
+
+        [Setting, DefaultValue(true)]
+        [Browsable(false)]
+        public static bool BosArcaneTorrent { get; set; }
+
+        [Setting, DefaultValue(true)]
+        [Browsable(false)]
+        public static bool BosBloodFury { get; set; }
+
+        [Setting, DefaultValue(true)]
+        [Browsable(false)]
+        public static bool BosBerserking { get; set; }
+
+        #region Mind Freeze
+
+        [Setting, DefaultValue(true)]
+        [Browsable(false)]
+        public static bool MindFreezeUse { get; set; }
+
+        [Setting, DefaultValue(true)]
+        [Browsable(false)]
+        public static bool MindFreezeRandomTimerUse { get; set; }
+
+        [Setting, DefaultValue(40)]
+        [Browsable(false)]
+        public static double MindFreezeRandomTimerMin { get; set; }
+
+        [Setting, DefaultValue(60)]
+        [Browsable(false)]
+        public static double MindFreezeRandomTimerMax { get; set; }
+
+        #endregion Mind Freeze
+
+        #region Strangulate
+
+        [Setting, DefaultValue(true)]
+        [Browsable(false)]
+        public bool StrangulateUse { get; set; }
+
+        [Setting, DefaultValue(true)]
+        [Browsable(false)]
+        public bool StrangulateRandomTimerUse { get; set; }
+
+        [Setting, DefaultValue(40)]
+        [Browsable(false)]
+        public double StrangulateRandomTimerMin { get; set; }
+
+        [Setting, DefaultValue(60)]
+        [Browsable(false)]
+        public double StrangulateRandomTimerMax { get; set; }
+
+        #endregion Strangulate
     }
 }

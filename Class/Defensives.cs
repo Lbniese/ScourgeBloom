@@ -24,16 +24,16 @@ namespace ScourgeBloom.Class
             await Spell.CoCast(SpellLists.AntiMagicShell, Me,
                 Units.EnemyUnitsNearTarget(10)
                     .Any(u => (u.IsCasting || u.ChanneledCastingSpellId != 0) && u.CurrentTargetGuid == Me.Guid) &&
-                Capabilities.IsCooldownUsageAllowed && DeathKnightSettings.Instance.UseAms);
+                Capabilities.IsCooldownUsageAllowed && GeneralSettings.UseAms);
 
             await Spell.CoCast(SpellLists.IceboundFortitude, Me,
-                Me.HealthPercent < DeathKnightSettings.Instance.UseIceBoundFortitudeHp &&
-                DeathKnightSettings.Instance.UseIceBoundFortitude && Capabilities.IsCooldownUsageAllowed);
+                Me.HealthPercent < GeneralSettings.UseIceBoundFortitudeHp &&
+                GeneralSettings.UseIceBoundFortitude && Capabilities.IsCooldownUsageAllowed);
 
             if (await Spell.CoCast(SpellLists.DeathStrike,
                 Me.GotTarget && Me.CurrentTarget.CanWeAttack() && Me.CurrentTarget.IsWithinMeleeRange &&
-                Me.HealthPercent < DeathKnightSettings.Instance.UseDeathStrikeHp &&
-                DeathKnightSettings.Instance.UseDeathStrike))
+                Me.HealthPercent < GeneralSettings.UseDeathStrikeHp &&
+                GeneralSettings.UseDeathStrike))
                 return true;
 
             return true;

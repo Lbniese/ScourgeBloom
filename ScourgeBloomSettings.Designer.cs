@@ -134,11 +134,8 @@ namespace ScourgeBloom
             this.label12 = new System.Windows.Forms.Label();
             this.useHealingToniccheckBox = new System.Windows.Forms.CheckBox();
             this.groupBox17 = new System.Windows.Forms.GroupBox();
-            this.numDeathSiphonHp = new System.Windows.Forms.NumericUpDown();
-            this.label15 = new System.Windows.Forms.Label();
             this.numDeathStrikeHp = new System.Windows.Forms.NumericUpDown();
             this.label14 = new System.Windows.Forms.Label();
-            this.DeathSiphoncheckBox = new System.Windows.Forms.CheckBox();
             this.DeathStrikecheckBox = new System.Windows.Forms.CheckBox();
             this.groupBox12 = new System.Windows.Forms.GroupBox();
             this.label11 = new System.Windows.Forms.Label();
@@ -191,7 +188,6 @@ namespace ScourgeBloom
             ((System.ComponentModel.ISupportInitialize)(this.numHealthstoneUseHp)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numHealingTonicHp)).BeginInit();
             this.groupBox17.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numDeathSiphonHp)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numDeathStrikeHp)).BeginInit();
             this.groupBox12.SuspendLayout();
             this.Debug.SuspendLayout();
@@ -1277,11 +1273,8 @@ namespace ScourgeBloom
             // 
             // groupBox17
             // 
-            this.groupBox17.Controls.Add(this.numDeathSiphonHp);
-            this.groupBox17.Controls.Add(this.label15);
             this.groupBox17.Controls.Add(this.numDeathStrikeHp);
             this.groupBox17.Controls.Add(this.label14);
-            this.groupBox17.Controls.Add(this.DeathSiphoncheckBox);
             this.groupBox17.Controls.Add(this.DeathStrikecheckBox);
             this.groupBox17.Location = new System.Drawing.Point(290, 3);
             this.groupBox17.Name = "groupBox17";
@@ -1289,28 +1282,6 @@ namespace ScourgeBloom
             this.groupBox17.TabIndex = 1;
             this.groupBox17.TabStop = false;
             this.groupBox17.Text = "Survivability";
-            // 
-            // numDeathSiphonHp
-            // 
-            this.numDeathSiphonHp.Location = new System.Drawing.Point(47, 91);
-            this.numDeathSiphonHp.Name = "numDeathSiphonHp";
-            this.numDeathSiphonHp.Size = new System.Drawing.Size(46, 20);
-            this.numDeathSiphonHp.TabIndex = 12;
-            this.numDeathSiphonHp.Value = new decimal(new int[] {
-            50,
-            0,
-            0,
-            0});
-            this.numDeathSiphonHp.ValueChanged += new System.EventHandler(this.numDeathSiphonHp_ValueChanged);
-            // 
-            // label15
-            // 
-            this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(6, 95);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(35, 13);
-            this.label15.TabIndex = 11;
-            this.label15.Text = "Hp% :";
             // 
             // numDeathStrikeHp
             // 
@@ -1333,17 +1304,6 @@ namespace ScourgeBloom
             this.label14.Size = new System.Drawing.Size(35, 13);
             this.label14.TabIndex = 9;
             this.label14.Text = "Hp% :";
-            // 
-            // DeathSiphoncheckBox
-            // 
-            this.DeathSiphoncheckBox.AutoSize = true;
-            this.DeathSiphoncheckBox.Location = new System.Drawing.Point(6, 68);
-            this.DeathSiphoncheckBox.Name = "DeathSiphoncheckBox";
-            this.DeathSiphoncheckBox.Size = new System.Drawing.Size(113, 17);
-            this.DeathSiphoncheckBox.TabIndex = 2;
-            this.DeathSiphoncheckBox.Text = "Use Death Siphon";
-            this.DeathSiphoncheckBox.UseVisualStyleBackColor = true;
-            this.DeathSiphoncheckBox.CheckedChanged += new System.EventHandler(this.DeathSiphoncheckBox_CheckedChanged);
             // 
             // DeathStrikecheckBox
             // 
@@ -1569,7 +1529,6 @@ namespace ScourgeBloom
             ((System.ComponentModel.ISupportInitialize)(this.numHealingTonicHp)).EndInit();
             this.groupBox17.ResumeLayout(false);
             this.groupBox17.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numDeathSiphonHp)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numDeathStrikeHp)).EndInit();
             this.groupBox12.ResumeLayout(false);
             this.groupBox12.PerformLayout();
@@ -1671,10 +1630,7 @@ namespace ScourgeBloom
         private NumericUpDown numHealthstoneUseHp;
         private Label label13;
         private CheckBox UseHealthstonecheckBox;
-        private CheckBox DeathSiphoncheckBox;
         private CheckBox DeathStrikecheckBox;
-        private NumericUpDown numDeathSiphonHp;
-        private Label label15;
         private NumericUpDown numDeathStrikeHp;
         private Label label14;
         private GroupBox groupBox19;

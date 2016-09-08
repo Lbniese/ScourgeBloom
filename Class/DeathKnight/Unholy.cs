@@ -46,11 +46,17 @@ namespace ScourgeBloom.Class.DeathKnight
             if (!Me.GotTarget || !Me.CurrentTarget.IsAlive)
                 return true;
 
+            if (await Spell.CoCast(S.Outbreak,
+            GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.IsAboveTheGround() &&
+            Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight &&
+            Me.IsSafelyFacing(Me.CurrentTarget)))
+                return true;
+
             if (!StyxWoW.Me.GotTarget || !Me.CurrentTarget.CanWeAttack())
                 return false;
 
             if (await Spell.CoCast(S.Outbreak,
-                GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.CanWeAttack() &&
+                GeneralSettings.Instance.AutoAttack && Me.GotTarget &&
                 Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight &&
                 Me.IsSafelyFacing(Me.CurrentTarget)))
                 return true;
@@ -117,6 +123,9 @@ namespace ScourgeBloom.Class.DeathKnight
         {
             if (Paused || !Me.IsAlive || Globals.Mounted)
                 return true;
+
+            if (Capabilities.IsTargetingAllowed)
+                TargetManager.EnsureTarget(onunit);
 
             if (Capabilities.IsTargetingAllowed)
                 MovementManager.AutoTarget();
@@ -234,13 +243,13 @@ namespace ScourgeBloom.Class.DeathKnight
 
             // summon_gargoyle,if=!equipped.137075,if=rune<=3
             if (await Spell.CoCast(S.SummonGargoyle, onunit,
-                Me.GotTarget && Me.CurrentTarget.Distance <= 30 && DeathKnightSettings.Instance.SummonGargoyleOnCd &&
+                Me.GotTarget && Me.CurrentTarget.Distance <= 30 && GeneralSettings.SummonGargoyleOnCd &&
                 Capabilities.IsCooldownUsageAllowed && Me.Inventory.Equipped.Shoulder.ItemInfo.Id != 137075 &&
                 Me.CurrentRunes <= 3)) return true;
 
             // summon_gargoyle,if=equipped.137075&cooldown.dark_transformation.remains<10&rune<=3
             if (await Spell.CoCast(S.SummonGargoyle, onunit,
-                Me.GotTarget && Me.CurrentTarget.Distance <= 30 && DeathKnightSettings.Instance.SummonGargoyleOnCd &&
+                Me.GotTarget && Me.CurrentTarget.Distance <= 30 && GeneralSettings.SummonGargoyleOnCd &&
                 Capabilities.IsCooldownUsageAllowed && Me.Inventory.Equipped.Shoulder.ItemInfo.Id == 137075 &&
                 Me.CurrentRunes <= 3 && Spell.GetCooldownLeft(S.DarkTransformation).TotalSeconds < 10)) return true;
 
@@ -351,7 +360,7 @@ namespace ScourgeBloom.Class.DeathKnight
             //if (GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.CanWeAttack() &&
             //    Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight && Me.IsSafelyFacing(Me.CurrentTarget))
             //{
-            //    if (Me.CurrentTarget.Distance > 7 && DeathKnightSettings.Instance.DeathGrip)
+            //    if (Me.CurrentTarget.Distance > 7 && GeneralSettings.DeathGrip)
             //        return await Spell.CoCast(S.DeathGrip,
             //            SpellManager.CanCast(S.DeathGrip));
 
@@ -516,7 +525,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
             if (await Spell.CoCast(S.SummonGargoyle, onunit,
                 Capabilities.IsCooldownUsageAllowed &&
-                DeathKnightSettings.Instance.SummonGargoyleOnCd)) return true;
+                GeneralSettings.SummonGargoyleOnCd)) return true;
 
             if (await Spell.CoCast(S.Outbreak, onunit,
                 Me.CurrentTarget.GetAuraTimeLeft(S.AuraVirulentPlague).TotalSeconds < 1.8)) return true;
