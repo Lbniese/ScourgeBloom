@@ -32,33 +32,12 @@ namespace ScourgeBloom
 {
     public class ScourgeBloom : CombatRoutine
     {
-        private const WoWContext LastContext = WoWContext.None;
-
-        internal static WoWContext CachedContext = WoWContext.None;
-
-        #region InstDiff
-
-        private static readonly string[] InstDiff =
-        {
-            /* 0*/  "None; not in an Instance",
-            /* 1*/  "5-player Normal",
-            /* 2*/  "5-player Heroic",
-            /* 3*/  "10-player Raid",
-            /* 4*/  "25-player Raid",
-            /* 5*/  "10-player Heroic Raid",
-            /* 6*/  "25-player Heroic Raid",
-            /* 7*/  "LFR Raid Instance",
-            /* 8*/  "Challenge Mode Raid",
-            /* 9*/  "40-player Raid"
-        };
-
-        #endregion InstDiff
 
         private static readonly WaitTimer WaitForLatencyCheck = new WaitTimer(TimeSpan.FromSeconds(5));
 
         protected static readonly LocalPlayer Me = StyxWoW.Me;
 
-        public static readonly Version Version = new Version(1, 4, 73);
+        public static readonly Version Version = new Version(1, 5, 74);
 
         private static bool _initialized;
 
@@ -80,11 +59,6 @@ namespace ScourgeBloom
         internal static bool IsManualMovementBotActive { get; set; }
         internal static bool IsGrindBotActive { get; set; }
 
-        internal static WoWContext CurrentWoWContext
-        {
-            get { return CachedContext; }
-            set { CachedContext = value; }
-        }
 
         public static WoWContext TrainingDummyBehaviors { get; set; }
 
@@ -115,122 +89,6 @@ namespace ScourgeBloom
         public override Composite DeathBehavior => CreateDeathBehavior();
 
         public static bool Paused => HotkeyManager.PauseHotkey;
-
-        #region DescribeContext
-
-        public static void DescribeContext()
-        {
-            var sRace = RaceName();
-            if (Me.Race == WoWRace.Pandaren)
-                // ReSharper disable once RedundantAssignment
-                sRace = " " + Me.FactionGroup + sRace;
-
-            Logging.Write(" "); // spacer before prior log text
-
-            Logging.Write("Your Level {0}{1}{2} Build is", Me.Level, RaceName(), SpecAndClassName());
-
-            Logging.Write("... running the {0} bot in {1} {2}",
-                GetBotName(),
-                Me.RealZoneText,
-                !Me.IsInInstance || Battlegrounds.IsInsideBattleground ? "" : "[" + GetInstanceDifficultyName() + "]"
-                );
-
-            Logging.Write("   MapId            = {0}", Me.MapId);
-            Logging.Write("   ZoneId           = {0}", Me.ZoneId);
-            /*
-                        if (Me.CurrentMap != null && Me.CurrentMap.IsValid)
-                        {
-                            Logging.Write("   AreaTableId      = {0}", Me.CurrentMap.AreaTableId);
-                            Logging.Write("   InternalName     = {0}", Me.CurrentMap.InternalName);
-                            Logging.Write("   IsArena          = {0}", Me.CurrentMap.IsArena.ToYN());
-                            Logging.Write("   IsBattleground   = {0}", Me.CurrentMap.IsBattleground.ToYN());
-                            Logging.Write("   IsContinent      = {0}", Me.CurrentMap.IsContinent.ToYN());
-                            Logging.Write("   IsDungeon        = {0}", Me.CurrentMap.IsDungeon.ToYN());
-                            Logging.Write("   IsInstance       = {0}", Me.CurrentMap.IsInstance.ToYN());
-                            Logging.Write("   IsRaid           = {0}", Me.CurrentMap.IsRaid.ToYN());
-                            Logging.Write("   IsScenario       = {0}", Me.CurrentMap.IsScenario.ToYN());
-                            Logging.Write("   MapDescription   = {0}", Me.CurrentMap.MapDescription);
-                            Logging.Write("   MapDescription2  = {0}", Me.CurrentMap.MapDescription2);
-                            Logging.Write("   MapType          = {0}", Me.CurrentMap.MapType);
-                            Logging.Write("   MaxPlayers       = {0}", Me.CurrentMap.MaxPlayers);
-                            Logging.Write("   Name             = {0}", Me.CurrentMap.Name);
-                        }
-            */
-            string sRunningAs;
-
-            if (Me.CurrentMap == null)
-                sRunningAs = "Unknown";
-            else if (Me.CurrentMap.IsArena)
-                sRunningAs = "Arena";
-            else if (Me.CurrentMap.IsBattleground)
-                sRunningAs = "Battleground";
-            else if (Me.CurrentMap.IsScenario)
-                sRunningAs = "Scenario";
-            else if (Me.CurrentMap.IsRaid)
-                sRunningAs = "Raid";
-            else if (Me.CurrentMap.IsDungeon)
-                sRunningAs = "Dungeon";
-            else if (Me.CurrentMap.IsInstance)
-                sRunningAs = "Instance";
-            else
-                sRunningAs = "Zone: " + Me.CurrentMap.Name;
-
-            Logging.Write("... {0} using my {1} Behaviors {2}",
-                sRunningAs,
-                CurrentWoWContext == WoWContext.Normal ? "SOLO" : CurrentWoWContext.ToString().ToUpper(),
-                !Me.IsInGroup() ? "alone" : "in a group of " + Units.GroupMemberInfos.Count()
-                );
-
-            if (CurrentWoWContext != WoWContext.Battlegrounds && Me.IsInGroup())
-            {
-                Logging.Write("... in a group as {0} role with {1} of {2} players",
-                    (Me.Role &
-                     (WoWPartyMember.GroupRole.Tank | WoWPartyMember.GroupRole.Healer | WoWPartyMember.GroupRole.Damage))
-                        .ToString().ToUpper(),
-                    Me.GroupInfo.NumRaidMembers,
-                    (int) Math.Max(Me.CurrentMap.MaxPlayers, Me.GroupInfo.GroupSize)
-                    );
-            }
-
-            Logging.Write(" ");
-            Logging.Write("My Current Dynamic Info");
-            Logging.Write("=======================");
-            Logging.Write("Combat Reach:    {0:F4}", Me.CombatReach);
-            Logging.Write("Bounding Height: {0:F4}", Me.BoundingHeight);
-            Logging.Write(" ");
-
-#if LOG_GROUP_COMPOSITION
-            if (CurrentWoWContext == WoWContext.Instances)
-            {
-                int idx = 1;
-                Logging.Write(" ");
-                Logging.Write("Group Comprised of {0} members as follows:", Me.GroupInfo.NumRaidMembers);
-                foreach (var pm in Me.GroupInfo.RaidMembers )
-                {
-                    string role = (pm.Role & ~WoWPartyMember.GroupRole.None).ToString().ToUpper() + "      ";
-                    role = role.Substring( 0, 6);
-
-                    Logging.Write( "{0} {1} {2} {3} {4} {5}",
-                        idx++,
-                        role,
-                        pm.IsOnline ? "online " : "offline",
-                        pm.Level,
-                        pm.HealthMax,
-                        pm.Specialization
-                        );
-                }
-
-                Logging.Write(" ");
-            }
-#endif
-
-            if (Targeting.PullDistance < 25)
-                Logging.Write(Colors.YellowGreen,
-                    "[ScourgeBloom]: Your Pull Distance is {0:F0} yards, which is low for any class!",
-                    Targeting.PullDistance);
-        }
-
-        #endregion
 
         #region Pulse
 
@@ -343,13 +201,11 @@ namespace ScourgeBloom
         {
             HotkeyManager.RegisterHotKeys();
             InitializeOnce();
-            EventLog.AttachCombatLogEvent();
         }
 
         private static void OnBotStopEvent(object o)
         {
             HotkeyManager.RemoveHotkeys();
-            EventLog.DetachCombatLogEvent();
         }
 
         private static void InitializeOnce()
@@ -423,94 +279,6 @@ namespace ScourgeBloom
                 "Root composite for ScourgeBloom heals. Rotations will be plugged into this hook.",
                 new ActionAlwaysFail());
         }
-
-        #region Context
-
-        public static event EventHandler<WoWContextEventArg> OnWoWContextChanged;
-
-        public static void DetermineCurrentWoWContext()
-        {
-            CurrentWoWContext = _DetermineCurrentWoWContext();
-        }
-
-        private static WoWContext _DetermineCurrentWoWContext()
-        {
-            if (!StyxWoW.IsInGame)
-                return WoWContext.None;
-
-            if (ForcedContext != WoWContext.None)
-            {
-                if (LastContext != ForcedContext)
-                    Logging.Write(Colors.YellowGreen, "[ScourgeBloom] Context: forcing use of {0} behaviors",
-                        ForcedContext);
-
-                return ForcedContext;
-            }
-
-            var map = StyxWoW.Me.CurrentMap;
-
-            if (map.IsBattleground || map.IsArena)
-            {
-                if (LastContext != WoWContext.Battlegrounds)
-                    Logging.Write(Colors.YellowGreen,
-                        "[ScourgeBloom] Context: using {0} behaviors since in battleground/arena",
-                        WoWContext.Battlegrounds);
-
-                return WoWContext.Battlegrounds;
-            }
-
-            if (Me.IsInGroup())
-            {
-                if (Me.IsInInstance)
-                {
-                    if (LastContext != WoWContext.Instances)
-                        Logging.Write(Colors.YellowGreen,
-                            "[ScourgeBloom] Context: using {0} behaviors since in group inside an Instance",
-                            WoWContext.Instances);
-
-                    return WoWContext.Instances;
-                }
-
-                const int zoneAshran = 6941;
-                const int zoneWintergrasp = 4197;
-                if (Me.ZoneId == zoneAshran || Me.ZoneId == zoneWintergrasp)
-                {
-                    if (LastContext != WoWContext.Battlegrounds)
-                        Logging.Write(Colors.YellowGreen,
-                            "[ScourgeBloom] Context: using {0} behaviors since in group in Zone: {1} #{2}",
-                            WoWContext.Battlegrounds, Me.RealZoneText, Me.ZoneId);
-
-                    return WoWContext.Battlegrounds;
-                }
-
-                // if (Group.Tanks.Any() || Group.Healers.Any())
-                const WoWPartyMember.GroupRole hasGroupRoleMask =
-                    WoWPartyMember.GroupRole.Healer | WoWPartyMember.GroupRole.Tank | WoWPartyMember.GroupRole.Damage;
-                if ((Me.Role & hasGroupRoleMask) != WoWPartyMember.GroupRole.None)
-                {
-                    if (LastContext != WoWContext.Instances)
-                        Logging.Write(Colors.YellowGreen,
-                            "[ScourgeBloom] Context: using {0} behaviors since in group as {1}",
-                            WoWContext.Instances, Me.Role & hasGroupRoleMask);
-
-                    return WoWContext.Instances;
-                }
-
-                if (LastContext != WoWContext.Normal)
-                    Logging.Write(Colors.YellowGreen,
-                        "[ScourgeBloom] Context: no Role assigned (Tank/Healer/Damage), so using Normal (SOLO) behaviors");
-
-                return WoWContext.Normal;
-            }
-
-            if (LastContext != WoWContext.Normal)
-                Logging.Write(Colors.YellowGreen,
-                    "[ScourgeBloom] Context: using Normal (SOLO) behaviors since not in group");
-
-            return WoWContext.Normal;
-        }
-
-        #endregion
 
         #region DON'T TOUCH - CORE SHIT
 
@@ -615,29 +383,10 @@ namespace ScourgeBloom
             return true;
         }
 
-        private static int GetInstanceDifficulty()
-        {
-            var diffidx = Lua.GetReturnVal<int>("local _,_,d=GetInstanceInfo() if d ~= nil then return d end return 1",
-                0);
-            return diffidx;
-        }
-
-        private static string GetInstanceDifficultyName()
-        {
-            var diff = GetInstanceDifficulty();
-            return diff >= InstDiff.Length ? $"Difficulty {diff} Undefined" : InstDiff[diff];
-        }
-
         public static bool InCinematic()
         {
             var inCin = Lua.GetReturnVal<bool>("return InCinematic()", 0);
             return inCin;
-        }
-
-        public static void OnOnWoWContextChanged(WoWContextEventArg e)
-        {
-            var handler = OnWoWContextChanged;
-            handler?.Invoke(null, e);
         }
 
         public static string GetScourgeBloomRoutineName()

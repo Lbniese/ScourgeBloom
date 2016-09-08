@@ -122,10 +122,6 @@ namespace ScourgeBloom.Helpers
                 canAttack = Lua.GetReturnVal<bool>("return UnitCanAttack(\"player\",\"target\")", 0);
             else
             {
-                // do not perform test in PVP or Instance contexts
-                if (ScourgeBloom.CurrentWoWContext != WoWContext.Normal)
-                    return true;
-
                 // skip test if not a player 
                 if (!unit.IsPlayer)
                     return true;
@@ -493,35 +489,6 @@ namespace ScourgeBloom.Helpers
 
             // Nah, just a harmless critter
             return true;
-        }
-
-        public static bool IsTrivial(this WoWUnit unit)
-        {
-            if (ScourgeBloom.CurrentWoWContext != WoWContext.Normal)
-                return false;
-
-            if (unit == null)
-                return false;
-
-            if (unit.Elite)
-                return unit.Level <= TrivialElite;
-
-            return unit.Level <= TrivialLevel;
-        }
-
-        public static bool IsStressful(this WoWUnit unit)
-        {
-            if (ScourgeBloom.CurrentWoWContext != WoWContext.Normal)
-                return true;
-
-            if (unit == null)
-                return false;
-
-            if (unit.IsPlayer)
-                return true;
-
-            var maxh = unit.MaxHealth;
-            return maxh > StyxWoW.Me.MaxHealth*2 || unit.Level > StyxWoW.Me.Level + (unit.Elite ? -6 : 2);
         }
 
         public static bool IsStressfulFight(int minHealth, int minTimeToDeath, int minAttackers, int maxAttackRange)

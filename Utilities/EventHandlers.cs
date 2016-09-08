@@ -66,14 +66,6 @@ namespace ScourgeBloom.Utilities
                 // reset the damage history
                 DamageHistory = new Queue<Damage>(50);
 
-                // hook combat log event if we are debugging or not in performance critical circumstance
-                if (GeneralSettings.Instance.Debug ||
-                    (ScourgeBloom.CurrentWoWContext != WoWContext.Battlegrounds && !StyxWoW.Me.CurrentMap.IsRaid))
-                    EventLog.AttachCombatLogEvent();
-
-                // add context handler that reacts to context change with above rules for logging
-                ScourgeBloom.OnWoWContextChanged += HandleContextChanged;
-
                 // hook PVP start timer so we can identify end of prep phase
                 PvP.AttachStartTimer();
 
@@ -105,11 +97,6 @@ namespace ScourgeBloom.Utilities
                 RoutineManager.Current.Name != ScourgeBloom.GetScourgeBloomRoutineName())
                 return;
 
-            if (GeneralSettings.Instance.Debug ||
-                (ScourgeBloom.CurrentWoWContext != WoWContext.Battlegrounds && !StyxWoW.Me.CurrentMap.IsRaid))
-                EventLog.AttachCombatLogEvent();
-            else
-                EventLog.DetachCombatLogEvent();
         }
 
         public static bool IsPathErrorTarget(this WoWUnit unit)

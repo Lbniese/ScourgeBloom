@@ -78,7 +78,6 @@
     <Compile Include="Helpers\CombatLog.cs" />
     <Compile Include="Helpers\DeadlyBossMods.cs" />
     <Compile Include="Helpers\TrinketUsage.cs" />
-    <Compile Include="Helpers\EventLog.cs" />
     <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Helpers\Globals.cs" />
     <Compile Include="Helpers\Group.cs" />

@@ -515,7 +515,7 @@ namespace ScourgeBloom.Class.DeathKnight
                 return true;
 
             if (await Spell.CoCast(S.SummonGargoyle, onunit,
-                Capabilities.IsCooldownUsageAllowed && Me.CurrentTarget.IsStressful() &&
+                Capabilities.IsCooldownUsageAllowed &&
                 DeathKnightSettings.Instance.SummonGargoyleOnCd)) return true;
 
             if (await Spell.CoCast(S.Outbreak, onunit,

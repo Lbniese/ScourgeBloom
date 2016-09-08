@@ -108,7 +108,6 @@ namespace ScourgeBloom.Helpers
                 return;
 
             Lua.Events.AttachEvent("START_TIMER", HandleStartTimer);
-            ScourgeBloom.OnWoWContextChanged += HandleContextChanged;
             _startTimerAttached = true;
         }
 
