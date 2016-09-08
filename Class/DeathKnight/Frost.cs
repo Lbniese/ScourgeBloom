@@ -103,7 +103,8 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> CombatBuffs()
         {
-            if (Paused) return false;
+            if (Paused || !Me.IsAlive || Globals.Mounted)
+                return true;
 
             if (!Globals.HealPulsed)
             {
@@ -206,7 +207,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> CombatRoutine(WoWUnit onunit)
         {
-            if (Paused || !Me.IsAlive || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Globals.Mounted)
+            if (Paused || !Me.IsAlive || Globals.Mounted)
                 return true;
 
             if (Capabilities.IsTargetingAllowed)
@@ -214,6 +215,9 @@ namespace ScourgeBloom.Class.DeathKnight
 
             if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
                 await MovementManager.MoveToTarget();
+
+            if (!Me.GotTarget || !Me.CurrentTarget.IsAlive)
+            return true;
 
             if (Capabilities.IsInterruptingAllowed && Me.CurrentTarget.Distance <= 15 && Me.CurrentTarget.IsCasting &&
                 Me.CurrentTarget.CanInterruptCurrentSpellCast)

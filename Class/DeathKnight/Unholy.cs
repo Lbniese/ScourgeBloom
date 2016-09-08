@@ -34,7 +34,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> PullRoutine()
         {
-            if (Paused || !Me.IsAlive || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Globals.Mounted)
+            if (Paused || !Me.IsAlive || Globals.Mounted)
                 return true;
 
             if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
@@ -42,6 +42,9 @@ namespace ScourgeBloom.Class.DeathKnight
 
             if (Capabilities.IsTargetingAllowed)
                 MovementManager.AutoTarget();
+
+            if (!Me.GotTarget || !Me.CurrentTarget.IsAlive)
+                return true;
 
             if (!StyxWoW.Me.GotTarget || !Me.CurrentTarget.CanWeAttack())
                 return false;
@@ -81,7 +84,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> HealRoutine()
         {
-            if (Paused) return false;
+            if (Paused || Globals.Mounted) return false;
 
             Globals.HealPulsed = true;
 
@@ -112,7 +115,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> CombatCoroutine(WoWUnit onunit)
         {
-            if (Paused || !Me.IsAlive || !Me.GotTarget || !Me.CurrentTarget.IsAlive || Globals.Mounted)
+            if (Paused || !Me.IsAlive || Globals.Mounted)
                 return true;
 
             if (Capabilities.IsTargetingAllowed)
@@ -120,6 +123,9 @@ namespace ScourgeBloom.Class.DeathKnight
 
             if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
                 await MovementManager.MoveToTarget();
+
+            if (!Me.GotTarget || !Me.CurrentTarget.IsAlive)
+                return true;
 
             if (Capabilities.IsInterruptingAllowed && Me.CurrentTarget.Distance <= 15 && Me.CurrentTarget.IsCasting &&
                 Me.CurrentTarget.CanInterruptCurrentSpellCast)
@@ -339,20 +345,20 @@ namespace ScourgeBloom.Class.DeathKnight
                 !Me.OnTaxi && !Me.Mounted))
                 return true;
 
-            if (!Me.GotTarget || !Me.CurrentTarget.IsAlive || Globals.Mounted)
-                return true;
+            //if (!Me.GotTarget || !Me.CurrentTarget.IsAlive || Globals.Mounted)
+            //    return true;
 
-            if (GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.CanWeAttack() &&
-                Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight && Me.IsSafelyFacing(Me.CurrentTarget))
-            {
-                if (Me.CurrentTarget.Distance > 7 && DeathKnightSettings.Instance.DeathGrip)
-                    return await Spell.CoCast(S.DeathGrip,
-                        SpellManager.CanCast(S.DeathGrip));
+            //if (GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.CanWeAttack() &&
+            //    Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight && Me.IsSafelyFacing(Me.CurrentTarget))
+            //{
+            //    if (Me.CurrentTarget.Distance > 7 && DeathKnightSettings.Instance.DeathGrip)
+            //        return await Spell.CoCast(S.DeathGrip,
+            //            SpellManager.CanCast(S.DeathGrip));
 
-                if (Spell.GetCooldownLeft(S.Outbreak).TotalSeconds < 1)
-                    return await Spell.CoCast(S.Outbreak,
-                        SpellManager.CanCast(S.Outbreak));
-            }
+            //    if (Spell.GetCooldownLeft(S.Outbreak).TotalSeconds < 1)
+            //        return await Spell.CoCast(S.Outbreak,
+            //            SpellManager.CanCast(S.Outbreak));
+            //}
 
             return false;
         }
