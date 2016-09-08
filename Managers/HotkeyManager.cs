@@ -6,10 +6,12 @@
  * Licensed under Microsoft Reference Source License (Ms-RSL)
  */
 
-using System;
+using System.ComponentModel;
 using System.Windows.Forms;
+using System.Windows.Media;
 using ScourgeBloom.Helpers;
 using ScourgeBloom.Settings;
+using Styx;
 using Styx.Common;
 using Styx.WoWInternals;
 using S = ScourgeBloom.Lists.SpellLists;
@@ -20,27 +22,36 @@ namespace ScourgeBloom.Managers
     {
         #region General
 
+        public static bool PauseOn { get; set; }
+        public static bool CooldownsOn { get; set; }
+        public static bool ManualOn { get; set; }
         public static bool KeysRegistered { get; set; }
 
         public static void RegisterHotKeys()
         {
             if (KeysRegistered) return;
-
+            TypeConverter converter = TypeDescriptor.GetConverter(typeof(Keys));
             // Pause
-            HotkeysManager.Register("PauseHotkey", KeyPause, ModifKeyPause, ret =>
+            if (!string.IsNullOrEmpty(GeneralSettings.Instance.HotkeyPauseKey) && GeneralSettings.Instance.HotkeyPauseModifier > 0)
             {
-                PauseHotkey = !PauseHotkey;
-                Lua.DoString(PauseHotkey
-                    ? @"print('Pause: \124cFF15E61C Enabled!')"
-                    : @"print('Pause: \124cFFE61515 Disabled!')");
-            });
+                // ReSharper disable once PossibleNullReferenceException
+                HotkeysManager.Register("PauseHotkey", (Keys)converter.ConvertFromString(GeneralSettings.Instance.HotkeyPauseKey), (ModifierKeys)GeneralSettings.Instance.HotkeyPauseModifier, ret =>
+                {
+                    PauseOn = !PauseOn;
+                    Lua.DoString(PauseOn
+                        ? @"print('Pause: \124cFF15E61C Enabled!')"
+                        : @"print('Pause: \124cFFE61515 Disabled!')");
+                });
+            }
 
             Log.WriteLog(LogLevel.Normal, " " + "\r\n");
-            Log.WriteLog(LogLevel.Normal, "Pause Key: " + ModifKeyPause + "+ " + KeyPause);
+            // ReSharper disable once PossibleNullReferenceException
+            Log.WriteLog(LogLevel.Normal, "Pause Key: " + (ModifierKeys)GeneralSettings.Instance.HotkeyPauseModifier + "+ " + (Keys)converter.ConvertFromString(GeneralSettings.Instance.HotkeyPauseKey));
 
 
             KeysRegistered = true;
-            Log.WriteLog(LogLevel.Normal, " " + "\r\n");
+            StyxWoW.Overlay.AddToast(("Hotkeys: Registered!"), 2000);
+            Logging.Write(Colors.Purple, "Hotkeys: Registered!");
         }
 
         public static void RemoveHotkeys()
@@ -49,7 +60,7 @@ namespace ScourgeBloom.Managers
 
             HotkeysManager.Unregister("PauseHotkey");
 
-            PauseHotkey = false;
+            PauseOn = false;
             KeysRegistered = false;
 
             Lua.DoString(@"print('Hotkeys: \124cFFE61515 Removed!')");
@@ -58,15 +69,5 @@ namespace ScourgeBloom.Managers
 
         #endregion General
 
-        #region Pause
-
-        public static bool PauseHotkey { get; set; }
-
-        private static Keys KeyPause => (Keys) Enum.Parse(typeof (Keys), GeneralSettings.Instance.PauseHotkey);
-
-        private static ModifierKeys ModifKeyPause
-            => (ModifierKeys) Enum.Parse(typeof (ModifierKeys), GeneralSettings.Instance.ModPauseHotkey);
-
-        #endregion Pause
     }
 }

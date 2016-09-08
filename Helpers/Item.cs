@@ -21,15 +21,9 @@ namespace ScourgeBloom.Helpers
 {
     internal class Item : ScourgeBloom
     {
-        public static WoWItem Trinket1
-        {
-            get { return StyxWoW.Me.Inventory.GetItemBySlot(12); }
-        }
+        public static WoWItem Trinket1 => StyxWoW.Me.Inventory.GetItemBySlot(12);
 
-        public static WoWItem Trinket2
-        {
-            get { return StyxWoW.Me.Inventory.GetItemBySlot(13); }
-        }
+        public static WoWItem Trinket2 => StyxWoW.Me.Inventory.GetItemBySlot(13);
 
         public static void UseContainerItem(string name)
         {

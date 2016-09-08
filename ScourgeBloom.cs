@@ -37,7 +37,7 @@ namespace ScourgeBloom
 
         protected static readonly LocalPlayer Me = StyxWoW.Me;
 
-        public static readonly Version Version = new Version(1, 5, 75);
+        public static readonly Version Version = new Version(1, 5, 76);
 
         private static bool _initialized;
 
@@ -88,7 +88,7 @@ namespace ScourgeBloom
 
         public override Composite DeathBehavior => CreateDeathBehavior();
 
-        public static bool Paused => HotkeyManager.PauseHotkey;
+        public static bool Paused => HotkeyManager.PauseOn;
 
         #region Pulse
 

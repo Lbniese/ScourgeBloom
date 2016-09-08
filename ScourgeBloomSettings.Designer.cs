@@ -114,9 +114,7 @@ namespace ScourgeBloom
             this.UseTrinket1CheckBox = new System.Windows.Forms.CheckBox();
             this.Hotkeys = new System.Windows.Forms.TabPage();
             this.groupBox35 = new System.Windows.Forms.GroupBox();
-            this.PauseCrKeycomboBox = new System.Windows.Forms.ComboBox();
-            this.PauseCrModcomboBox = new System.Windows.Forms.ComboBox();
-            this.label21 = new System.Windows.Forms.Label();
+            this.btnHotkeysPause = new System.Windows.Forms.Button();
             this.label20 = new System.Windows.Forms.Label();
             this.Advanced = new System.Windows.Forms.TabPage();
             this.groupBox19 = new System.Windows.Forms.GroupBox();
@@ -308,9 +306,9 @@ namespace ScourgeBloom
             this.AutoAmsCheckbox.CheckState = System.Windows.Forms.CheckState.Checked;
             this.AutoAmsCheckbox.Location = new System.Drawing.Point(6, 68);
             this.AutoAmsCheckbox.Name = "AutoAmsCheckbox";
-            this.AutoAmsCheckbox.Size = new System.Drawing.Size(124, 17);
+            this.AutoAmsCheckbox.Size = new System.Drawing.Size(127, 17);
             this.AutoAmsCheckbox.TabIndex = 8;
-            this.AutoAmsCheckbox.Text = "Use Anti-Magic Shell";
+            this.AutoAmsCheckbox.Text = "Auto Anti-Magic Shell";
             this.AutoAmsCheckbox.UseVisualStyleBackColor = true;
             this.AutoAmsCheckbox.CheckedChanged += new System.EventHandler(this.AutoAmsCheckbox_CheckedChanged);
             // 
@@ -367,9 +365,9 @@ namespace ScourgeBloom
             this.UsePillarofFrostOnCdCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
             this.UsePillarofFrostOnCdCheckBox.Location = new System.Drawing.Point(6, 19);
             this.UsePillarofFrostOnCdCheckBox.Name = "UsePillarofFrostOnCdCheckBox";
-            this.UsePillarofFrostOnCdCheckBox.Size = new System.Drawing.Size(173, 17);
+            this.UsePillarofFrostOnCdCheckBox.Size = new System.Drawing.Size(111, 17);
             this.UsePillarofFrostOnCdCheckBox.TabIndex = 1;
-            this.UsePillarofFrostOnCdCheckBox.Text = "Use Pillar of Frost on Cooldown";
+            this.UsePillarofFrostOnCdCheckBox.Text = "Auto Pillar of Frost";
             this.UsePillarofFrostOnCdCheckBox.UseVisualStyleBackColor = true;
             this.UsePillarofFrostOnCdCheckBox.CheckedChanged += new System.EventHandler(this.UsePillarofFrostOnCdCheckBox_CheckedChanged);
             // 
@@ -390,9 +388,9 @@ namespace ScourgeBloom
             this.GargoyleOnCDcheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
             this.GargoyleOnCDcheckBox.Location = new System.Drawing.Point(6, 19);
             this.GargoyleOnCDcheckBox.Name = "GargoyleOnCDcheckBox";
-            this.GargoyleOnCDcheckBox.Size = new System.Drawing.Size(177, 17);
+            this.GargoyleOnCDcheckBox.Size = new System.Drawing.Size(137, 17);
             this.GargoyleOnCDcheckBox.TabIndex = 0;
-            this.GargoyleOnCDcheckBox.Text = "Summon Gargoyle on Cooldown";
+            this.GargoyleOnCDcheckBox.Text = "Auto Summon Gargoyle";
             this.GargoyleOnCDcheckBox.UseVisualStyleBackColor = true;
             this.GargoyleOnCDcheckBox.CheckedChanged += new System.EventHandler(this.GargoyleOnCDcheckBox_CheckedChanged);
             // 
@@ -1016,95 +1014,35 @@ namespace ScourgeBloom
             // 
             // groupBox35
             // 
-            this.groupBox35.Controls.Add(this.PauseCrKeycomboBox);
-            this.groupBox35.Controls.Add(this.PauseCrModcomboBox);
-            this.groupBox35.Controls.Add(this.label21);
+            this.groupBox35.Controls.Add(this.btnHotkeysPause);
             this.groupBox35.Controls.Add(this.label20);
             this.groupBox35.Location = new System.Drawing.Point(8, 6);
             this.groupBox35.Name = "groupBox35";
-            this.groupBox35.Size = new System.Drawing.Size(179, 149);
+            this.groupBox35.Size = new System.Drawing.Size(558, 149);
             this.groupBox35.TabIndex = 0;
             this.groupBox35.TabStop = false;
             this.groupBox35.Text = "General";
             // 
-            // PauseCrKeycomboBox
+            // btnHotkeysPause
             // 
-            this.PauseCrKeycomboBox.FormattingEnabled = true;
-            this.PauseCrKeycomboBox.Items.AddRange(new object[] {
-            "A",
-            "B",
-            "C",
-            "D",
-            "E",
-            "F",
-            "G",
-            "H",
-            "I",
-            "J",
-            "K",
-            "L",
-            "M",
-            "N",
-            "O",
-            "P",
-            "Q",
-            "R",
-            "S",
-            "T",
-            "U",
-            "V",
-            "W",
-            "X",
-            "Y",
-            "Z",
-            "F1",
-            "F2",
-            "F3",
-            "F4",
-            "F5",
-            "F6",
-            "F7",
-            "F8",
-            "F9",
-            "F10",
-            "F11",
-            "F12"});
-            this.PauseCrKeycomboBox.Location = new System.Drawing.Point(9, 41);
-            this.PauseCrKeycomboBox.Name = "PauseCrKeycomboBox";
-            this.PauseCrKeycomboBox.Size = new System.Drawing.Size(144, 21);
-            this.PauseCrKeycomboBox.TabIndex = 3;
-            this.PauseCrKeycomboBox.SelectedIndexChanged += new System.EventHandler(this.PauseCrKeycomboBox_SelectedIndexChanged);
-            // 
-            // PauseCrModcomboBox
-            // 
-            this.PauseCrModcomboBox.FormattingEnabled = true;
-            this.PauseCrModcomboBox.Items.AddRange(new object[] {
-            "Alt",
-            "Shift",
-            "Ctrl"});
-            this.PauseCrModcomboBox.Location = new System.Drawing.Point(9, 100);
-            this.PauseCrModcomboBox.Name = "PauseCrModcomboBox";
-            this.PauseCrModcomboBox.Size = new System.Drawing.Size(144, 21);
-            this.PauseCrModcomboBox.TabIndex = 2;
-            this.PauseCrModcomboBox.SelectedIndexChanged += new System.EventHandler(this.PauseCrModcomboBox_SelectedIndexChanged);
-            // 
-            // label21
-            // 
-            this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(6, 74);
-            this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(159, 13);
-            this.label21.TabIndex = 1;
-            this.label21.Text = "Pause Combat Routine Modifier:";
+            this.btnHotkeysPause.Location = new System.Drawing.Point(89, 11);
+            this.btnHotkeysPause.Name = "btnHotkeysPause";
+            this.btnHotkeysPause.Size = new System.Drawing.Size(93, 23);
+            this.btnHotkeysPause.TabIndex = 1;
+            this.btnHotkeysPause.Text = "Click to Set";
+            this.btnHotkeysPause.UseVisualStyleBackColor = true;
+            this.btnHotkeysPause.Click += new System.EventHandler(this.btnHotkeysPause_Click);
+            this.btnHotkeysPause.KeyDown += new System.Windows.Forms.KeyEventHandler(this.btnHotkeysPause_KeyDown);
+            this.btnHotkeysPause.KeyUp += new System.Windows.Forms.KeyEventHandler(this.btnHotkeysPause_KeyUp);
             // 
             // label20
             // 
             this.label20.AutoSize = true;
             this.label20.Location = new System.Drawing.Point(6, 16);
             this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(140, 13);
+            this.label20.Size = new System.Drawing.Size(77, 13);
             this.label20.TabIndex = 0;
-            this.label20.Text = "Pause Combat Routine Key:";
+            this.label20.Text = "Pause Hotkey:";
             // 
             // Advanced
             // 
@@ -1646,10 +1584,8 @@ namespace ScourgeBloom
         private CheckBox UseArmyoftheDeadcheckBox;
         private TabPage Hotkeys;
         private GroupBox groupBox35;
-        private Label label21;
         private Label label20;
-        private ComboBox PauseCrModcomboBox;
-        private ComboBox PauseCrKeycomboBox;
         private PictureBox pictureBox1;
+        private Button btnHotkeysPause;
     }
 }

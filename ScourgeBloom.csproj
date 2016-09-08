@@ -108,7 +108,6 @@
     <Compile Include="ScourgeBloomSettings.Designer.cs">
       <DependentUpon>ScourgeBloomSettings.cs</DependentUpon>
     </Compile>
-    <Compile Include="Settings\DeathKnightSettings.cs" />
     <Compile Include="Settings\GeneralSettings.cs" />
     <Compile Include="Utilities\Damage.cs" />
     <Compile Include="Utilities\EventHandlers.cs" />

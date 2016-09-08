@@ -348,13 +348,10 @@ namespace ScourgeBloom.Settings
 
         #region Hotkeys
 
-        [Setting, DefaultValue("Alt"), Category("Hotkeys")]
-        [Browsable(false)]
-        public string ModPauseHotkey { get; set; }
-
-        [Setting, DefaultValue("P"), Category("Hotkeys")]
-        [Browsable(false)]
-        public string PauseHotkey { get; set; }
+        [Setting, DefaultValue(1)] // default Alt = 1
+        public int HotkeyPauseModifier { get; set; }
+        [Setting, DefaultValue("P")]
+        public string HotkeyPauseKey { get; set; }
 
         #endregion Hotkeys
 
