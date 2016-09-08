@@ -17,6 +17,11 @@ namespace ScourgeBloom.Helpers
 {
     public static class Extensions
     {
+        public static bool IsValidCombatUnit(this WoWUnit unit)
+        {
+            return unit != null && unit.IsValid && unit.IsAlive && unit.Attackable;
+        }
+
         /// <summary>
         /// determines if a target is off the ground far enough that you can
         /// reach it with melee spells if standing directly under.

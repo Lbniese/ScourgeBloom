@@ -8,7 +8,6 @@
 
 namespace ScourgeBloom.Helpers
 {
-    // stop pollution of the namespace in random classes
 
     public enum TrinketUsage
     {

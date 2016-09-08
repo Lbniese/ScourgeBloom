@@ -37,7 +37,7 @@ namespace ScourgeBloom
 
         protected static readonly LocalPlayer Me = StyxWoW.Me;
 
-        public static readonly Version Version = new Version(1, 5, 77);
+        public static readonly Version Version = new Version(1, 5, 79);
 
         private static bool _initialized;
 
@@ -178,7 +178,7 @@ namespace ScourgeBloom
                 if (currFps != _lastFps)
                 {
                     _lastFps = currFps;
-                    Logging.WriteDiagnostic("Combat Performance Monitoring: FPS:{ 0} Latency: { 1}, currFps, Latency");
+                    Logging.WriteDiagnostic("Combat Performance Monitoring: FPS: {0} Latency: {1}", currFps, Latency);
                 }
 
                 PollInterval.Reset();

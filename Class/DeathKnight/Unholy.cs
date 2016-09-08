@@ -34,7 +34,7 @@ namespace ScourgeBloom.Class.DeathKnight
 
         private static async Task<bool> PullRoutine()
         {
-            if (Paused || !Me.IsAlive || Globals.Mounted)
+            if (Paused || !Me.IsAlive || Me.IsOnTransport || Me.OnTaxi || Me.InVehicle)
                 return true;
 
             if (Capabilities.IsMovingAllowed || Capabilities.IsFacingAllowed)
@@ -46,19 +46,38 @@ namespace ScourgeBloom.Class.DeathKnight
             if (!Me.GotTarget || !Me.CurrentTarget.IsAlive)
                 return true;
 
+            if (Me.CurrentTarget.IsValidCombatUnit())
+            {
+                if (!Me.CurrentTarget.IsWithinMeleeRangeOf(Me) && Capabilities.IsMovingAllowed)
+                {
+                    //L.infoLog("Tried to pull");
+                    await MovementManager.EnsureMeleeRange(Me.CurrentTarget);
+                }
+
+                if (Capabilities.IsFacingAllowed)
+                {
+                    // check to see if we need to face target
+                    await MovementManager.FaceTarget(Me.CurrentTarget);
+                }
+
+                if (!Me.IsAutoAttacking)
+                {
+                    Lua.DoString("StartAttack()");
+                    return true;
+                }
+
+                if (await Spell.CoCast(S.Outbreak,
+                    GeneralSettings.Instance.AutoAttack && Me.GotTarget &&
+                    Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight &&
+                    Me.IsSafelyFacing(Me.CurrentTarget)))
+                                    return true;
+
+            }
+
             if (await Spell.CoCast(S.Outbreak,
             GeneralSettings.Instance.AutoAttack && Me.GotTarget && Me.CurrentTarget.IsAboveTheGround() &&
             Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight &&
             Me.IsSafelyFacing(Me.CurrentTarget)))
-                return true;
-
-            if (!StyxWoW.Me.GotTarget || !Me.CurrentTarget.CanWeAttack())
-                return false;
-
-            if (await Spell.CoCast(S.Outbreak,
-                GeneralSettings.Instance.AutoAttack && Me.GotTarget &&
-                Me.CurrentTarget.Distance <= 30 && Me.CurrentTarget.InLineOfSight &&
-                Me.IsSafelyFacing(Me.CurrentTarget)))
                 return true;
 
             // Attack if not attacking
@@ -329,13 +348,10 @@ namespace ScourgeBloom.Class.DeathKnight
                 return true;
 
             // call_action_list,name = castigator,if= talent.castigator.enabled & !equipped.132448
-            if (await Castigator(onunit,
-                TalentManager.UnholyCastigator && Me.Inventory.Equipped.Wrist.ItemInfo.Id != 132448))
-                return true;
+            return await Castigator(onunit,
+                TalentManager.UnholyCastigator && Me.Inventory.Equipped.Wrist.ItemInfo.Id != 132448);
 
             //await CommonCoroutines.SleepForLagDuration();
-
-            return false;
         }
 
         #endregion CombatCoroutine

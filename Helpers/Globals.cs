@@ -44,8 +44,8 @@ namespace ScourgeBloom.Helpers
                        !me.HasAura(165803) &&
                        !me.HasAura(178807) &&
                        !me.HasAura(157060) &&
-                       !me.HasAura(157056) &&
-                       (me.Mounted || me.InVehicle);
+                       !me.HasAura(157056) && // Add Reins of the Death Charger
+                       (me.Mounted || me.InVehicle || me.OnTaxi || me.IsOnTransport);
             }
         }
 

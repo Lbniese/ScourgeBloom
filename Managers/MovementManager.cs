@@ -7,14 +7,17 @@
  */
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using Buddy.Coroutines;
 using ScourgeBloom.Helpers;
 using ScourgeBloom.Lists;
 using Styx;
 using Styx.Common;
 using Styx.CommonBot;
+using Styx.CommonBot.Coroutines;
 using Styx.CommonBot.POI;
 using Styx.Pathing;
 using Styx.WoWInternals;
@@ -24,6 +27,33 @@ namespace ScourgeBloom.Managers
 {
     public static class MovementManager
     {
+        private static WoWGuid _lastUnitGuid = WoWGuid.Empty;
+        private static readonly Stopwatch LastTimeFaced = new Stopwatch();
+        public static async Task<bool> FaceTarget(WoWUnit target)
+        {
+            if (target == null || StyxWoW.Me.IsSafelyFacing(target) || !target.IsValidCombatUnit()) { return false; }
+
+            if (!LastTimeFaced.IsRunning || (target.Guid == _lastUnitGuid && LastTimeFaced.ElapsedMilliseconds > 500))
+                Log.WriteLog("Not facing target; will attempt to");
+            target.Face();
+            _lastUnitGuid = target.Guid;
+            if (!LastTimeFaced.IsRunning) { LastTimeFaced.Start(); } else { LastTimeFaced.Restart(); }
+            await Coroutine.Yield();
+            return true;
+        }
+
+        public static async Task<bool> EnsureMeleeRange(WoWUnit target)
+        {
+            if (target == null || StyxWoW.Me.IsWithinMeleeRangeOf(target) || !target.IsValidCombatUnit()) { return false; }
+            Log.WriteLog("Getting in melee range");
+            if (StyxWoW.Me.IsWithinMeleeRangeOf(target) && StyxWoW.Me.IsMoving) { return await CommonCoroutines.StopMoving(); }
+            if (!StyxWoW.Me.IsWithinMeleeRangeOf(target))
+            {
+                await CommonCoroutines.MoveTo(target.RelativeLocation, target.SafeName);
+            }
+            return true;
+        }
+
         private static float Range
             => Math.Max(4f, StyxWoW.Me.CombatReach + 1.3333334f + StyxWoW.Me.CurrentTarget.CombatReach);
 

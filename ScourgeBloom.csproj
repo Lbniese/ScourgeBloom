@@ -72,8 +72,6 @@
     <Compile Include="WoWContextEventArg.cs" />
     <Compile Include="DynamicContext.cs" />
     <Compile Include="Helpers\BehaviorType.cs" />
-    <Compile Include="Helpers\BossMechs.cs" />
-    <Compile Include="Helpers\CastOn.cs" />
     <Compile Include="Helpers\Clusters.cs" />
     <Compile Include="Helpers\ClusterType.cs" />
     <Compile Include="Helpers\CombatLog.cs" />
