@@ -116,6 +116,7 @@ namespace ScourgeBloom.Helpers
             if (unit == null)
                 return false;
 
+            // ReSharper disable once RedundantAssignment
             var canAttack = false;
 
             if (unit.Guid == StyxWoW.Me.CurrentTargetGuid)
@@ -580,17 +581,37 @@ namespace ScourgeBloom.Helpers
 
         #endregion EnemyUnitsMelee
 
-        #region EnemyUnitsNearTarget
+        #region UnfriendlyUnitsNearTarget
 
-        public static IEnumerable<WoWUnit> EnemyUnitsNearTarget(float distance)
+        /// <summary>
+        ///   Gets unfriendly units within *distance* yards of CurrentTarget.
+        /// </summary>
+        /// <param name="distance"> The distance to check from CurrentTarget</param>
+        /// <returns>IEnumerable of WoWUnit in range including CurrentTarget</returns>
+        public static IEnumerable<WoWUnit> UnfriendlyUnitsNearTarget(float distance)
         {
-            var dist = distance*distance;
-            var curTarLocation = StyxWoW.Me.CurrentTarget.Location;
-            return ObjectManager.GetObjectsOfType<WoWUnit>().Where(
-                p => IsValid(p) && p.IsHostile && p.Location.DistanceSquared(curTarLocation) <= dist).ToList();
+            return UnfriendlyUnitsNearTarget(StyxWoW.Me.CurrentTarget, distance);
         }
 
-        #endregion EnemyUnitsNearTarget
+        /// <summary>
+        /// Gets unfriendly units within *distance* yards of *unit*
+        /// </summary>
+        /// <param name="unit">WoWUnit to find targets in range</param>
+        /// <param name="distance">range within WoWUnit of other units</param>
+        /// <returns>IEnumerable of WoWUnit in range including *unit*</returns>
+        public static IEnumerable<WoWUnit> UnfriendlyUnitsNearTarget(WoWUnit unit, float distance)
+        {
+            if (unit == null)
+                return new List<WoWUnit>();
+
+            var distFromTargetSqr = distance * distance;
+            int distFromMe = 40 + (int)distance;
+
+            var curTarLocation = unit.Location;
+            return UnfriendlyUnits(distFromMe).Where(p => p.Location.DistanceSquared(curTarLocation) <= distFromTargetSqr).ToList();
+        }
+
+        #endregion UnfriendlyUnitsNearTarget
 
         #endregion Enemies
 

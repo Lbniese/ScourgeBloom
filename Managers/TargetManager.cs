@@ -23,7 +23,7 @@ namespace ScourgeBloom.Managers
                 _initialunits = ObjectManager.GetObjectsOfType<WoWUnit>(true, false).Where(IsValid).ToList();
                 if (_initialunits.Count != 0 && SpamDelay.IsFinished)
                 {
-                    Log.WritetoFile(Styx.Common.LogLevel.Diagnostic,
+                    Log.WritetoFile(LogLevel.Diagnostic,
                         "TargetManager List: " + _initialunits.Count + " Entries");
                     SpamDelay.Reset();
                 }
@@ -43,7 +43,7 @@ namespace ScourgeBloom.Managers
                    unit.CreatedByUnit == null &&
                    !unit.IsCritter &&
                    !unit.IsPetBattleCritter &&
-                   !Styx.CommonBot.Blacklist.Contains(unit, BlacklistFlags.Combat);
+                   !Blacklist.Contains(unit, BlacklistFlags.Combat);
 
         }
 
@@ -66,53 +66,13 @@ namespace ScourgeBloom.Managers
             }
         }
 
-        public static WoWUnit TankSmartTarget(double distance = 0)
-        {
-            {
-                //First Lets Build a complete List of Possible Targets
-                var AllTargets =
-                    (from t in InitialUnits
-                        where IsValid(t) &&
-                              t.Combat &&
-                              (distance == 0 && Units.InRange(t) || t.Distance <= distance)
-                        select t).ToList();
-                var BestTarget =
-                    (from t in AllTargets
-                        orderby calcaggroweight(t)
-                        //percentage = (int * 100 / total)
-                        select t).FirstOrDefault();
-                if (BestTarget != null && BestTarget.IsValid)
-                    Log.WritetoFile(Styx.Common.LogLevel.Diagnostic,
-                        "Smart Target selected:" + BestTarget.SafeName + "@" + BestTarget.HealthPercent.ToString() +
-                        "HP" + " &" + Math.Round(calcaggroweight(BestTarget)).ToString() + "weight");
-                return BestTarget;
-            }
-        }
-
-        private static double calcaggroweight(WoWUnit unit)
-        {
-            if (unit == null || !unit.IsValid || !unit.IsAlive || !Me.GroupInfo.IsInParty)
-                return 0;
-            double multiplier = 2;
-            if ((Me.GroupInfo.IsInRaid && unit.IsTargetingMyRaidMember) ||
-                (Me.GroupInfo.IsInParty && unit.IsTargetingMyPartyMember))
-                multiplier = 3;
-            //First lets make sure that any fellow groupmates don't have aggro
-            if (HealManager.Tanks.Any(tank => tank.GetThreatInfoFor(unit).ThreatStatus == ThreatStatus.SecurelyTanking))
-                multiplier = 1;
-            return unit.ThreatInfo.RawPercent*multiplier;
-        }
-
-        public static WoWUnit InterruptTarget
-        {
-            get { return InterruptTargets.FirstOrDefault(); }
-        }
+        public static WoWUnit InterruptTarget => InterruptTargets.FirstOrDefault();
 
         public static List<WoWUnit> InterruptTargets
         {
             get
             {
-                return TargetManager.InitialUnits
+                return InitialUnits
                     .Where(unit =>
                         (unit.CastingSpell != null &&
                          unit.CanInterruptCurrentSpellCast) ||
@@ -126,14 +86,13 @@ namespace ScourgeBloom.Managers
         {
             if (!IsValid(StyxWoW.Me.CurrentTarget) && onunit != null && onunit.IsValid && onunit.IsAlive)
             {
-                Log.WriteLog(Styx.Common.LogLevel.Diagnostic, "No Target...Reselecting");
+                Log.WriteLog(LogLevel.Diagnostic, "No Target...Reselecting");
                 onunit.Target();
                 return;
             }
             if (Me.Combat && Me.CurrentTarget != null && !StyxWoW.Me.CurrentTarget.IsAlive)
             {
                 StyxWoW.Me.ClearTarget();
-                return;
             }
         }
 
@@ -155,14 +114,14 @@ namespace ScourgeBloom.Managers
             get { return SmartTarget(true); }
         }
 
-        public static WoWUnit SmartTarget(bool Range = false, double Distance = 40)
+        public static WoWUnit SmartTarget(bool range = false, double distance = 40)
         {
             //First Lets Build a complete List of Possible Targets
-            var AllTargets =
+            var allTargets =
                 (from t in InitialUnits
                     where IsValid(t) &&
-                          Range
-                        ? (t.Distance + t.CombatReach) <= Distance
+                          range
+                        ? (t.Distance + t.CombatReach) <= distance
                         : t.IsWithinMeleeRange &&
                           //If your in a group and not a tank lets not pull anything that isn't already aggroed on us and isn't withing reach.
                           (!Me.GroupInfo.IsInParty || t.IsWithinMeleeRange || t.IsTargetingMeOrPet ||
@@ -172,36 +131,36 @@ namespace ScourgeBloom.Managers
                            HealManager.InitialList.Any(gp => gp.Combat && gp.CurrentTarget == t)) &&
                           t.IsAlive
                     select t).ToList();
-            if (Me.CurrentTarget != null && !AllTargets.Contains(Me.CurrentTarget)) AllTargets.Add(Me.CurrentTarget);
-            WoWUnit BestTarget =
-                (from t in AllTargets
-                    orderby Distance, t.HealthPercent
+            if (Me.CurrentTarget != null && !allTargets.Contains(Me.CurrentTarget)) allTargets.Add(Me.CurrentTarget);
+            WoWUnit bestTarget =
+                (from t in allTargets
+                    orderby distance, t.HealthPercent
                     //percentage = (int * 100 / total)
                     select t).FirstOrDefault();
-            if (BestTarget != null && BestTarget.IsValid)
-                Log.WritetoFile(Styx.Common.LogLevel.Diagnostic,
-                    "Hostile Target selected:" + BestTarget.SafeName + "@" + BestTarget.HealthPercent + "HP@" +
-                    Math.Round(BestTarget.Distance) + "Distance");
-            return BestTarget;
+            if (bestTarget != null && bestTarget.IsValid)
+                Log.WritetoFile(LogLevel.Diagnostic,
+                    "Hostile Target selected:" + bestTarget.SafeName + "@" + bestTarget.HealthPercent + "HP@" +
+                    Math.Round(bestTarget.Distance) + "Distance");
+            return bestTarget;
         }
 
         public static double CountNear(WoWObject unitCenter, float distance)
         {
-            if (!TargetManager.IsValid(unitCenter))
+            if (!IsValid(unitCenter))
                 return 0;
-            return TargetManager.InitialUnits.Count(unit => unit.ThreatInfo.ThreatStatus != ThreatStatus.UnitNotInThreatTable &&
+            return InitialUnits.Count(unit => unit.ThreatInfo.ThreatStatus != ThreatStatus.UnitNotInThreatTable &&
                                                          unitCenter.Location.Distance(unit.Location) <= distance);
 
         }
 
         public static double CountUnitsTargetingMe()
         {
-            return TargetManager.InitialUnits.Count(unit => unit.IsTargetingMeOrPet);
+            return InitialUnits.Count(unit => unit.IsTargetingMeOrPet);
         }
 
-        public static IEnumerable<WoWUnit> HasAura(string Aura, float range = 40)
+        public static IEnumerable<WoWUnit> HasAura(string aura, float range = 40)
         {
-            return TargetManager.InitialUnits.Where(unit => unit.HasAura(Aura));
+            return InitialUnits.Where(unit => unit.HasAura(aura));
         }
     }
 }

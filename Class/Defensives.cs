@@ -21,14 +21,14 @@ namespace ScourgeBloom.Class
             if (!Capabilities.IsCooldownUsageAllowed)
                 return false;
 
-            await Spell.CoCast(SpellLists.AntiMagicShell, Me,
-                Units.EnemyUnitsNearTarget(10)
-                    .Any(u => (u.IsCasting || u.ChanneledCastingSpellId != 0) && u.CurrentTargetGuid == Me.Guid) &&
-                Capabilities.IsCooldownUsageAllowed && GeneralSettings.UseAms);
+            if (await Spell.CoCast(SpellLists.AntiMagicShell, Me,
+                Units.UnfriendlyUnitsNearTarget(10).Any(u => (u.IsCasting || u.ChanneledCastingSpellId != 0) && u.CurrentTargetGuid == Me.Guid) &&
+                Capabilities.IsCooldownUsageAllowed && GeneralSettings.UseAms))
+                return true;
 
-            await Spell.CoCast(SpellLists.IceboundFortitude, Me,
+            if (await Spell.CoCast(SpellLists.IceboundFortitude, Me,
                 Me.HealthPercent < GeneralSettings.UseIceBoundFortitudeHp &&
-                GeneralSettings.UseIceBoundFortitude && Capabilities.IsCooldownUsageAllowed);
+                GeneralSettings.UseIceBoundFortitude && Capabilities.IsCooldownUsageAllowed)) return true;
 
             if (await Spell.CoCast(SpellLists.DeathStrike,
                 Me.GotTarget && Me.CurrentTarget.CanWeAttack() && Me.CurrentTarget.IsWithinMeleeRange &&
