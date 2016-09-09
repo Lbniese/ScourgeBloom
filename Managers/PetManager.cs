@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ScourgeBloom.Helpers;
 using Styx;
+using Styx.Common;
 using Styx.Common.Helpers;
 using Styx.CommonBot;
 using Styx.WoWInternals;
@@ -35,7 +36,6 @@ namespace ScourgeBloom.Managers
             };
 
             // force us to check initially upon load
-
         }
 
         public static bool HavePet => StyxWoW.Me.GotAlivePet;
@@ -66,24 +66,24 @@ namespace ScourgeBloom.Managers
                     // .. as initial load happens before Me.PetSpells is initialized and we were saving 'null' spells
                     if (StyxWoW.Me.PetSpells.Any(s => s.Spell != null))
                     {
-
                         // Cache the list. yea yea, we should just copy it, but I'd rather have shallow copies of each object, rather than a copy of the list.
                         PetSpells.AddRange(StyxWoW.Me.PetSpells);
                         PetSummonAfterDismountTimer.Reset();
                         _petGuid = StyxWoW.Me.Pet.Guid;
 
-                        Log.WriteLog(Styx.Common.LogLevel.Diagnostic, "---PetSpells Loaded---");
+                        Log.WriteLog(LogLevel.Diagnostic, "---PetSpells Loaded---");
                         foreach (var sp in PetSpells)
                         {
                             if (sp.Spell == null)
-                                Log.WriteLog(Styx.Common.LogLevel.Diagnostic, string.Format("   {0} spell={1}  Action={0}", sp.ActionBarIndex, sp.ToString(), sp.Action.ToString()));
+                                Log.WriteLog(LogLevel.Diagnostic,
+                                    string.Format("   {0} spell={1}  Action={0}", sp.ActionBarIndex, sp, sp.Action));
                             else
-                                Log.WriteLog(Styx.Common.LogLevel.Diagnostic, string.Format("   {0} spell={1} #{2}", sp.ActionBarIndex, sp.ToString(), sp.Spell.Id));
+                                Log.WriteLog(LogLevel.Diagnostic,
+                                    string.Format("   {0} spell={1} #{2}", sp.ActionBarIndex, sp, sp.Spell.Id));
                         }
-                        Log.WriteLog(Styx.Common.LogLevel.Diagnostic, " ");
+                        Log.WriteLog(LogLevel.Diagnostic, " ");
                     }
                 }
-
             }
 
             if (!StyxWoW.Me.GotAlivePet)
@@ -94,7 +94,7 @@ namespace ScourgeBloom.Managers
 
         public static bool CanCastPetAction(string action)
         {
-            WoWPetSpell petAction = PetSpells.FirstOrDefault(p => p.ToString() == action);
+            var petAction = PetSpells.FirstOrDefault(p => p.ToString() == action);
             if (petAction == null || petAction.Spell == null)
             {
                 return false;
@@ -105,13 +105,14 @@ namespace ScourgeBloom.Managers
 
         public static void CastPetAction(string action)
         {
-            WoWPetSpell spell = PetSpells.FirstOrDefault(p => p.ToString() == action);
+            var spell = PetSpells.FirstOrDefault(p => p.ToString() == action);
             if (spell == null)
                 return;
 
             Log.WriteLog(string.Format("[Pet] Casting {0}", action));
             Lua.DoString("CastPetAction({0})", spell.ActionBarIndex + 1);
         }
+
         public static void CastPetAction(string action, WoWUnit on)
         {
             // target is currenttarget, then use simplified version (to avoid setfocus/setfocus
@@ -121,27 +122,26 @@ namespace ScourgeBloom.Managers
                 return;
             }
 
-            WoWPetSpell spell = PetSpells.FirstOrDefault(p => p.ToString() == action);
+            var spell = PetSpells.FirstOrDefault(p => p.ToString() == action);
             if (spell == null)
                 return;
 
             Log.WriteLog(string.Format("[Pet] Casting {0} on {1}", action, on.SafeName()));
-            WoWUnit save = StyxWoW.Me.FocusedUnit;
+            var save = StyxWoW.Me.FocusedUnit;
             StyxWoW.Me.SetFocus(on);
             Lua.DoString("CastPetAction({0}, 'focus')", spell.ActionBarIndex + 1);
             StyxWoW.Me.SetFocus(save == null ? WoWGuid.Empty : save.Guid);
         }
 
         /// <summary>
-        /// behavior form of CastPetAction().  note that this Composite will return RunStatus.Success
-        /// if it appears the ability was cast.  this is to trip the Throttle wrapping it internally
-        /// -and- to allow cascaded sequences of Pet Abilities.  Note: Pet Abilities are not on the
-        /// GCD, so you can safely allow execution to continue even on Success
+        ///     behavior form of CastPetAction().  note that this Composite will return RunStatus.Success
+        ///     if it appears the ability was cast.  this is to trip the Throttle wrapping it internally
+        ///     -and- to allow cascaded sequences of Pet Abilities.  Note: Pet Abilities are not on the
+        ///     GCD, so you can safely allow execution to continue even on Success
         /// </summary>
         /// <param name="action">pet ability</param>
         /// <param name="onUnit">unit deleg to cast on (null if current target)</param>
         /// <returns></returns>
-
         public static void EnableActionAutocast(string action)
         {
             var spell = PetSpells.FirstOrDefault(p => p.ToString() == action);
@@ -150,27 +150,30 @@ namespace ScourgeBloom.Managers
 
             var index = spell.ActionBarIndex + 1;
             Log.WriteLog(string.Format("[Pet] Enabling autocast for {0}", action, index));
-            Lua.DoString("local index = " + index + " if not select(6, GetPetActionInfo(index)) then TogglePetAutocast(index) end");
+            Lua.DoString("local index = " + index +
+                         " if not select(6, GetPetActionInfo(index)) then TogglePetAutocast(index) end");
         }
 
         /// <summary>
-        ///   Calls a pet by name, if applicable.
+        ///     Calls a pet by name, if applicable.
         /// </summary>
         /// <remarks>
-        ///   Created 2/7/2011.
+        ///     Created 2/7/2011.
         /// </remarks>
-        /// <param name = "petName">Name of the pet. This parameter is ignored for mages. Warlocks should pass only the name of the pet. Hunters should pass which pet (1, 2, etc)</param>
+        /// <param name="petName">
+        ///     Name of the pet. This parameter is ignored for mages. Warlocks should pass only the name of the
+        ///     pet. Hunters should pass which pet (1, 2, etc)
+        /// </param>
         /// <returns>true if it succeeds, false if it fails.</returns>
-
         public static bool IsAutoCast(int id, out bool allowed)
         {
-            WoWPetSpell ps = StyxWoW.Me.PetSpells.FirstOrDefault(s => s.Spell != null && s.Spell.Id == id);
+            var ps = StyxWoW.Me.PetSpells.FirstOrDefault(s => s.Spell != null && s.Spell.Id == id);
             return IsAutoCast(ps, out allowed);
         }
 
         public static bool IsAutoCast(string action, out bool allowed)
         {
-            WoWPetSpell ps = StyxWoW.Me.PetSpells.FirstOrDefault(s => s.ToString() == action);
+            var ps = StyxWoW.Me.PetSpells.FirstOrDefault(s => s.ToString() == action);
             return IsAutoCast(ps, out allowed);
         }
 
@@ -180,17 +183,16 @@ namespace ScourgeBloom.Managers
             if (ps != null)
             {
                 // action bar index base 0 in HB but base 1 in LUA, so adjust
-                List<string> svals = Lua.GetReturnValues("return GetPetActionInfo(" + (ps.ActionBarIndex + 1) + ");");
+                var svals = Lua.GetReturnValues("return GetPetActionInfo(" + (ps.ActionBarIndex + 1) + ");");
                 if (svals != null && svals.Count >= 7)
                 {
-                    allowed = ("1" == svals[5]);
-                    bool active = ("1" == svals[6]);
+                    allowed = "1" == svals[5];
+                    var active = "1" == svals[6];
                     return active;
                 }
             }
 
             return false;
         }
-
     }
 }

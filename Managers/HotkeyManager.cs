@@ -30,27 +30,32 @@ namespace ScourgeBloom.Managers
         public static void RegisterHotKeys()
         {
             if (KeysRegistered) return;
-            TypeConverter converter = TypeDescriptor.GetConverter(typeof(Keys));
+            var converter = TypeDescriptor.GetConverter(typeof (Keys));
             // Pause
-            if (!string.IsNullOrEmpty(GeneralSettings.Instance.HotkeyPauseKey) && GeneralSettings.Instance.HotkeyPauseModifier > 0)
+            if (!string.IsNullOrEmpty(GeneralSettings.Instance.HotkeyPauseKey) &&
+                GeneralSettings.Instance.HotkeyPauseModifier > 0)
             {
                 // ReSharper disable once PossibleNullReferenceException
-                HotkeysManager.Register("PauseHotkey", (Keys)converter.ConvertFromString(GeneralSettings.Instance.HotkeyPauseKey), (ModifierKeys)GeneralSettings.Instance.HotkeyPauseModifier, ret =>
-                {
-                    PauseOn = !PauseOn;
-                    Lua.DoString(PauseOn
-                        ? @"print('Pause: \124cFF15E61C Enabled!')"
-                        : @"print('Pause: \124cFFE61515 Disabled!')");
-                });
+                HotkeysManager.Register("PauseHotkey",
+                    (Keys) converter.ConvertFromString(GeneralSettings.Instance.HotkeyPauseKey),
+                    (ModifierKeys) GeneralSettings.Instance.HotkeyPauseModifier, ret =>
+                    {
+                        PauseOn = !PauseOn;
+                        Lua.DoString(PauseOn
+                            ? @"print('Pause: \124cFF15E61C Enabled!')"
+                            : @"print('Pause: \124cFFE61515 Disabled!')");
+                    });
             }
 
             Log.WriteLog(LogLevel.Normal, " " + "\r\n");
             // ReSharper disable once PossibleNullReferenceException
-            Log.WriteLog(LogLevel.Normal, "Pause Key: " + (ModifierKeys)GeneralSettings.Instance.HotkeyPauseModifier + "+ " + (Keys)converter.ConvertFromString(GeneralSettings.Instance.HotkeyPauseKey));
+            Log.WriteLog(LogLevel.Normal,
+                "Pause Key: " + (ModifierKeys) GeneralSettings.Instance.HotkeyPauseModifier + "+ " +
+                (Keys) converter.ConvertFromString(GeneralSettings.Instance.HotkeyPauseKey));
 
 
             KeysRegistered = true;
-            StyxWoW.Overlay.AddToast(("Hotkeys: Registered!"), 2000);
+            StyxWoW.Overlay.AddToast("Hotkeys: Registered!", 2000);
             Logging.Write(Colors.Purple, "Hotkeys: Registered!");
         }
 
@@ -68,6 +73,5 @@ namespace ScourgeBloom.Managers
         }
 
         #endregion General
-
     }
 }

@@ -22,7 +22,8 @@ namespace ScourgeBloom.Class
                 return false;
 
             if (await Spell.CoCast(SpellLists.AntiMagicShell, Me,
-                Units.UnfriendlyUnitsNearTarget(10).Any(u => (u.IsCasting || u.ChanneledCastingSpellId != 0) && u.CurrentTargetGuid == Me.Guid) &&
+                Units.UnfriendlyUnitsNearTarget(10)
+                    .Any(u => (u.IsCasting || u.ChanneledCastingSpellId != 0) && u.CurrentTargetGuid == Me.Guid) &&
                 Capabilities.IsCooldownUsageAllowed && GeneralSettings.UseAms))
                 return true;
 

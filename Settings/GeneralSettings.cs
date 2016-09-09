@@ -29,7 +29,7 @@ namespace ScourgeBloom.Settings
         {
         }
 
-        [Setting, DefaultValue(false), Category("Behaviour")]
+        [Setting, Styx.Helpers.DefaultValue(false), Category("Behaviour")]
         [Browsable(true)]
         public bool Targeting { get; set; }
 
@@ -308,53 +308,6 @@ namespace ScourgeBloom.Settings
             )]
         public static bool TargetWorldPvpRegardless { get; set; }
 
-        #region Resting
-
-        [Setting, DefaultValue(true), Category("Resting")]
-        [Browsable(true)]
-        [ReadOnly(false)]
-        public bool RestingEatFood { get; set; }
-
-        [Setting, DefaultValue(60), Category("Resting")]
-        [Browsable(true)]
-        [ReadOnly(false)]
-        public int RestingEatFoodHp { get; set; }
-
-        #endregion Resting
-
-        #region Healing Tonic
-
-        [Setting, DefaultValue(true)]
-        [Browsable(false)]
-        public bool HealingTonicUse { get; set; }
-
-        [Setting, DefaultValue(50)]
-        [Browsable(false)]
-        public int HealingTonicHp { get; set; }
-
-        #endregion Healing Tonic
-
-        #region Healthstones
-
-        [Setting, DefaultValue(true)]
-        [Browsable(false)]
-        public bool HealthstoneUse { get; set; }
-
-        [Setting, DefaultValue(50)]
-        [Browsable(false)]
-        public int HealthstoneHp { get; set; }
-
-        #endregion
-
-        #region Hotkeys
-
-        [Setting, DefaultValue(1)] // default Alt = 1
-        public int HotkeyPauseModifier { get; set; }
-        [Setting, DefaultValue("P")]
-        public string HotkeyPauseKey { get; set; }
-
-        #endregion Hotkeys
-
         [Setting, DefaultValue(false), Category("Behaviour")]
         [Browsable(false)]
         public static bool DeathGrip { get; set; }
@@ -423,6 +376,54 @@ namespace ScourgeBloom.Settings
         [Setting, DefaultValue(true)]
         [Browsable(false)]
         public static bool BosBerserking { get; set; }
+
+        #region Resting
+
+        [Setting, DefaultValue(true), Category("Resting")]
+        [Browsable(true)]
+        [ReadOnly(false)]
+        public bool RestingEatFood { get; set; }
+
+        [Setting, DefaultValue(60), Category("Resting")]
+        [Browsable(true)]
+        [ReadOnly(false)]
+        public int RestingEatFoodHp { get; set; }
+
+        #endregion Resting
+
+        #region Healing Tonic
+
+        [Setting, DefaultValue(true)]
+        [Browsable(false)]
+        public bool HealingTonicUse { get; set; }
+
+        [Setting, DefaultValue(50)]
+        [Browsable(false)]
+        public int HealingTonicHp { get; set; }
+
+        #endregion Healing Tonic
+
+        #region Healthstones
+
+        [Setting, DefaultValue(true)]
+        [Browsable(false)]
+        public bool HealthstoneUse { get; set; }
+
+        [Setting, DefaultValue(50)]
+        [Browsable(false)]
+        public int HealthstoneHp { get; set; }
+
+        #endregion
+
+        #region Hotkeys
+
+        [Setting, DefaultValue(1)] // default Alt = 1
+        public int HotkeyPauseModifier { get; set; }
+
+        [Setting, DefaultValue("P")]
+        public string HotkeyPauseKey { get; set; }
+
+        #endregion Hotkeys
 
         #region Mind Freeze
 

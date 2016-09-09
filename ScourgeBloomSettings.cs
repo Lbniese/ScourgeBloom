@@ -169,7 +169,8 @@ namespace ScourgeBloom
 
         private void HotkeysLoad()
         {
-            LoadButtonText(GeneralSettings.Instance.HotkeyPauseModifier, GeneralSettings.Instance.HotkeyPauseKey, btnHotkeysPause);
+            LoadButtonText(GeneralSettings.Instance.HotkeyPauseModifier, GeneralSettings.Instance.HotkeyPauseKey,
+                btnHotkeysPause);
         }
 
         private void ItemsLoad()
@@ -183,26 +184,67 @@ namespace ScourgeBloom
 
         private void LoadButtonText(int modifierKey, string key, Button btn)
         {
-            if (modifierKey <= 0 || string.IsNullOrEmpty(key)) { btn.Text = "Click to Set"; return; }
+            if (modifierKey <= 0 || string.IsNullOrEmpty(key))
+            {
+                btn.Text = "Click to Set";
+                return;
+            }
 
-            bool shift = false;
-            bool alt = false;
-            bool ctrl = false;
+            var shift = false;
+            var alt = false;
+            var ctrl = false;
 
             // singles
-            if (modifierKey == (int)Styx.Common.ModifierKeys.Alt) { alt = true; shift = false; ctrl = false; }
-            if (modifierKey == (int)Styx.Common.ModifierKeys.Shift) { alt = false; shift = true; ctrl = false; }
-            if (modifierKey == (int)Styx.Common.ModifierKeys.Control) { alt = false; shift = false; ctrl = true; }
+            if (modifierKey == (int) Styx.Common.ModifierKeys.Alt)
+            {
+                alt = true;
+                shift = false;
+                ctrl = false;
+            }
+            if (modifierKey == (int) Styx.Common.ModifierKeys.Shift)
+            {
+                alt = false;
+                shift = true;
+                ctrl = false;
+            }
+            if (modifierKey == (int) Styx.Common.ModifierKeys.Control)
+            {
+                alt = false;
+                shift = false;
+                ctrl = true;
+            }
 
             // doubles
-            if (modifierKey == (int)Styx.Common.ModifierKeys.Alt + (int)Styx.Common.ModifierKeys.Control) { alt = true; shift = false; ctrl = true; }
-            if (modifierKey == (int)Styx.Common.ModifierKeys.Alt + (int)Styx.Common.ModifierKeys.Shift) { alt = true; shift = true; ctrl = false; }
-            if (modifierKey == (int)Styx.Common.ModifierKeys.Control + (int)Styx.Common.ModifierKeys.Shift) { alt = false; shift = true; ctrl = true; }
+            if (modifierKey == (int) Styx.Common.ModifierKeys.Alt + (int) Styx.Common.ModifierKeys.Control)
+            {
+                alt = true;
+                shift = false;
+                ctrl = true;
+            }
+            if (modifierKey == (int) Styx.Common.ModifierKeys.Alt + (int) Styx.Common.ModifierKeys.Shift)
+            {
+                alt = true;
+                shift = true;
+                ctrl = false;
+            }
+            if (modifierKey == (int) Styx.Common.ModifierKeys.Control + (int) Styx.Common.ModifierKeys.Shift)
+            {
+                alt = false;
+                shift = true;
+                ctrl = true;
+            }
 
             // one triple
-            if (modifierKey == (int)Styx.Common.ModifierKeys.Alt + (int)Styx.Common.ModifierKeys.Control + (int)Styx.Common.ModifierKeys.Shift) { alt = true; shift = true; ctrl = true; }
+            if (modifierKey ==
+                (int) Styx.Common.ModifierKeys.Alt + (int) Styx.Common.ModifierKeys.Control +
+                (int) Styx.Common.ModifierKeys.Shift)
+            {
+                alt = true;
+                shift = true;
+                ctrl = true;
+            }
             //MessageBox.Show("shift:" + shift.ToString() + ", alt:" + alt.ToString() + ", ctrl:" + ctrl.ToString());
-            string btnText = GetKeyModifierText(alt, shift, ctrl, key);
+            var btnText = GetKeyModifierText(alt, shift, ctrl, key);
             btn.Text = btnText;
         }
 
@@ -671,31 +713,68 @@ namespace ScourgeBloom
             btnHotkeysPause.Text = "";
         }
 
-                #region Hotkey Methods
+        private void btnHotkeysPause_KeyDown(object sender, KeyEventArgs e)
+        {
+            CheckIfKeyPressed(e);
+            btnHotkeysPause.Text = GetKeyModifierText();
+        }
 
-        private bool captureKeyPress = false;
-        private bool controlPressed = false;
-        private bool altPressed = false;
-        private bool shiftPressed = false;
+        private void btnHotkeysPause_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+            {
+                ClearButtonHotkey(btnHotkeysPause, KeybindTypes.Pause);
+                return;
+            }
+            if (DidPressCorrectKey())
+            {
+                GeneralSettings.Instance.HotkeyPauseKey = keyPressed;
+                GeneralSettings.Instance.HotkeyPauseModifier = GetKeyModifierPressed();
+            }
+            ResetKeys();
+        }
+
+        #region Hotkey Methods
+
+        private bool captureKeyPress;
+        private bool controlPressed;
+        private bool altPressed;
+        private bool shiftPressed;
         private string keyPressed = "";
+
         private void CheckIfKeyPressed(KeyEventArgs e)
         {
             if (captureKeyPress)
             {
-                if (e.Alt) { altPressed = true; }
-                if (e.Control) { controlPressed = true; }
-                if (e.Shift) { shiftPressed = true; }
-                bool isLetterOrDigit = char.IsLetterOrDigit((char)e.KeyCode);
-                if (isLetterOrDigit) { keyPressed = new KeysConverter().ConvertToString(e.KeyCode); }
+                if (e.Alt)
+                {
+                    altPressed = true;
+                }
+                if (e.Control)
+                {
+                    controlPressed = true;
+                }
+                if (e.Shift)
+                {
+                    shiftPressed = true;
+                }
+                var isLetterOrDigit = char.IsLetterOrDigit((char) e.KeyCode);
+                if (isLetterOrDigit)
+                {
+                    keyPressed = new KeysConverter().ConvertToString(e.KeyCode);
+                }
             }
         }
+
         private enum KeybindTypes
         {
             Pause
         }
+
         private void ClearButtonHotkey(Button btn, KeybindTypes kbType)
         {
-            btn.Text = "Click to Set"; ResetKeys();
+            btn.Text = "Click to Set";
+            ResetKeys();
             if (kbType == KeybindTypes.Pause)
             {
                 GeneralSettings.Instance.HotkeyPauseKey = "";
@@ -703,6 +782,7 @@ namespace ScourgeBloom
             }
             ResetKeys();
         }
+
         private void ResetKeys()
         {
             captureKeyPress = false;
@@ -711,12 +791,14 @@ namespace ScourgeBloom
             shiftPressed = false;
             keyPressed = "";
         }
+
         private string GetKeyModifierText()
         {
-            string text = "";
-            if ((altPressed || controlPressed || shiftPressed) && !String.IsNullOrEmpty(keyPressed))
+            var text = "";
+            if ((altPressed || controlPressed || shiftPressed) && !string.IsNullOrEmpty(keyPressed))
             {
                 #region Control + other stuff
+
                 if (controlPressed && !altPressed && !shiftPressed)
                 {
                     return string.Format($"Ctrl + {keyPressed.ToUpper()}");
@@ -733,7 +815,8 @@ namespace ScourgeBloom
                 {
                     return string.Format($"Ctrl + Alt + Shift + {keyPressed.ToUpper()}");
                 }
-                #endregion  
+
+                #endregion
 
                 if (!controlPressed && altPressed && !shiftPressed)
                 {
@@ -753,10 +836,11 @@ namespace ScourgeBloom
 
         private string GetKeyModifierText(bool alt, bool shift, bool ctrl, string key)
         {
-            string text = "";
-            if ((alt || ctrl || shift) && !String.IsNullOrEmpty(key))
+            var text = "";
+            if ((alt || ctrl || shift) && !string.IsNullOrEmpty(key))
             {
                 #region Control + other stuff
+
                 if (ctrl && !alt && !shift)
                 {
                     return string.Format($"Ctrl + {key.ToUpper()}");
@@ -773,7 +857,8 @@ namespace ScourgeBloom
                 {
                     return string.Format($"Ctrl + Alt + Shift + {key.ToUpper()}");
                 }
-                #endregion  
+
+                #endregion
 
                 if (!ctrl && alt && !shift)
                 {
@@ -807,31 +892,24 @@ namespace ScourgeBloom
         {
             if (altPressed || controlPressed || shiftPressed)
             {
-                int modifierKey = 0;
-                if (altPressed) { modifierKey += (int)Styx.Common.ModifierKeys.Alt; }
-                if (controlPressed) { modifierKey += (int)Styx.Common.ModifierKeys.Control; }
-                if (shiftPressed) { modifierKey += (int)Styx.Common.ModifierKeys.Shift; }
+                var modifierKey = 0;
+                if (altPressed)
+                {
+                    modifierKey += (int) Styx.Common.ModifierKeys.Alt;
+                }
+                if (controlPressed)
+                {
+                    modifierKey += (int) Styx.Common.ModifierKeys.Control;
+                }
+                if (shiftPressed)
+                {
+                    modifierKey += (int) Styx.Common.ModifierKeys.Shift;
+                }
                 return modifierKey;
             }
             return 0;
         }
+
         #endregion
-
-        private void btnHotkeysPause_KeyDown(object sender, KeyEventArgs e)
-        {
-            CheckIfKeyPressed(e);
-            btnHotkeysPause.Text = GetKeyModifierText();
-        }
-
-        private void btnHotkeysPause_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Escape) { ClearButtonHotkey(btnHotkeysPause, KeybindTypes.Pause); return; }
-            if (DidPressCorrectKey())
-            {
-                GeneralSettings.Instance.HotkeyPauseKey = keyPressed;
-                GeneralSettings.Instance.HotkeyPauseModifier = GetKeyModifierPressed();
-            }
-            ResetKeys();
-        }
     }
 }

@@ -149,7 +149,7 @@ namespace ScourgeBloom.Helpers
         }
 
         /// <summary>
-        /// get melee distance between two units
+        ///     get melee distance between two units
         /// </summary>
         /// <param name="unit">unit</param>
         /// <param name="other">Me if null, otherwise second unit</param>
@@ -183,10 +183,7 @@ namespace ScourgeBloom.Helpers
 
         public static float MeleeRange
         {
-            get
-            {
-                return StyxWoW.Me.CurrentTarget.MeleeDistance();
-            }
+            get { return StyxWoW.Me.CurrentTarget.MeleeDistance(); }
         }
 
         public static bool CastPrimative(string spellName)

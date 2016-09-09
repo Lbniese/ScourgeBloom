@@ -96,7 +96,6 @@ namespace ScourgeBloom.Utilities
             if (RoutineManager.Current == null ||
                 RoutineManager.Current.Name != ScourgeBloom.GetScourgeBloomRoutineName())
                 return;
-
         }
 
         public static bool IsPathErrorTarget(this WoWUnit unit)

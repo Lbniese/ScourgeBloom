@@ -23,8 +23,8 @@ namespace ScourgeBloom.Helpers
         }
 
         /// <summary>
-        /// determines if a target is off the ground far enough that you can
-        /// reach it with melee spells if standing directly under.
+        ///     determines if a target is off the ground far enough that you can
+        ///     reach it with melee spells if standing directly under.
         /// </summary>
         /// <param name="u">unit</param>
         /// <returns>true if above melee reach</returns>
@@ -33,9 +33,9 @@ namespace ScourgeBloom.Helpers
             // temporary change while working out issues with using mesh to check if off ground
             // return !Styx.Pathing.Navigator.CanNavigateFully(StyxWoW.Me.Location, u.Location);
 
-            float height = HeightOffTheGround(u);
+            var height = HeightOffTheGround(u);
             if (height == float.MaxValue)
-                return false;   // make this true if better to assume aerial 
+                return false; // make this true if better to assume aerial 
 
             if (height >= StyxWoW.Me.MeleeDistance(u))
                 return true;
@@ -44,16 +44,17 @@ namespace ScourgeBloom.Helpers
         }
 
         /// <summary>
-        /// calculate a unit's vertical distance (height) above ground level (mesh).  this is the units position
-        /// relative to the ground and is independent of any other character.  note: this isn't actually the ground,
-        /// it's the height from the mesh and the mesh is not guarranteed to be flush with the terrain (which is why we add the +2f)
+        ///     calculate a unit's vertical distance (height) above ground level (mesh).  this is the units position
+        ///     relative to the ground and is independent of any other character.  note: this isn't actually the ground,
+        ///     it's the height from the mesh and the mesh is not guarranteed to be flush with the terrain (which is why we add the
+        ///     +2f)
         /// </summary>
         /// <param name="u">unit</param>
         /// <returns>float.MinValue if can't determine, otherwise distance off ground</returns>
         public static float HeightOffTheGround(this WoWUnit u)
         {
             var unitLoc = new Vector3(u.Location.X, u.Location.Y, u.Location.Z);
-            float zBelow = u.FindGroundBelow();
+            var zBelow = u.FindGroundBelow();
             if (zBelow == float.MaxValue)
                 return float.MaxValue;
 
@@ -61,7 +62,7 @@ namespace ScourgeBloom.Helpers
         }
 
         /// <summary>
-        /// calculate the Z of ground below unit.
+        ///     calculate the Z of ground below unit.
         /// </summary>
         /// <param name="unit">unit to query</param>
         /// <returns>float.MaxValue if non-deterministic, otherwise Z of ground</returns>

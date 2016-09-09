@@ -5,6 +5,7 @@ using ScourgeBloom.Helpers;
 using ScourgeBloom.Lists;
 using Styx;
 using Styx.Common;
+using Styx.Common.Helpers;
 using Styx.CommonBot;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
@@ -13,7 +14,7 @@ namespace ScourgeBloom.Managers
 {
     internal class TargetManager : ScourgeBloom
     {
-        public static Styx.Common.Helpers.WaitTimer SpamDelay = Styx.Common.Helpers.WaitTimer.OneSecond;
+        public static WaitTimer SpamDelay = WaitTimer.OneSecond;
         private static List<WoWUnit> _initialunits = new List<WoWUnit>();
 
         public static List<WoWUnit> InitialUnits
@@ -31,36 +32,13 @@ namespace ScourgeBloom.Managers
             }
         }
 
-        public static bool IsValid(WoWUnit unit)
-        {
-            if (unit == null ||
-                !unit.IsValid)
-                return false;
-            return unit.CanSelect &&
-                   unit.Attackable &&
-                   !unit.IsFriendly &&
-                   !unit.IsPet &&
-                   unit.CreatedByUnit == null &&
-                   !unit.IsCritter &&
-                   !unit.IsPetBattleCritter &&
-                   !Blacklist.Contains(unit, BlacklistFlags.Combat);
-
-        }
-
-        public static bool IsValid(WoWObject o)
-        {
-            if (o == null ||
-                !o.IsValid)
-                return false;
-            return true;
-        }
-
         public static WoWUnit NeedTaunt
         {
             get
             {
                 return InitialUnits.Where(unit =>
-                    HealManager.Tanks.All(tank => tank.GetThreatInfoFor(unit).ThreatStatus != ThreatStatus.SecurelyTanking))
+                    HealManager.Tanks.All(
+                        tank => tank.GetThreatInfoFor(unit).ThreatStatus != ThreatStatus.SecurelyTanking))
                     .OrderBy(unit => unit.ThreatInfo.ThreatValue)
                     .FirstOrDefault();
             }
@@ -82,6 +60,51 @@ namespace ScourgeBloom.Managers
             }
         }
 
+        public static bool BossFight
+        {
+            get
+            {
+                return
+                    InitialUnits.Count(
+                        unit =>
+                            unit.IsBoss && unit.Classification == WoWUnitClassificationType.Elite && unit.Distance < 40) !=
+                    0;
+            }
+        }
+
+        public static WoWUnit MeleeTarget
+        {
+            get { return SmartTarget(); }
+        }
+
+        public static WoWUnit RangeTarget
+        {
+            get { return SmartTarget(true); }
+        }
+
+        public static bool IsValid(WoWUnit unit)
+        {
+            if (unit == null ||
+                !unit.IsValid)
+                return false;
+            return unit.CanSelect &&
+                   unit.Attackable &&
+                   !unit.IsFriendly &&
+                   !unit.IsPet &&
+                   unit.CreatedByUnit == null &&
+                   !unit.IsCritter &&
+                   !unit.IsPetBattleCritter &&
+                   !Blacklist.Contains(unit, BlacklistFlags.Combat);
+        }
+
+        public static bool IsValid(WoWObject o)
+        {
+            if (o == null ||
+                !o.IsValid)
+                return false;
+            return true;
+        }
+
         public static void EnsureTarget(WoWUnit onunit)
         {
             if (!IsValid(StyxWoW.Me.CurrentTarget) && onunit != null && onunit.IsValid && onunit.IsAlive)
@@ -96,24 +119,6 @@ namespace ScourgeBloom.Managers
             }
         }
 
-        public static bool BossFight
-        {
-            get
-            {
-                return InitialUnits.Count(unit => unit.IsBoss && unit.Classification == WoWUnitClassificationType.Elite && unit.Distance < 40) != 0;
-            }
-        }
-
-        public static WoWUnit MeleeTarget
-        {
-            get { return SmartTarget(); }
-        }
-
-        public static WoWUnit RangeTarget
-        {
-            get { return SmartTarget(true); }
-        }
-
         public static WoWUnit SmartTarget(bool range = false, double distance = 40)
         {
             //First Lets Build a complete List of Possible Targets
@@ -121,7 +126,7 @@ namespace ScourgeBloom.Managers
                 (from t in InitialUnits
                     where IsValid(t) &&
                           range
-                        ? (t.Distance + t.CombatReach) <= distance
+                        ? t.Distance + t.CombatReach <= distance
                         : t.IsWithinMeleeRange &&
                           //If your in a group and not a tank lets not pull anything that isn't already aggroed on us and isn't withing reach.
                           (!Me.GroupInfo.IsInParty || t.IsWithinMeleeRange || t.IsTargetingMeOrPet ||
@@ -132,7 +137,7 @@ namespace ScourgeBloom.Managers
                           t.IsAlive
                     select t).ToList();
             if (Me.CurrentTarget != null && !allTargets.Contains(Me.CurrentTarget)) allTargets.Add(Me.CurrentTarget);
-            WoWUnit bestTarget =
+            var bestTarget =
                 (from t in allTargets
                     orderby distance, t.HealthPercent
                     //percentage = (int * 100 / total)
@@ -149,8 +154,7 @@ namespace ScourgeBloom.Managers
             if (!IsValid(unitCenter))
                 return 0;
             return InitialUnits.Count(unit => unit.ThreatInfo.ThreatStatus != ThreatStatus.UnitNotInThreatTable &&
-                                                         unitCenter.Location.Distance(unit.Location) <= distance);
-
+                                              unitCenter.Location.Distance(unit.Location) <= distance);
         }
 
         public static double CountUnitsTargetingMe()

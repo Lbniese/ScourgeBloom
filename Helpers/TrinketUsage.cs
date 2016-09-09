@@ -8,7 +8,6 @@
 
 namespace ScourgeBloom.Helpers
 {
-
     public enum TrinketUsage
     {
         Never,

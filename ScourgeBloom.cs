@@ -32,12 +32,11 @@ namespace ScourgeBloom
 {
     public class ScourgeBloom : CombatRoutine
     {
-
         private static readonly WaitTimer WaitForLatencyCheck = new WaitTimer(TimeSpan.FromSeconds(5));
 
         protected static readonly LocalPlayer Me = StyxWoW.Me;
 
-        public static readonly Version Version = new Version(1, 5, 79);
+        public static readonly Version Version = new Version(1, 5, 80);
 
         private static bool _initialized;
 

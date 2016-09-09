@@ -76,35 +76,6 @@ namespace ScourgeBloom.Helpers
             return unit.CurrentTarget != null;
         }
 
-        #region [Method] - Active Enemies
-        public static IEnumerable<WoWUnit> ActiveEnemies(Vector3 fromLocation, double range)
-        {
-            var hostile = EnemyCount;
-            return hostile?.Where(x => x.Location.DistanceSquared(fromLocation) <= range * range);
-        }
-        private static List<WoWUnit> EnemyCount { get; set; }
-        public static void EnemyAnnex(double range)
-        {
-            EnemyCount.Clear();
-            foreach (var u in SurroundingEnemies())
-            {
-                if (u == null || !u.IsValid)//<~ Use isUnitValid(u, Range) instead of the frist five of these first calls?
-                    continue;
-                if (!u.IsAlive || u.DistanceSqr > range * range)
-                    continue;
-                if (!u.Attackable || !u.CanSelect)
-                    continue;
-                if (u.IsFriendly)
-                    continue;
-                if (u.IsNonCombatPet && u.IsCritter)
-                    continue;
-                EnemyCount.Add(u);
-            }
-        }
-        private static IEnumerable<WoWUnit> SurroundingEnemies() { return ObjectManager.GetObjectsOfTypeFast<WoWUnit>(); }
-        static Units() { EnemyCount = new List<WoWUnit>(); }
-        #endregion
-
         /// <summary>
         ///     Calls the UnitCanAttack LUA to check if current target is attackable. This is
         ///     necessary because the WoWUnit.Attackable property returns 'true' when targeting
@@ -521,6 +492,48 @@ namespace ScourgeBloom.Helpers
             return false;
         }
 
+        #region [Method] - Active Enemies
+
+        public static IEnumerable<WoWUnit> ActiveEnemies(Vector3 fromLocation, double range)
+        {
+            var hostile = EnemyCount;
+            return hostile?.Where(x => x.Location.DistanceSquared(fromLocation) <= range*range);
+        }
+
+        private static List<WoWUnit> EnemyCount { get; }
+
+        public static void EnemyAnnex(double range)
+        {
+            EnemyCount.Clear();
+            foreach (var u in SurroundingEnemies())
+            {
+                if (u == null || !u.IsValid)
+                    //<~ Use isUnitValid(u, Range) instead of the frist five of these first calls?
+                    continue;
+                if (!u.IsAlive || u.DistanceSqr > range*range)
+                    continue;
+                if (!u.Attackable || !u.CanSelect)
+                    continue;
+                if (u.IsFriendly)
+                    continue;
+                if (u.IsNonCombatPet && u.IsCritter)
+                    continue;
+                EnemyCount.Add(u);
+            }
+        }
+
+        private static IEnumerable<WoWUnit> SurroundingEnemies()
+        {
+            return ObjectManager.GetObjectsOfTypeFast<WoWUnit>();
+        }
+
+        static Units()
+        {
+            EnemyCount = new List<WoWUnit>();
+        }
+
+        #endregion
+
         #region Enemies
 
         #region EnemiesInRange
@@ -577,14 +590,15 @@ namespace ScourgeBloom.Helpers
 
         #region EnemyUnitsMelee
 
-        public static IEnumerable<WoWUnit> EnemyUnitsMelee => EnemyUnits(Me.MeleeRange.ToString(CultureInfo.InvariantCulture).ToInt32());
+        public static IEnumerable<WoWUnit> EnemyUnitsMelee
+            => EnemyUnits(Me.MeleeRange.ToString(CultureInfo.InvariantCulture).ToInt32());
 
         #endregion EnemyUnitsMelee
 
         #region UnfriendlyUnitsNearTarget
 
         /// <summary>
-        ///   Gets unfriendly units within *distance* yards of CurrentTarget.
+        ///     Gets unfriendly units within *distance* yards of CurrentTarget.
         /// </summary>
         /// <param name="distance"> The distance to check from CurrentTarget</param>
         /// <returns>IEnumerable of WoWUnit in range including CurrentTarget</returns>
@@ -594,7 +608,7 @@ namespace ScourgeBloom.Helpers
         }
 
         /// <summary>
-        /// Gets unfriendly units within *distance* yards of *unit*
+        ///     Gets unfriendly units within *distance* yards of *unit*
         /// </summary>
         /// <param name="unit">WoWUnit to find targets in range</param>
         /// <param name="distance">range within WoWUnit of other units</param>
@@ -604,11 +618,14 @@ namespace ScourgeBloom.Helpers
             if (unit == null)
                 return new List<WoWUnit>();
 
-            var distFromTargetSqr = distance * distance;
-            int distFromMe = 40 + (int)distance;
+            var distFromTargetSqr = distance*distance;
+            var distFromMe = 40 + (int) distance;
 
             var curTarLocation = unit.Location;
-            return UnfriendlyUnits(distFromMe).Where(p => p.Location.DistanceSquared(curTarLocation) <= distFromTargetSqr).ToList();
+            return
+                UnfriendlyUnits(distFromMe)
+                    .Where(p => p.Location.DistanceSquared(curTarLocation) <= distFromTargetSqr)
+                    .ToList();
         }
 
         #endregion UnfriendlyUnitsNearTarget

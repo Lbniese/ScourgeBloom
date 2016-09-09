@@ -2,7 +2,6 @@ using System;
 using ScourgeBloom.Helpers;
 using Styx;
 using Styx.Common;
-using Styx.CommonBot.CharacterManagement;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 
@@ -113,7 +112,7 @@ namespace ScourgeBloom.Managers
                 var tp = Me.GetLearnedTalent(tier);
                 if (tp == null)
                 {
-                    Log.WriteLog("Talent tier " + tier.ToString() + " is not taken!");
+                    Log.WriteLog("Talent tier " + tier + " is not taken!");
                     return false;
                 }
                 return tp.Index == index;

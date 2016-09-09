@@ -199,7 +199,8 @@ namespace ScourgeBloom.Helpers
             List<WoWUnit> currentChainTargets, float chainRangeSqr)
         {
             return otherUnits
-                .Where(u => !currentChainTargets.Contains(u) && from.Location.DistanceSquared(u.Location) <= chainRangeSqr)
+                .Where(
+                    u => !currentChainTargets.Contains(u) && from.Location.DistanceSquared(u.Location) <= chainRangeSqr)
                 .OrderBy(u => from.Location.DistanceSquared(u.Location))
                 .FirstOrDefault();
         }
